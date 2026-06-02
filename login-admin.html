@@ -9,6 +9,7 @@
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex items-center justify-center p-4">
 
+    <!-- LOGIN VIEW -->
     <div id="login-view" class="w-full max-w-sm bg-slate-950 border border-red-500/20 p-8 rounded-3xl shadow-2xl relative overflow-hidden hidden">
         <div class="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500"></div>
         <div class="space-y-6">
@@ -51,7 +52,7 @@
         </div>
     </div>
 
-
+    <!-- REGISTER VIEW -->
     <div id="register-view" class="w-full max-w-sm bg-slate-950 border border-orange-500/20 p-8 rounded-3xl shadow-2xl relative overflow-hidden hidden">
         <div class="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-orange-500 to-yellow-500"></div>
         <div class="space-y-6">
@@ -102,51 +103,11 @@
         </div>
     </div>
 
-
-    <div id="dashboard-view" class="w-full max-w-4xl bg-slate-950 border border-slate-800 p-6 md:p-8 rounded-3xl shadow-2xl space-y-6 relative overflow-hidden hidden">
-        <div class="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-green-500 to-emerald-500"></div>
-        
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-800 pb-6">
-            <div class="flex items-center gap-3">
-                <span class="text-2xl font-black text-green-500">se<span class="text-orange-500">gari</span></span>
-                <span class="bg-green-500/10 text-green-400 text-[10px] font-mono px-2 py-0.5 rounded border border-green-500/20 uppercase tracking-widest">Master Terminal Active</span>
-            </div>
-            <button onclick="handleLogout()" class="flex items-center gap-2 px-3 py-2 bg-slate-900 hover:bg-red-950/40 border border-slate-800 hover:border-red-500/30 text-slate-300 hover:text-red-400 text-xs font-bold rounded-xl transition self-end sm:self-auto">
-                <i data-lucide="log-out" class="w-4 h-4"></i>
-                <span>Disconnect</span>
-            </button>
-        </div>
-
-        <div class="bg-slate-900/30 border border-slate-800/80 rounded-2xl p-4 md:p-6 space-y-4">
-            <div>
-                <h3 class="text-sm font-bold tracking-wide text-emerald-400">Database Otoritas Admin Lokal</h3>
-                <p class="text-[11px] text-slate-500">Daftar akun terenkripsi di lokal sistem browser Anda.</p>
-            </div>
-
-            <div class="overflow-x-auto border border-slate-800 rounded-xl bg-slate-950">
-                <table class="w-full text-left border-collapse text-xs">
-                    <thead>
-                        <tr class="border-b border-slate-800 bg-slate-900/50 text-slate-400 font-mono text-[10px] uppercase tracking-wider">
-                            <th class="p-4">Clearance ID</th>
-                            <th class="p-4">Passkey Status</th>
-                            <th class="p-4">Role Privilese</th>
-                        </tr>
-                    </thead>
-                    <tbody id="user-table-body" class="font-mono divide-y divide-slate-900">
-                        </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-
     <script>
-        // Gunakan key V3 untuk menghindari tabrakan cache data lama Anda
         const DB_KEY = 'segari_users_v3';
         const SESSION_KEY = 'segari_session_v3';
 
         window.addEventListener('DOMContentLoaded', () => { 
-            // Inisialisasi Akun Bawaan jika Database Kosong
             if(!localStorage.getItem(DB_KEY)) {
                 const defaultAdmins = [
                     { username: 'admin', password: 'admin123', role: 'Admin' },
@@ -154,35 +115,27 @@
                 ];
                 localStorage.setItem(DB_KEY, JSON.stringify(defaultAdmins));
             }
-            
-            // Cek Sesi Saat Ini
             checkSession();
         });
 
-        // Pengatur Alur Tampilan (Router)
         function switchView(viewName) {
             document.getElementById('login-view').classList.add('hidden');
             document.getElementById('register-view').classList.add('hidden');
-            document.getElementById('dashboard-view').classList.add('hidden');
-
             if(viewName === 'login') document.getElementById('login-view').classList.remove('hidden');
             if(viewName === 'register') document.getElementById('register-view').classList.remove('hidden');
-            if(viewName === 'dashboard') document.getElementById('dashboard-view').classList.remove('hidden');
-
             lucide.createIcons();
         }
 
         function checkSession() {
             const session = JSON.parse(localStorage.getItem(SESSION_KEY));
             if (session && session.role === 'Admin') {
-                switchView('dashboard');
-                renderUserTable();
+                // REDIRECT OTOMATIS JIKA SUDAH LOGIN
+                window.location.href = 'admin.html';
             } else {
                 switchView('login');
             }
         }
 
-        // FUNGSI UTAMA: Pendaftaran Admin Baru
         function handleAdminRegister(e) {
             e.preventDefault();
             const uid = document.getElementById('reg-uid').value.trim();
@@ -190,40 +143,31 @@
             const confirmPass = document.getElementById('reg-confirm').value;
 
             if (pass.length < 6) {
-                alert("Gagal Enkripsi! Passkey token minimal harus terdiri dari 6 karakter.");
+                alert("Gagal Enkripsi! Passkey token minimal harus 6 karakter.");
                 return;
             }
-
             if (pass !== confirmPass) {
                 alert("Gagal Verifikasi! Konfirmasi passkey tidak cocok.");
                 return;
             }
 
             const users = JSON.parse(localStorage.getItem(DB_KEY)) || [];
-            
-            // Cek apakah username sudah dipakai
             const isExist = users.some(u => u.username.toLowerCase() === uid.toLowerCase());
             if (isExist) {
-                alert("Pelanggaran Kredensial! ID tersebut sudah terdaftar di sistem pusat.");
+                alert("Pelanggaran Kredensial! ID tersebut sudah terdaftar.");
                 return;
             }
 
-            // Memasukkan akun baru ke database lokal dengan Role 'Admin'
             users.push({ username: uid, password: pass, role: 'Admin' });
             localStorage.setItem(DB_KEY, JSON.stringify(users));
-
-            alert("Sukses! Kredensial Admin baru berhasil dienkripsi dan didaftarkan.");
+            alert("Sukses didaftarkan!");
             
-            // Bersihkan form registrasi
             document.getElementById('reg-uid').value = '';
             document.getElementById('reg-pass').value = '';
             document.getElementById('reg-confirm').value = '';
-
-            // Tendang balik ke form login agar user bisa mencoba masuk
             switchView('login');
         }
 
-        // Fungsi Otentikasi Login
         function handleAdminLogin(e) {
             e.preventDefault();
             const uid = document.getElementById('adm-uid').value.trim();
@@ -233,38 +177,14 @@
             const targetAdmin = users.find(u => u.username.toLowerCase() === uid.toLowerCase() && u.password === pass);
 
             if (!targetAdmin) {
-                alert("Akses Ditolak! ID atau passkey tidak dikenali.");
+                alert("Akses Ditolak! ID atau passkey salah.");
                 return;
             }
 
-            // Set Log Sesi Masuk
             localStorage.setItem(SESSION_KEY, JSON.stringify({ username: targetAdmin.username, role: targetAdmin.role }));
             
-            document.getElementById('adm-uid').value = '';
-            document.getElementById('adm-pass').value = '';
-            checkSession();
-        }
-
-        function handleLogout() {
-            localStorage.removeItem(SESSION_KEY);
-            checkSession();
-        }
-
-        function renderUserTable() {
-            const users = JSON.parse(localStorage.getItem(DB_KEY)) || [];
-            const tbody = document.getElementById('user-table-body');
-
-            tbody.innerHTML = users.map(user => `
-                <tr class="hover:bg-slate-900/50 transition">
-                    <td class="p-4 font-bold text-slate-200">${user.username}</td>
-                    <td class="p-4 text-slate-500">•••••••• (SHA-Secure)</td>
-                    <td class="p-4">
-                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-red-500/10 text-red-400 border border-red-500/20 uppercase">
-                            ${user.role}
-                        </span>
-                    </td>
-                </tr>
-            `).join('');
+            // REDIRECT KE HALAMAN BACKOFFICE ADMIN
+            window.location.href = 'admin.html';
         }
     </script>
 </body>
