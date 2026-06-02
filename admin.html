@@ -75,7 +75,8 @@
                     <i data-lucide="bar-chart-3" class="text-green-500"></i> Platform Operational Overview
                 </h2>
                 <span class="bg-indigo-500/10 text-indigo-400 font-mono text-[10px] md:text-[11px] font-bold px-2.5 py-1 rounded-xl border border-indigo-500/20 flex items-center gap-1.5 shrink-0">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> Superadmin Mode
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> 
+                    <span id="active-admin-display">Superadmin Mode</span>
                 </span>
             </header>
 
@@ -112,8 +113,7 @@
                                     <th class="p-4">Alamat Distribusi</th>
                                 </tr>
                             </thead>
-                            <tbody id="global-orders-rows" class="divide-y divide-slate-800">
-                                </tbody>
+                            <tbody id="global-orders-rows" class="divide-y divide-slate-800"></tbody>
                         </table>
                     </div>
                 </div>
@@ -131,8 +131,7 @@
                                     <th class="p-4 text-center">Ganti Status Hak Otoritas Peran</th>
                                 </tr>
                             </thead>
-                            <tbody id="global-users-rows" class="divide-y divide-slate-800">
-                                </tbody>
+                            <tbody id="global-users-rows" class="divide-y divide-slate-800"></tbody>
                         </table>
                     </div>
                 </div>
@@ -152,8 +151,7 @@
                                     <th class="p-4 text-center">Tindakan Destruktif</th>
                                 </tr>
                             </thead>
-                            <tbody id="global-products-rows" class="divide-y divide-slate-800">
-                                </tbody>
+                            <tbody id="global-products-rows" class="divide-y divide-slate-800"></tbody>
                         </table>
                     </div>
                 </div>
@@ -164,8 +162,15 @@
     <script>
         let isSidebarOpen = false;
 
+        // DEFINISI KEY GLOBAL AGAR SINKRON DENGAN HALAMAN LOGIN
+        const SESSION_KEY = 'segari_session_v3';
+        const USER_KEY = 'segari_users_v3';
+        const PRODUCT_KEY = 'segari_products';
+        const ORDER_KEY = 'segari_orders';
+
         window.addEventListener('DOMContentLoaded', () => {
             loadAdminSession();
+            seedInitialDataIfNeeded(); // Otomatis mengisi mock data jika kosong
             calculateOverviewMetrics();
             renderUserManagement();
             renderProductAudit();
@@ -178,31 +183,50 @@
             });
         });
 
-        // 1. Auth Guard - Proteksi Keamanan Akses Backoffice
+        // 1. Auth Guard dengan Key v3
         function loadAdminSession() {
-            const session = JSON.parse(localStorage.getItem('segari_session'));
+            const session = JSON.parse(localStorage.getItem(SESSION_KEY));
             
-            // Periksa token login dan pastikan wajib bertipe role 'Admin'
             if (!session || session.role !== 'Admin') {
-                alert("Akses Ilegal! Area Terbatas Khusus Master Administrator.");
-                window.location.href = 'index.html';
+                alert("Akses Ilegal! Silakan login melalui Gerbang HQ Terlebih dahulu.");
+                window.location.href = 'index.html'; // Melempar balik ke form login
                 return;
             }
+
+            // Menampilkan nama admin aktif secara dinamis di header panel
+            document.getElementById('active-admin-display').innerText = `Admin: ${session.username}`;
         }
 
-        // 2. Fungsi Log Out Sistem Master Administrator
-        function handleAdminLogout() {
-            if (confirm("Apakah Anda yakin ingin menutup sesi keamanan dan keluar dari Master Admin Backoffice?")) {
-                localStorage.removeItem('segari_session'); // Hapus token session login
-                window.location.href = 'index.html';       // Kembali ke halaman depan konsumen
+        // Seeder Data Awal agar dashboard tidak kosong saat pertama dibuka
+        function seedInitialDataIfNeeded() {
+            if (!localStorage.getItem(PRODUCT_KEY)) {
+                const dummyProducts = [
+                    { id: 1, name: "Sawi Hijau Organik 500g", category: "SAYUR", price: 9500, stock: 3, img: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=80" },
+                    { id: 2, name: "Tomat Cherry Hidroponik", category: "SAYUR", price: 19000, stock: 12, img: "https://images.unsplash.com/photo-1595855759920-86582396756a?w=80" },
+                    { id: 3, name: "Apel Malang Premium 1kg", category: "BUAH", price: 34000, stock: 2, img: "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=80" }
+                ];
+                localStorage.setItem(PRODUCT_KEY, JSON.stringify(dummyProducts));
+            }
+            if (!localStorage.getItem(ORDER_KEY)) {
+                const dummyOrders = [
+                    { invoice: "INV-20260602-01", username: "budi_konsumen", total: 28500, status: "DIPROSES", address: "Jl. Sudirman No. 45, Jakarta" }
+                ];
+                localStorage.setItem(ORDER_KEY, JSON.stringify(dummyOrders));
             }
         }
 
-        // 3. Engine Toggle Menu Navigasi / Hamburger (Mobile Mode)
+        // 2. Log Out System
+        function handleAdminLogout() {
+            if (confirm("Apakah Anda yakin ingin menutup sesi keamanan dan keluar dari Backoffice?")) {
+                localStorage.removeItem(SESSION_KEY); // Hapus token session v3
+                window.location.href = 'index.html';    // Redirect ke login/halaman depan
+            }
+        }
+
+        // 3. Hamburger Engine (Mobile)
         function toggleAdminSidebar() {
             const sidebar = document.getElementById('admin-sidebar-menu');
             const overlay = document.getElementById('admin-sidebar-overlay');
-            
             isSidebarOpen = !isSidebarOpen;
             
             if (isSidebarOpen) {
@@ -214,14 +238,13 @@
             }
         }
 
-        // 4. Pengendali Pemindah Tab Utama & Style Aktif Navigasi
+        // 4. Tab Router Control Panel
         function switchAdminTab(target) {
             document.getElementById('tab-overview').classList.add('hidden');
             document.getElementById('tab-users').classList.add('hidden');
             document.getElementById('tab-products').classList.add('hidden');
             document.getElementById(`tab-${target}`).classList.remove('hidden');
 
-            // Pengolah visual active state menu
             const tabs = ['overview', 'users', 'products'];
             tabs.forEach(t => {
                 const btn = document.getElementById(`nav-${t}`);
@@ -240,17 +263,15 @@
             if(target === 'users') title.innerHTML = `<i data-lucide="users" class="text-green-500"></i> Otoritas Manajemen User`;
             if(target === 'products') title.innerHTML = `<i data-lucide="shield-alert" class="text-green-500"></i> Audit Data & SKU Produk Utama`;
             
-            // Sembunyikan kembali drawer menu jika user mengeklik tab via mobile screen
             if (isSidebarOpen) toggleAdminSidebar();
-
             lucide.createIcons();
         }
 
-        // Kalkulator & Render Ringkasan Finansial Platform
+        // 5. Render Overview Metrics
         function calculateOverviewMetrics() {
-            const orders = JSON.parse(localStorage.getItem('segari_orders')) || [];
-            const products = JSON.parse(localStorage.getItem('segari_products')) || [];
-            const users = JSON.parse(localStorage.getItem('segari_users')) || [];
+            const orders = JSON.parse(localStorage.getItem(ORDER_KEY)) || [];
+            const products = JSON.parse(localStorage.getItem(PRODUCT_KEY)) || [];
+            const users = JSON.parse(localStorage.getItem(USER_KEY)) || [];
 
             const totalRevenue = orders.reduce((sum, o) => sum + o.total, 0);
             document.getElementById('stat-revenue').innerText = `Rp${totalRevenue.toLocaleString('id-ID')}`;
@@ -281,18 +302,23 @@
             });
         }
 
-        // Render & Mutasi Hak Akses Akun User
+        // 6. Render & Mutasi Hak Akses User
         function renderUserManagement() {
             const tbody = document.getElementById('global-users-rows');
-            const users = JSON.parse(localStorage.getItem('segari_users')) || [];
+            const users = JSON.parse(localStorage.getItem(USER_KEY)) || [];
             tbody.innerHTML = '';
+
+            if (users.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-slate-500 italic">Tidak ada database user terdaftar.</td></tr>`;
+                return;
+            }
 
             users.forEach((u, idx) => {
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-900/50 transition";
                 tr.innerHTML = `
                     <td class="p-4 font-bold text-slate-200">${u.username}</td>
-                    <td class="p-4"><span class="px-2 py-0.5 rounded font-bold text-[10px] ${u.role==='Admin'?'bg-red-500/10 text-red-400 border border-red-500/20':u.role==='Toko'?'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20':'bg-blue-500/10 text-blue-400 border border-blue-500/20'}">${u.role}</span></td>
+                    <td class="p-4"><span class="px-2 py-0.5 rounded font-bold text-[10px] ${u.role==='Admin'?'bg-red-500/10 text-red-400 border border-red-500/20':u.role==='Toko'?'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20':'bg-blue-500/10 text-blue-400 border border-blue-500/20'}">${u.role || 'Konsumen'}</span></td>
                     <td class="p-4 text-center">
                         <select onchange="changeUserRole(${idx}, this.value)" class="p-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-slate-300 font-bold focus:outline-none focus:ring-1 focus:ring-green-500">
                             <option value="Konsumen" ${u.role==='Konsumen'?'selected':''}>Konsumen</option>
@@ -306,30 +332,36 @@
         }
 
         function changeUserRole(index, newRole) {
-            let users = JSON.parse(localStorage.getItem('segari_users'));
+            let users = JSON.parse(localStorage.getItem(USER_KEY)) || [];
             users[index].role = newRole;
-            localStorage.setItem('segari_users', JSON.stringify(users));
+            localStorage.setItem(USER_KEY, JSON.stringify(users));
             renderUserManagement();
+            calculateOverviewMetrics();
             alert(`Otoritas hak akses akun "${users[index].username}" berhasil diubah menjadi ${newRole}!`);
         }
 
-        // Render & Penghapusan SKU Produk Utama
+        // 7. Render Audit SKU Produk Utama
         function renderProductAudit() {
             const tbody = document.getElementById('global-products-rows');
-            const products = JSON.parse(localStorage.getItem('segari_products')) || [];
+            const products = JSON.parse(localStorage.getItem(PRODUCT_KEY)) || [];
             tbody.innerHTML = '';
 
-            products.forEach((p, idx) => {
+            if (products.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500 italic">Tidak ada produk aktif di katalog.</td></tr>`;
+                return;
+            }
+
+            products.forEach((p) => {
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-900/50 transition";
                 tr.innerHTML = `
                     <td class="p-4 flex items-center gap-2 font-bold text-slate-200">
-                        <img src="${p.img}" class="w-8 h-8 object-cover rounded bg-slate-800">
+                        <img src="${p.img}" class="w-8 h-8 object-cover rounded bg-slate-800" onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?w=80'">
                         <span>${p.name}</span>
                     </td>
                     <td class="p-4 uppercase font-mono text-[10px] tracking-wider text-slate-400">${p.category}</td>
                     <td class="p-4 font-bold text-green-400">Rp${p.price.toLocaleString('id-ID')}</td>
-                    <td class="p-4 font-bold ${p.stock<=5?'text-red-400':''}">${p.stock} pcs</td>
+                    <td class="p-4 font-bold ${p.stock<=5?'text-red-400 animate-pulse':''}">${p.stock} pcs</td>
                     <td class="p-4 text-center">
                         <button onclick="deleteProductMaster(${p.id})" class="bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/20 px-2.5 py-1 rounded-xl font-bold text-[11px] transition flex items-center gap-1 mx-auto">
                             <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Hapus SKU
@@ -343,13 +375,13 @@
 
         function deleteProductMaster(prodId) {
             if(confirm("Apakah Anda yakin ingin menghapus produk ini secara permanen dari ekosistem Segari?")) {
-                let products = JSON.parse(localStorage.getItem('segari_products')) || [];
+                let products = JSON.parse(localStorage.getItem(PRODUCT_KEY)) || [];
                 products = products.filter(p => p.id !== prodId);
-                localStorage.setItem('segari_products', JSON.stringify(products));
+                localStorage.setItem(PRODUCT_KEY, JSON.stringify(products));
                 renderProductAudit();
                 calculateOverviewMetrics();
             }
         }
     </script>
 </body>
-</html>
+    </html>
