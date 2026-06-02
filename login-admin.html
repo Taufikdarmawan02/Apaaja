@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Segari HQ - Admin Terminal Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-sm bg-slate-950 border border-red-500/20 p-8 rounded-3xl shadow-2xl relative overflow-hidden">
+        
+        <!-- Hiasan Garis Warning Superadmin -->
+        <div class="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500"></div>
+
+        <div class="space-y-6">
+            <!-- Branding HQ -->
+            <div class="text-center space-y-1">
+                <div class="flex items-center justify-center gap-2">
+                    <span class="text-2xl font-black text-green-500">se<span class="text-orange-500">gari</span></span>
+                    <span class="bg-red-500/20 text-red-400 text-[10px] font-bold px-1.5 py-0.5 rounded border border-red-500/30">HQ</span>
+                </div>
+                <h2 class="text-md font-bold text-slate-300 tracking-wider uppercase pt-3">Core Terminal Gateway</h2>
+                <p class="text-[11px] text-slate-500">Restricted area for authorized platform master only</p>
+            </div>
+
+            <!-- Form Direct Login Admin -->
+            <form onsubmit="handleAdminLogin(event)" class="space-y-4 text-xs font-bold">
+                <div class="space-y-1.5">
+                    <label class="text-slate-400 uppercase tracking-wide text-[10px]">Security Clearance ID</label>
+                    <div class="relative flex items-center">
+                        <i data-lucide="shield-check" class="w-4 h-4 text-red-400 absolute left-3"></i>
+                        <input type="text" id="adm-uid" required placeholder="Username root admin" class="w-full pl-10 pr-4 py-3 bg-slate-900 border border-slate-800 rounded-xl focus:outline-none focus:ring-1 focus:ring-red-500 text-white font-mono">
+                    </div>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-slate-400 uppercase tracking-wide text-[10px]">Passkey Token</label>
+                    <div class="relative flex items-center">
+                        <i data-lucide="key-round" class="w-4 h-4 text-red-400 absolute left-3"></i>
+                        <input type="password" id="adm-pass" required placeholder="••••••••" class="w-full pl-10 pr-4 py-3 bg-slate-900 border border-slate-800 rounded-xl focus:outline-none focus:ring-1 focus:ring-red-500 text-white">
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white font-black py-3 rounded-xl transition shadow-lg shadow-red-950/50 text-xs uppercase tracking-wider mt-4">
+                    Otentikasi Akses Root &rarr;
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', () => { 
+            lucide.createIcons(); 
+            // Amankan inisialisasi user bawaan
+            if(!localStorage.getItem('segari_users')) {
+                localStorage.setItem('segari_users', JSON.stringify([{username: 'admin', password: 'admin123', role: 'Admin'}]));
+            }
+        });
+
+        function handleAdminLogin(e) {
+            e.preventDefault();
+            const uid = document.getElementById('adm-uid').value.trim();
+            const pass = document.getElementById('adm-pass').value;
+            
+            const users = JSON.parse(localStorage.getItem('segari_users')) || [];
+            const targetAdmin = users.find(u => u.username.toLowerCase() === uid.toLowerCase() && u.password === pass);
+
+            if (!targetAdmin) {
+                alert("Kode akses admin salah atau tidak dikenali oleh sistem terminal HQ!");
+                return;
+            }
+
+            if (targetAdmin.role !== 'Admin') {
+                alert("Pelanggaran Keamanan! Akun Anda tidak memiliki lisensi Master Admin.");
+                return;
+            }
+
+            // Set session log dan buang langsung ke admin.html
+            localStorage.setItem('segari_session', JSON.stringify({ username: targetAdmin.username, role: targetAdmin.role }));
+            window.location.href = 'admin.html';
+        }
+    </script>
+</body>
+</html>
