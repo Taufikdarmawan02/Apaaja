@@ -10,35 +10,47 @@
 <body class="bg-gray-100 font-sans antialiased">
 
     <div class="min-h-screen flex flex-col md:flex-row">
-        <!-- Sidebar Merchant -->
-        <aside class="w-full md:w-64 bg-emerald-900 text-white p-6 space-y-6">
-            <div class="flex items-center gap-2">
-                <span class="text-2xl font-black tracking-tight text-white">se<span class="text-orange-400">gari</span></span>
-                <span class="bg-emerald-700 text-white text-[10px] font-bold px-2 py-0.5 rounded">Hub Mitra</span>
+        <aside class="w-full md:w-64 bg-emerald-900 text-white p-6 flex flex-col justify-between shadow-xl">
+            <div class="space-y-6">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl font-black tracking-tight text-white">se<span class="text-orange-400">gari</span></span>
+                    <span class="bg-emerald-700 text-white text-[10px] font-bold px-2 py-0.5 rounded">Hub Mitra</span>
+                </div>
+                <div class="border-t border-emerald-800 pt-4">
+                    <p class="text-xs text-emerald-300 font-bold uppercase tracking-wider mb-2">Menu Dashboard</p>
+                    <nav class="space-y-1 text-sm">
+                        <button onclick="switchSection('inventory')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-emerald-800 text-white font-bold"><i data-lucide="boxes" class="w-4 h-4"></i> Stok Gudang</button>
+                        <button onclick="switchSection('orders')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-emerald-100 hover:bg-emerald-800/50 transition"><i data-lucide="clipboard-list" class="w-4 h-4"></i> Pesanan Masuk</button>
+                        
+                        <div class="border-t border-emerald-800/60 my-4 pt-4"></div>
+                        
+                        <a href="index.html" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-orange-300 hover:bg-emerald-800/50 transition"><i data-lucide="arrow-left" class="w-4 h-4"></i> Lihat Sisi Konsumen</a>
+                    </nav>
+                </div>
             </div>
-            <div class="border-t border-emerald-800 pt-4">
-                <p class="text-xs text-emerald-300 font-bold uppercase tracking-wider mb-2">Menu Dashboard</p>
-                <nav class="space-y-1 text-sm">
-                    <button onclick="switchSection('inventory')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-emerald-800 text-white font-bold"><i data-lucide="boxes" class="w-4 h-4"></i> Stok Gudang</button>
-                    <button onclick="switchSection('orders')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-emerald-100 hover:bg-emerald-800/50 transition"><i data-lucide="clipboard-list" class="w-4 h-4"></i> Pesanan Masuk</button>
-                    <a href="index.html" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-orange-300 hover:bg-emerald-800/50 transition mt-6"><i data-lucide="arrow-left" class="w-4 h-4"></i> Lihat Sisi Konsumen</a>
-                </nav>
+
+            <div class="pt-6 border-t border-emerald-800 mt-6 md:mt-0">
+                <button onclick="handleMerchantLogout()" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-rose-300 hover:bg-rose-950/50 hover:text-rose-200 font-bold text-sm transition">
+                    <i data-lucide="log-out" class="w-4 h-4"></i> Keluar Dashboard
+                </button>
             </div>
         </aside>
 
-        <!-- Main Dashboard View Area -->
         <main class="flex-grow p-4 md:p-8 space-y-6">
-            <!-- Topbar Session Profile -->
             <header class="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
                 <h1 class="text-lg font-bold text-gray-800 flex items-center gap-2" id="section-title"><i data-lucide="boxes" class="text-emerald-600"></i> Inventori Produk Toko</h1>
-                <div class="flex items-center gap-2 bg-emerald-50 text-emerald-800 px-3 py-1.5 rounded-xl text-xs font-bold">
-                    <i data-lucide="store" class="w-4 h-4"></i> <span id="merchant-user-display">Mitra Toko</span>
+                
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-2 bg-emerald-50 text-emerald-800 px-3 py-1.5 rounded-xl text-xs font-bold">
+                        <i data-lucide="store" class="w-4 h-4"></i> <span id="merchant-user-display">Mitra Toko</span>
+                    </div>
+                    <button onclick="handleMerchantLogout()" class="p-2 bg-gray-50 hover:bg-rose-50 text-gray-500 hover:text-rose-600 border border-gray-100 rounded-xl transition" title="Keluar dari Panel">
+                        <i data-lucide="power" class="w-4 h-4"></i>
+                    </button>
                 </div>
             </header>
 
-            <!-- SECTION 1: MANAJEMEN INVENTORI STOK -->
             <section id="section-inventory" class="space-y-6">
-                <!-- Tambah Form Produk Baru -->
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
                     <h3 class="text-sm font-bold text-gray-800 flex items-center gap-2"><i data-lucide="plus-circle" class="text-emerald-600"></i> Tambah / Suplai Produk Baru ke Hub</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
@@ -58,7 +70,6 @@
                     </div>
                 </div>
 
-                <!-- Tabel Riwayat Data Inventori Master -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                     <div class="p-4 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
                         <h3 class="text-xs font-bold text-gray-700 uppercase tracking-wider">Live Inventory Stock Audit</h3>
@@ -76,14 +87,12 @@
                                 </tr>
                             </thead>
                             <tbody id="inventory-table-body" class="divide-y divide-gray-100">
-                                <!-- Dimuat dinamis -->
-                            </tbody>
+                                </tbody>
                         </table>
                     </div>
                 </div>
             </section>
 
-            <!-- SECTION 2: DAFTAR ANTRIAN ORDER MASUK -->
             <section id="section-orders" class="hidden space-y-4">
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                     <div class="p-4 bg-gray-50/50 border-b border-gray-100">
@@ -102,8 +111,7 @@
                                 </tr>
                             </thead>
                             <tbody id="orders-table-body" class="divide-y divide-gray-100">
-                                <!-- Dimuat dinamis -->
-                            </tbody>
+                                </tbody>
                         </table>
                     </div>
                 </div>
@@ -125,10 +133,25 @@
             });
         });
 
+        // 1. Validasi Sesi Login & Proteksi Halaman (Auth Guard)
         function loadMerchantSession() {
             const session = JSON.parse(localStorage.getItem('segari_session'));
-            if(session) {
-                document.getElementById('merchant-user-display').innerText = `${session.username} (${session.role})`;
+            
+            // Cek jika session kosong atau akun yang login bukan merupakan 'Toko'
+            if (!session || session.role !== 'Toko') {
+                alert("Akses ditolak! Halaman ini khusus untuk Mitra Toko.");
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            document.getElementById('merchant-user-display').innerText = `${session.username} (${session.role})`;
+        }
+
+        // 2. Logika Aksi Keluar Akun (Logout)
+        function handleMerchantLogout() {
+            if (confirm("Apakah Anda yakin ingin keluar dari panel manajemen Mitra Toko?")) {
+                localStorage.removeItem('segari_session'); // Bersihkan token sesi login
+                window.location.href = 'index.html';       // Tendang balik ke halaman konsumen utama
             }
         }
 
@@ -254,4 +277,4 @@
         }
     </script>
 </body>
-                            </html>
+    </html>
