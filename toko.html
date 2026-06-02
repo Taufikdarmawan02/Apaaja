@@ -9,44 +9,69 @@
 </head>
 <body class="bg-gray-100 font-sans antialiased">
 
-    <div class="min-h-screen flex flex-col md:flex-row">
-        <aside class="w-full md:w-64 bg-emerald-900 text-white p-6 flex flex-col justify-between shadow-xl">
+    <div class="md:hidden bg-emerald-900 text-white p-4 flex justify-between items-center sticky top-0 z-50 shadow-md">
+        <div class="flex items-center gap-2">
+            <span class="text-xl font-black tracking-tight text-white">se<span class="text-orange-400">gari</span></span>
+            <span class="bg-emerald-700 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">Hub Mitra</span>
+        </div>
+        <button onclick="toggleSidebar()" class="p-1 hover:bg-emerald-800 rounded-lg transition" id="hamburger-btn">
+            <i data-lucide="menu" class="w-6 h-6"></i>
+        </button>
+    </div>
+
+    <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden transition-opacity"></div>
+
+    <div class="min-h-screen flex flex-col md:flex-row relative">
+        
+        <aside id="sidebar-menu" class="fixed md:static inset-y-0 left-0 z-50 w-64 bg-emerald-900 text-white p-6 flex flex-col justify-between transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out shadow-2xl md:shadow-none">
+            
             <div class="space-y-6">
-                <div class="flex items-center gap-2">
-                    <span class="text-2xl font-black tracking-tight text-white">se<span class="text-orange-400">gari</span></span>
-                    <span class="bg-emerald-700 text-white text-[10px] font-bold px-2 py-0.5 rounded">Hub Mitra</span>
+                <div class="hidden md:flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <span class="text-2xl font-black tracking-tight text-white">se<span class="text-orange-400">gari</span></span>
+                        <span class="bg-emerald-700 text-white text-[10px] font-bold px-2 py-0.5 rounded">Hub Mitra</span>
+                    </div>
                 </div>
-                <div class="border-t border-emerald-800 pt-4">
-                    <p class="text-xs text-emerald-300 font-bold uppercase tracking-wider mb-2">Menu Dashboard</p>
+
+                <div class="flex md:hidden justify-between items-center border-b border-emerald-800 pb-4">
+                    <span class="text-xs font-bold text-emerald-300 uppercase tracking-wider">Navigasi Panel</span>
+                    <button onclick="toggleSidebar()" class="p-1 hover:bg-emerald-800 rounded-lg text-emerald-300">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <div class="pt-2 md:border-t md:border-emerald-800">
+                    <p class="text-xs text-emerald-300 font-bold uppercase tracking-wider mb-2 hidden md:block">Menu Dashboard</p>
                     <nav class="space-y-1 text-sm">
-                        <button onclick="switchSection('inventory')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-emerald-800 text-white font-bold"><i data-lucide="boxes" class="w-4 h-4"></i> Stok Gudang</button>
-                        <button onclick="switchSection('orders')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-emerald-100 hover:bg-emerald-800/50 transition"><i data-lucide="clipboard-list" class="w-4 h-4"></i> Pesanan Masuk</button>
-                        
-                        <div class="border-t border-emerald-800/60 my-4 pt-4"></div>
-                        
-                        <a href="index.html" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-orange-300 hover:bg-emerald-800/50 transition"><i data-lucide="arrow-left" class="w-4 h-4"></i> Lihat Sisi Konsumen</a>
+                        <button id="nav-inventory" onclick="switchSection('inventory')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-emerald-800 text-white font-bold transition">
+                            <i data-lucide="boxes" class="w-4 h-4"></i> Stok Gudang
+                        </button>
+                        <button id="nav-orders" onclick="switchSection('orders')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-emerald-100 hover:bg-emerald-800/50 transition">
+                            <i data-lucide="clipboard-list" class="w-4 h-4"></i> Pesanan Masuk
+                        </button>
+                        <a href="index.html" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-orange-300 hover:bg-emerald-800/50 transition mt-6">
+                            <i data-lucide="arrow-left" class="w-4 h-4"></i> Lihat Sisi Konsumen
+                        </a>
                     </nav>
                 </div>
             </div>
 
-            <div class="pt-6 border-t border-emerald-800 mt-6 md:mt-0">
+            <div class="pt-6 border-t border-emerald-800">
                 <button onclick="handleMerchantLogout()" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-rose-300 hover:bg-rose-950/50 hover:text-rose-200 font-bold text-sm transition">
                     <i data-lucide="log-out" class="w-4 h-4"></i> Keluar Dashboard
                 </button>
             </div>
         </aside>
 
-        <main class="flex-grow p-4 md:p-8 space-y-6">
+        <main class="flex-grow p-4 md:p-8 space-y-6 w-full overflow-x-hidden">
             <header class="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
-                <h1 class="text-lg font-bold text-gray-800 flex items-center gap-2" id="section-title"><i data-lucide="boxes" class="text-emerald-600"></i> Inventori Produk Toko</h1>
-                
-                <div class="flex items-center gap-3">
+                <h1 class="text-base md:text-lg font-bold text-gray-800 flex items-center gap-2" id="section-title">
+                    <i data-lucide="boxes" class="text-emerald-600"></i> Inventori Produk Toko
+                </h1>
+                <div class="flex items-center gap-2">
                     <div class="flex items-center gap-2 bg-emerald-50 text-emerald-800 px-3 py-1.5 rounded-xl text-xs font-bold">
                         <i data-lucide="store" class="w-4 h-4"></i> <span id="merchant-user-display">Mitra Toko</span>
                     </div>
-                    <button onclick="handleMerchantLogout()" class="p-2 bg-gray-50 hover:bg-rose-50 text-gray-500 hover:text-rose-600 border border-gray-100 rounded-xl transition" title="Keluar dari Panel">
-                        <i data-lucide="power" class="w-4 h-4"></i>
-                    </button>
                 </div>
             </header>
 
@@ -75,7 +100,7 @@
                         <h3 class="text-xs font-bold text-gray-700 uppercase tracking-wider">Live Inventory Stock Audit</h3>
                     </div>
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs text-gray-600">
+                        <table class="w-full text-left text-xs text-gray-600 min-w-[600px]">
                             <thead class="bg-gray-100 text-gray-700 font-bold">
                                 <tr>
                                     <th class="p-4">Produk</th>
@@ -99,7 +124,7 @@
                         <h3 class="text-xs font-bold text-gray-700 uppercase tracking-wider">Log Order Logistik Pembeli</h3>
                     </div>
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs text-gray-600">
+                        <table class="w-full text-left text-xs text-gray-600 min-w-[800px]">
                             <thead class="bg-gray-100 text-gray-700 font-bold">
                                 <tr>
                                     <th class="p-4">Invoice / Tanggal</th>
@@ -120,6 +145,8 @@
     </div>
 
     <script>
+        let isSidebarOpen = false;
+
         // Inisialisasi Data Gudang Toko
         window.addEventListener('DOMContentLoaded', () => {
             loadMerchantSession();
@@ -133,36 +160,66 @@
             });
         });
 
-        // 1. Validasi Sesi Login & Proteksi Halaman (Auth Guard)
+        // 1. Auth Guard - Proteksi Halaman Gudang Merchant
         function loadMerchantSession() {
             const session = JSON.parse(localStorage.getItem('segari_session'));
-            
-            // Cek jika session kosong atau akun yang login bukan merupakan 'Toko'
             if (!session || session.role !== 'Toko') {
-                alert("Akses ditolak! Halaman ini khusus untuk Mitra Toko.");
+                alert("Akses ditolak! Anda harus masuk menggunakan Akun Toko.");
                 window.location.href = 'index.html';
                 return;
             }
-            
             document.getElementById('merchant-user-display').innerText = `${session.username} (${session.role})`;
         }
 
-        // 2. Logika Aksi Keluar Akun (Logout)
+        // 2. Fungsi Log out Sistem Terintegrasi
         function handleMerchantLogout() {
-            if (confirm("Apakah Anda yakin ingin keluar dari panel manajemen Mitra Toko?")) {
-                localStorage.removeItem('segari_session'); // Bersihkan token sesi login
-                window.location.href = 'index.html';       // Tendang balik ke halaman konsumen utama
+            if (confirm("Apakah Anda yakin ingin keluar dari manajemen Mitra Toko?")) {
+                localStorage.removeItem('segari_session'); // Hapus token session
+                window.location.href = 'index.html';       // Redirect ke gerbang utama
             }
         }
 
+        // 3. Engine Hambuger Menu Responsif (Mobile)
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar-menu');
+            const overlay = document.getElementById('sidebar-overlay');
+            
+            isSidebarOpen = !isSidebarOpen;
+            
+            if (isSidebarOpen) {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            }
+        }
+
+        // 4. Switcher Tab Section Menu Utama
         function switchSection(secId) {
             document.getElementById('section-inventory').classList.add('hidden');
             document.getElementById('section-orders').classList.add('hidden');
             document.getElementById(`section-${secId}`).classList.remove('hidden');
             
+            // Atur gaya aktif pada tombol navigasi
+            const btnInv = document.getElementById('nav-inventory');
+            const btnOrd = document.getElementById('nav-orders');
+            
+            if (secId === 'inventory') {
+                btnInv.className = "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-emerald-800 text-white font-bold transition";
+                btnOrd.className = "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-emerald-100 hover:bg-emerald-800/50 transition";
+            } else {
+                btnOrd.className = "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-emerald-800 text-white font-bold transition";
+                btnInv.className = "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-emerald-100 hover:bg-emerald-800/50 transition";
+            }
+
             const title = document.getElementById('section-title');
             if(secId === 'inventory') title.innerHTML = `<i data-lucide="boxes" class="text-emerald-600"></i> Inventori Produk Toko`;
             if(secId === 'orders') title.innerHTML = `<i data-lucide="clipboard-list" class="text-emerald-600"></i> Manajemen Pesanan Masuk`;
+            
+            // Jika dalam mode mobile, otomatis tutup sidebar setelah memilih menu
+            if (isSidebarOpen) toggleSidebar();
+            
             lucide.createIcons();
         }
 
@@ -214,7 +271,7 @@
                 return;
             }
 
-            if(!img) img = "https://images.unsplash.com/photo-1610348725531-843dff563e2c?auto=format&fit=crop&q=80&w=300"; // default fallback
+            if(!img) img = "https://images.unsplash.com/photo-1610348725531-843dff563e2c?auto=format&fit=crop&q=80&w=300";
 
             let products = JSON.parse(localStorage.getItem('segari_products')) || [];
             const newProduct = {
@@ -225,7 +282,6 @@
             products.unshift(newProduct);
             localStorage.setItem('segari_products', JSON.stringify(products));
             
-            // Bersihkan input field
             document.getElementById('p-name').value = '';
             document.getElementById('p-price').value = '';
             document.getElementById('p-size').value = '';
@@ -277,4 +333,4 @@
         }
     </script>
 </body>
-    </html>
+</html>
