@@ -9,6 +9,7 @@
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans antialiased">
 
+    <!-- MOBILE HEADER -->
     <div class="lg:hidden bg-slate-950 p-4 flex justify-between items-center sticky top-0 z-50 border-b border-slate-800 shadow-xl">
         <div class="flex items-center gap-2">
             <span class="text-xl font-black text-green-500">se<span class="text-orange-500">gari</span></span>
@@ -23,6 +24,7 @@
 
     <div class="min-h-screen flex flex-col lg:flex-row relative">
         
+        <!-- SIDEBAR CONTAINER -->
         <aside id="admin-sidebar-menu" class="fixed lg:static inset-y-0 left-0 z-50 w-64 bg-slate-950 p-6 flex flex-col justify-between transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out border-r border-slate-800/80 shadow-2xl lg:shadow-none">
             
             <div class="space-y-6">
@@ -69,6 +71,7 @@
             </div>
         </aside>
 
+        <!-- MAIN MAIN PANEL -->
         <main class="flex-grow p-4 md:p-8 space-y-6 text-slate-200 w-full overflow-x-hidden">
             <header class="flex justify-between items-center bg-slate-950 p-4 rounded-2xl border border-slate-800">
                 <h2 class="text-sm md:text-base font-black text-white flex items-center gap-2" id="admin-page-title">
@@ -80,6 +83,7 @@
                 </span>
             </header>
 
+            <!-- SECTION OVERVIEW -->
             <section id="tab-overview" class="space-y-6">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800">
@@ -119,6 +123,7 @@
                 </div>
             </section>
 
+            <!-- SECTION USERS -->
             <section id="tab-users" class="hidden">
                 <div class="bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden">
                     <div class="p-4 bg-slate-900 font-bold text-xs text-white border-b border-slate-800">MUTASI HAK AKSES SISTEM PERAN USER</div>
@@ -137,6 +142,7 @@
                 </div>
             </section>
 
+            <!-- SECTION PRODUCTS -->
             <section id="tab-products" class="hidden">
                 <div class="bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden">
                     <div class="p-4 bg-slate-900 font-bold text-xs text-white border-b border-slate-800">MAINTENANCE SKU / HAPUS PRODUK DARI MALL</div>
@@ -159,10 +165,10 @@
         </main>
     </div>
 
+    <!-- CORE BACKOFFICE SYSTEM ENGINES -->
     <script>
         let isSidebarOpen = false;
 
-        // DEFINISI KEY GLOBAL AGAR SINKRON DENGAN HALAMAN LOGIN
         const SESSION_KEY = 'segari_session_v3';
         const USER_KEY = 'segari_users_v3';
         const PRODUCT_KEY = 'segari_products';
@@ -170,7 +176,7 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             loadAdminSession();
-            seedInitialDataIfNeeded(); // Otomatis mengisi mock data jika kosong
+            seedInitialDataIfNeeded(); 
             calculateOverviewMetrics();
             renderUserManagement();
             renderProductAudit();
@@ -183,27 +189,23 @@
             });
         });
 
-        // 1. Auth Guard dengan Key v3
+        // 1. Auth Guard - Jika ilegal tendang ke login-admin.html
         function loadAdminSession() {
             const session = JSON.parse(localStorage.getItem(SESSION_KEY));
-            
             if (!session || session.role !== 'Admin') {
-                alert("Akses Ilegal! Silakan login melalui Gerbang HQ Terlebih dahulu.");
-                window.location.href = 'index.html'; // Melempar balik ke form login
+                alert("Akses Ilegal! Silakan log-in terlebih dahulu.");
+                window.location.href = 'login-admin.html';
                 return;
             }
-
-            // Menampilkan nama admin aktif secara dinamis di header panel
             document.getElementById('active-admin-display').innerText = `Admin: ${session.username}`;
         }
 
-        // Seeder Data Awal agar dashboard tidak kosong saat pertama dibuka
         function seedInitialDataIfNeeded() {
             if (!localStorage.getItem(PRODUCT_KEY)) {
                 const dummyProducts = [
-                    { id: 1, name: "Sawi Hijau Organik 500g", category: "SAYUR", price: 9500, stock: 3, img: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=80" },
-                    { id: 2, name: "Tomat Cherry Hidroponik", category: "SAYUR", price: 19000, stock: 12, img: "https://images.unsplash.com/photo-1595855759920-86582396756a?w=80" },
-                    { id: 3, name: "Apel Malang Premium 1kg", category: "BUAH", price: 34000, stock: 2, img: "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=80" }
+                    { id: 1, name: "Sawi Hijau Organik 500g", category: "SAYUR", price: 9500, stock: 3 },
+                    { id: 2, name: "Tomat Cherry Hidroponik", category: "SAYUR", price: 19000, stock: 12 },
+                    { id: 3, name: "Apel Malang Premium 1kg", category: "BUAH", price: 34000, stock: 2 }
                 ];
                 localStorage.setItem(PRODUCT_KEY, JSON.stringify(dummyProducts));
             }
@@ -215,15 +217,13 @@
             }
         }
 
-        // 2. Log Out System
         function handleAdminLogout() {
             if (confirm("Apakah Anda yakin ingin menutup sesi keamanan dan keluar dari Backoffice?")) {
-                localStorage.removeItem(SESSION_KEY); // Hapus token session v3
-                window.location.href = 'index.html';    // Redirect ke login/halaman depan
+                localStorage.removeItem(SESSION_KEY);
+                window.location.href = 'login-admin.html';
             }
         }
 
-        // 3. Hamburger Engine (Mobile)
         function toggleAdminSidebar() {
             const sidebar = document.getElementById('admin-sidebar-menu');
             const overlay = document.getElementById('admin-sidebar-overlay');
@@ -238,7 +238,6 @@
             }
         }
 
-        // 4. Tab Router Control Panel
         function switchAdminTab(target) {
             document.getElementById('tab-overview').classList.add('hidden');
             document.getElementById('tab-users').classList.add('hidden');
@@ -248,26 +247,18 @@
             const tabs = ['overview', 'users', 'products'];
             tabs.forEach(t => {
                 const btn = document.getElementById(`nav-${t}`);
-                const icon = btn.querySelector('i');
                 if (t === target) {
                     btn.className = "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-800 text-white transition";
-                    if(icon) icon.className = "w-4 h-4 text-green-500";
                 } else {
                     btn.className = "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/50 transition";
-                    if(icon) icon.className = "w-4 h-4 text-slate-400";
                 }
             });
 
-            const title = document.getElementById('admin-page-title');
-            if(target === 'overview') title.innerHTML = `<i data-lucide="bar-chart-3" class="text-green-500"></i> Platform Operational Overview`;
-            if(target === 'users') title.innerHTML = `<i data-lucide="users" class="text-green-500"></i> Otoritas Manajemen User`;
-            if(target === 'products') title.innerHTML = `<i data-lucide="shield-alert" class="text-green-500"></i> Audit Data & SKU Produk Utama`;
-            
             if (isSidebarOpen) toggleAdminSidebar();
             lucide.createIcons();
         }
 
-        // 5. Render Overview Metrics
+        // 5. Render Overview Metrics & Order Rows
         function calculateOverviewMetrics() {
             const orders = JSON.parse(localStorage.getItem(ORDER_KEY)) || [];
             const products = JSON.parse(localStorage.getItem(PRODUCT_KEY)) || [];
@@ -275,113 +266,92 @@
 
             const totalRevenue = orders.reduce((sum, o) => sum + o.total, 0);
             document.getElementById('stat-revenue').innerText = `Rp${totalRevenue.toLocaleString('id-ID')}`;
-            document.getElementById('stat-orders-count').innerText = `${orders.length} Invoice`;
-            document.getElementById('stat-users-count').innerText = `${users.length} Account`;
+            document.getElementById('stat-orders-count').innerText = `${orders.length} Transaksi`;
+            document.getElementById('stat-users-count').innerText = `${users.length} Akun`;
 
             const lowStockCount = products.filter(p => p.stock <= 5).length;
-            document.getElementById('stat-alert-count').innerText = `${lowStockCount} Item SKU`;
+            document.getElementById('stat-alert-count').innerText = `${lowStockCount} SKU`;
 
             const tbody = document.getElementById('global-orders-rows');
-            tbody.innerHTML = '';
-            if(orders.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-500 italic">Belum ada transaksi pembelian global terjadi di platform.</td></tr>`;
+            if (orders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">Belum ada pesanan masuk.</td></tr>`;
                 return;
             }
 
-            orders.forEach(o => {
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-900/50 transition";
-                tr.innerHTML = `
+            tbody.innerHTML = orders.map(o => `
+                <tr class="hover:bg-slate-900/40 border-b border-slate-900">
                     <td class="p-4 font-mono font-bold text-white">${o.invoice}</td>
                     <td class="p-4">${o.username}</td>
-                    <td class="p-4 font-bold text-green-400">Rp${o.total.toLocaleString('id-ID')}</td>
-                    <td class="p-4"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-300 border border-slate-700">${o.status}</span></td>
-                    <td class="p-4 text-slate-500 truncate max-w-xs">${o.address}</td>
-                `;
-                tbody.appendChild(tr);
-            });
+                    <td class="p-4 text-emerald-400 font-bold">Rp${o.total.toLocaleString('id-ID')}</td>
+                    <td class="p-4"><span class="bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded text-[10px] font-bold border border-amber-500/20">${o.status}</span></td>
+                    <td class="p-4 truncate max-w-[200px]">${o.address}</td>
+                </tr>
+            `).join('');
         }
 
-        // 6. Render & Mutasi Hak Akses User
+        // 6. User Management Mutation
         function renderUserManagement() {
-            const tbody = document.getElementById('global-users-rows');
             const users = JSON.parse(localStorage.getItem(USER_KEY)) || [];
-            tbody.innerHTML = '';
-
-            if (users.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-slate-500 italic">Tidak ada database user terdaftar.</td></tr>`;
-                return;
-            }
-
-            users.forEach((u, idx) => {
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-900/50 transition";
-                tr.innerHTML = `
-                    <td class="p-4 font-bold text-slate-200">${u.username}</td>
-                    <td class="p-4"><span class="px-2 py-0.5 rounded font-bold text-[10px] ${u.role==='Admin'?'bg-red-500/10 text-red-400 border border-red-500/20':u.role==='Toko'?'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20':'bg-blue-500/10 text-blue-400 border border-blue-500/20'}">${u.role || 'Konsumen'}</span></td>
-                    <td class="p-4 text-center">
-                        <select onchange="changeUserRole(${idx}, this.value)" class="p-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-slate-300 font-bold focus:outline-none focus:ring-1 focus:ring-green-500">
-                            <option value="Konsumen" ${u.role==='Konsumen'?'selected':''}>Konsumen</option>
-                            <option value="Toko" ${u.role==='Toko'?'selected':''}>Mitra Toko</option>
-                            <option value="Admin" ${u.role==='Admin'?'selected':''}>Master Admin</option>
-                        </select>
+            const tbody = document.getElementById('global-users-rows');
+            
+            tbody.innerHTML = users.map(u => `
+                <tr class="hover:bg-slate-900/40 border-b border-slate-800">
+                    <td class="p-4 font-bold">${u.username}</td>
+                    <td class="p-4">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold ${u.role === 'Admin' ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'}">
+                            ${u.role}
+                        </span>
                     </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function changeUserRole(index, newRole) {
-            let users = JSON.parse(localStorage.getItem(USER_KEY)) || [];
-            users[index].role = newRole;
-            localStorage.setItem(USER_KEY, JSON.stringify(users));
-            renderUserManagement();
-            calculateOverviewMetrics();
-            alert(`Otoritas hak akses akun "${users[index].username}" berhasil diubah menjadi ${newRole}!`);
-        }
-
-        // 7. Render Audit SKU Produk Utama
-        function renderProductAudit() {
-            const tbody = document.getElementById('global-products-rows');
-            const products = JSON.parse(localStorage.getItem(PRODUCT_KEY)) || [];
-            tbody.innerHTML = '';
-
-            if (products.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500 italic">Tidak ada produk aktif di katalog.</td></tr>`;
-                return;
-            }
-
-            products.forEach((p) => {
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-900/50 transition";
-                tr.innerHTML = `
-                    <td class="p-4 flex items-center gap-2 font-bold text-slate-200">
-                        <img src="${p.img}" class="w-8 h-8 object-cover rounded bg-slate-800" onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?w=80'">
-                        <span>${p.name}</span>
-                    </td>
-                    <td class="p-4 uppercase font-mono text-[10px] tracking-wider text-slate-400">${p.category}</td>
-                    <td class="p-4 font-bold text-green-400">Rp${p.price.toLocaleString('id-ID')}</td>
-                    <td class="p-4 font-bold ${p.stock<=5?'text-red-400 animate-pulse':''}">${p.stock} pcs</td>
                     <td class="p-4 text-center">
-                        <button onclick="deleteProductMaster(${p.id})" class="bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/20 px-2.5 py-1 rounded-xl font-bold text-[11px] transition flex items-center gap-1 mx-auto">
-                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Hapus SKU
+                        <button onclick="toggleUserRole('${u.username}')" class="bg-slate-900 border border-slate-800 hover:bg-slate-800 text-orange-400 px-3 py-1 rounded-xl transition text-[11px] font-bold">
+                            Ubah Otoritas
                         </button>
                     </td>
-                `;
-                tbody.appendChild(tr);
-            });
-            lucide.createIcons();
+                </tr>
+            `).join('');
         }
 
-        function deleteProductMaster(prodId) {
-            if(confirm("Apakah Anda yakin ingin menghapus produk ini secara permanen dari ekosistem Segari?")) {
-                let products = JSON.parse(localStorage.getItem(PRODUCT_KEY)) || [];
-                products = products.filter(p => p.id !== prodId);
-                localStorage.setItem(PRODUCT_KEY, JSON.stringify(products));
+        function toggleUserRole(username) {
+            const users = JSON.parse(localStorage.getItem(USER_KEY)) || [];
+            const updated = users.map(u => {
+                if (u.username === username) {
+                    u.role = u.role === 'Admin' ? 'Konsumen' : 'Admin';
+                }
+                return u;
+            });
+            localStorage.setItem(USER_KEY, JSON.stringify(updated));
+            renderUserManagement();
+        }
+
+        // 7. Audit Products SKU
+        function renderProductAudit() {
+            const products = JSON.parse(localStorage.getItem(PRODUCT_KEY)) || [];
+            const tbody = document.getElementById('global-products-rows');
+
+            tbody.innerHTML = products.map(p => `
+                <tr class="hover:bg-slate-900/40 border-b border-slate-800">
+                    <td class="p-4 font-bold text-white">${p.name}</td>
+                    <td class="p-4 font-mono text-[10px] text-slate-400">${p.category}</td>
+                    <td class="p-4 font-bold text-emerald-400">Rp${p.price.toLocaleString('id-ID')}</td>
+                    <td class="p-4 font-mono ${p.stock <= 5 ? 'text-red-400 font-bold' : ''}">${p.stock} Unit</td>
+                    <td class="p-4 text-center">
+                        <button onclick="deleteProduct(${p.id})" class="bg-red-950/20 hover:bg-red-900/30 text-red-400 px-3 py-1 rounded-xl border border-red-900/20 text-[11px] font-bold">
+                            Hapus SKU
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function deleteProduct(id) {
+            if (confirm("Apakah Anda yakin ingin menghapus komoditas SKU ini dari sistem?")) {
+                const products = JSON.parse(localStorage.getItem(PRODUCT_KEY)) || [];
+                const filtered = products.filter(p => p.id !== id);
+                localStorage.setItem(PRODUCT_KEY, JSON.stringify(filtered));
                 renderProductAudit();
                 calculateOverviewMetrics();
             }
         }
     </script>
 </body>
-    </html>
+</html>
