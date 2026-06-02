@@ -194,11 +194,11 @@
         function handleAdminLogout() {
             if (confirm("Apakah Anda yakin ingin menutup sesi keamanan dan keluar dari Master Admin Backoffice?")) {
                 localStorage.removeItem('segari_session'); // Hapus token session login
-                window.location.href = 'index.html';       // Tendang kembali ke halaman depan konsumen
+                window.location.href = 'index.html';       // Kembali ke halaman depan konsumen
             }
         }
 
-        // 3. Engine Togel Menu Navigasi / Hamburger (Mobile Mode)
+        // 3. Engine Toggle Menu Navigasi / Hamburger (Mobile Mode)
         function toggleAdminSidebar() {
             const sidebar = document.getElementById('admin-sidebar-menu');
             const overlay = document.getElementById('admin-sidebar-overlay');
