@@ -108,11 +108,11 @@
                                     <th class="p-4">Harga Satuan</th>
                                     <th class="p-4">Ukuran Pak</th>
                                     <th class="p-4">Ketersediaan Stok</th>
-                                    <th class="p-4 text-center">Update Stok Manuel</th>
+                                    <th class="p-4 text-center">Update Stok Manual</th>
                                 </tr>
                             </thead>
                             <tbody id="inventory-table-body" class="divide-y divide-gray-100">
-                                </tbody>
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -136,7 +136,7 @@
                                 </tr>
                             </thead>
                             <tbody id="orders-table-body" class="divide-y divide-gray-100">
-                                </tbody>
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -159,6 +159,12 @@
                 renderOrdersTable();
             });
         });
+
+        // 获取当前登录商户名助理函数
+        function getActiveMerchant() {
+            const session = JSON.parse(localStorage.getItem('segari_session'));
+            return session ? session.username : null;
+        }
 
         // 1. Auth Guard - Proteksi Halaman Gudang Merchant
         function loadMerchantSession() {
@@ -225,10 +231,19 @@
 
         function renderInventoryTable() {
             const tbody = document.getElementById('inventory-table-body');
-            const products = JSON.parse(localStorage.getItem('segari_products')) || [];
+            const allProducts = JSON.parse(localStorage.getItem('segari_products')) || [];
+            const currentMerchant = getActiveMerchant();
+
+            // Saring produk hanya milik toko yang login
+            const myProducts = allProducts.filter(p => p.merchant === currentMerchant);
             tbody.innerHTML = '';
 
-            products.forEach((p, idx) => {
+            if(myProducts.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-gray-400 italic">Belum ada produk dirilis oleh toko Anda.</td></tr>`;
+                return;
+            }
+
+            myProducts.forEach((p) => {
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-gray-50/80 transition";
                 tr.innerHTML = `
@@ -242,8 +257,8 @@
                     <td class="p-4 font-bold ${p.stock <= 5 ? 'text-red-500 bg-red-50/50' : 'text-gray-700'}">${p.stock} pcs</td>
                     <td class="p-4 text-center">
                         <div class="flex items-center justify-center gap-1.5">
-                            <button onclick="updateStockDirect(${idx}, -5)" class="bg-gray-200 text-gray-700 p-1 rounded font-bold hover:bg-gray-300">-5</button>
-                            <button onclick="updateStockDirect(${idx}, 5)" class="bg-emerald-600 text-white p-1 rounded font-bold hover:bg-emerald-700">+5</button>
+                            <button onclick="updateStockDirect(${p.id}, -5)" class="bg-gray-200 text-gray-700 p-1 rounded font-bold hover:bg-gray-300">-5</button>
+                            <button onclick="updateStockDirect(${p.id}, 5)" class="bg-emerald-600 text-white p-1 rounded font-bold hover:bg-emerald-700">+5</button>
                         </div>
                     </td>
                 `;
@@ -251,11 +266,15 @@
             });
         }
 
-        function updateStockDirect(idx, amount) {
-            let products = JSON.parse(localStorage.getItem('segari_products'));
-            products[idx].stock = Math.max(0, products[idx].stock + amount);
-            localStorage.setItem('segari_products', JSON.stringify(products));
-            renderInventoryTable();
+        function updateStockDirect(productId, amount) {
+            let allProducts = JSON.parse(localStorage.getItem('segari_products')) || [];
+            const pIdx = allProducts.findIndex(p => p.id === productId);
+
+            if (pIdx !== -1) {
+                allProducts[pIdx].stock = Math.max(0, allProducts[pIdx].stock + amount);
+                localStorage.setItem('segari_products', JSON.stringify(allProducts));
+                renderInventoryTable();
+            }
         }
 
         function addNewProduct() {
@@ -265,6 +284,7 @@
             const size = document.getElementById('p-size').value.trim();
             const stock = parseInt(document.getElementById('p-stock').value);
             let img = document.getElementById('p-img').value.trim();
+            const currentMerchant = getActiveMerchant();
 
             if(!name || !price || !size || isNaN(stock)) {
                 alert("Mohon isi semua field produk!");
@@ -276,6 +296,7 @@
             let products = JSON.parse(localStorage.getItem('segari_products')) || [];
             const newProduct = {
                 id: Date.now(),
+                merchant: currentMerchant, // Menyimpan identitas toko pemilik produk
                 name, category: cat, price, size, stock, img
             };
 
@@ -288,22 +309,36 @@
             document.getElementById('p-stock').value = '';
             document.getElementById('p-img').value = '';
 
-            alert("Produk berhasil terbit secara live!");
+            alert("Produk berhasil terbit secara live untuk toko Anda!");
             renderInventoryTable();
         }
 
         function renderOrdersTable() {
             const tbody = document.getElementById('orders-table-body');
-            const orders = JSON.parse(localStorage.getItem('segari_orders')) || [];
+            const allOrders = JSON.parse(localStorage.getItem('segari_orders')) || [];
+            const currentMerchant = getActiveMerchant();
             tbody.innerHTML = '';
 
-            if(orders.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-gray-400 italic">Belum ada pesanan konsumen masuk ke sistem gudang logistik.</td></tr>`;
+            // Saring pesanan yang mengandung item dari toko ini, atau pesanan yang langsung ditujukan ke toko ini
+            const myOrders = allOrders.filter(o => 
+                o.merchant === currentMerchant || 
+                o.storeCode === currentMerchant ||
+                (o.items && o.items.some(item => item.merchant === currentMerchant))
+            );
+
+            if(myOrders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-gray-400 italic">Belum ada pesanan konsumen masuk ke sistem gudang logistik toko Anda.</td></tr>`;
                 return;
             }
 
-            orders.forEach((o, index) => {
-                let itemsListHtml = o.items.map(i => `• ${i.name} (${i.qty}x)`).join('<br>');
+            myOrders.forEach((o) => {
+                // Saring item belanjaan agar hanya menampilkan item milik toko ini saja di log dashboard
+                let displayItems = o.items || [];
+                if (displayItems.some(item => item.merchant)) {
+                    displayItems = displayItems.filter(item => item.merchant === currentMerchant);
+                }
+
+                let itemsListHtml = displayItems.map(i => `• ${i.name} (${i.qty}x)`).join('<br>');
                 
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-gray-50 transition";
@@ -314,7 +349,7 @@
                     <td class="p-4 font-extrabold text-green-600">Rp${o.total.toLocaleString('id-ID')}</td>
                     <td class="p-4"><span class="px-2 py-1 rounded-full text-[10px] font-black uppercase ${o.status==='Selesai'?'bg-blue-100 text-blue-800':o.status==='Dalam Perjalanan'?'bg-amber-100 text-amber-800':'bg-gray-100 text-gray-800'}">${o.status}</span></td>
                     <td class="p-4 text-center">
-                        <select onchange="updateOrderStatus(${index}, this.value)" class="p-1.5 border border-gray-200 rounded-lg text-[11px] font-bold bg-white text-gray-700">
+                        <select onchange="updateOrderStatus('${o.invoice}', this.value)" class="p-1.5 border border-gray-200 rounded-lg text-[11px] font-bold bg-white text-gray-700">
                             <option value="Menyiapkan Pesanan" ${o.status==='Menyiapkan Pesanan'?'selected':''}>1. Siapkan Paket</option>
                             <option value="Dalam Perjalanan" ${o.status==='Dalam Perjalanan'?'selected':''}>2. Serahkan Kurir</option>
                             <option value="Selesai" ${o.status==='Selesai'?'selected':''}>3. Selesai Tiba</option>
@@ -325,11 +360,15 @@
             });
         }
 
-        function updateOrderStatus(orderIndex, newStatus) {
-            let orders = JSON.parse(localStorage.getItem('segari_orders'));
-            orders[orderIndex].status = newStatus;
-            localStorage.setItem('segari_orders', JSON.stringify(orders));
-            renderOrdersTable();
+        function updateOrderStatus(invoice, newStatus) {
+            let allOrders = JSON.parse(localStorage.getItem('segari_orders')) || [];
+            const oIdx = allOrders.findIndex(o => o.invoice === invoice);
+
+            if (oIdx !== -1) {
+                allOrders[oIdx].status = newStatus;
+                localStorage.setItem('segari_orders', JSON.stringify(allOrders));
+                renderOrdersTable();
+            }
         }
     </script>
 </body>
