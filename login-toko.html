@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Segari - Partner Merchant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-md bg-slate-950 border border-slate-800 p-8 rounded-3xl shadow-2xl space-y-6">
+        <!-- Logo Header -->
+        <div class="text-center space-y-2">
+            <div class="flex items-center justify-center gap-1.5">
+                <span class="text-2xl font-black text-green-500">se<span class="text-orange-500">gari</span></span>
+                <span class="bg-emerald-500/20 text-emerald-400 text-[9px] font-bold px-1.5 py-0.5 rounded border border-emerald-500/30">MITRA</span>
+            </div>
+            <h2 id="merchant-title" class="text-xl font-bold text-white pt-1">Merchant Control Center</h2>
+            <p id="merchant-subtitle" class="text-xs text-slate-400">Sistem manajemen penjualan produk segar langsung ke pembeli</p>
+        </div>
+
+        <!-- Tab Toggle -->
+        <div class="grid grid-cols-2 bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs font-bold">
+            <button onclick="switchMerchantMode('login')" id="btn-m-login" class="py-2.5 rounded-lg bg-slate-800 text-white">Login Toko</button>
+            <button onclick="switchMerchantMode('register')" id="btn-m-register" class="py-2.5 rounded-lg text-slate-400 hover:text-slate-200">Buka Toko Baru</button>
+        </div>
+
+        <form onsubmit="handleMerchantAuth(event)" class="space-y-4 text-xs font-bold">
+            <div class="space-y-1.5">
+                <label class="text-slate-400">Username Akun Toko</label>
+                <div class="relative flex items-center">
+                    <i data-lucide="store" class="w-4 h-4 text-slate-500 absolute left-3"></i>
+                    <input type="text" id="m-username" required placeholder="Nama user log merchant" class="w-full pl-10 pr-4 py-3 bg-slate-900 border border-slate-800 rounded-xl focus:outline-none focus:ring-1 focus:ring-emerald-500 text-white">
+                </div>
+            </div>
+
+            <div class="space-y-1.5">
+                <label class="text-slate-400">Password</label>
+                <div class="relative flex items-center">
+                    <i data-lucide="lock" class="w-4 h-4 text-slate-500 absolute left-3"></i>
+                    <input type="password" id="m-password" required placeholder="••••••••" class="w-full pl-10 pr-4 py-3 bg-slate-900 border border-slate-800 rounded-xl focus:outline-none focus:ring-1 focus:ring-emerald-500 text-white">
+                </div>
+            </div>
+
+            <button type="submit" id="btn-m-submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black py-3 rounded-xl transition shadow-lg text-sm mt-2">
+                Masuk Dashboard Toko
+            </button>
+        </form>
+
+        <div class="text-center border-t border-slate-900 pt-4">
+            <a href="login-consumer.html" class="text-[11px] text-slate-500 hover:text-slate-400">&larr; Kembali ke login belanja konsumen</a>
+        </div>
+    </div>
+
+    <script>
+        let merchantMode = 'login';
+
+        window.addEventListener('DOMContentLoaded', () => { lucide.createIcons(); });
+
+        function switchMerchantMode(mode) {
+            merchantMode = mode;
+            const title = document.getElementById('merchant-title');
+            const subtitle = document.getElementById('merchant-subtitle');
+            const btn = document.getElementById('btn-m-submit');
+
+            document.getElementById('btn-m-login').className = mode === 'login' ? 'py-2.5 rounded-lg bg-slate-800 text-white' : 'py-2.5 rounded-lg text-slate-400';
+            document.getElementById('btn-m-register').className = mode === 'register' ? 'py-2.5 rounded-lg bg-slate-800 text-white' : 'py-2.5 rounded-lg text-slate-400';
+
+            if(mode === 'register') {
+                title.innerText = "Kemitraan Segari Merchant";
+                subtitle.innerText = "Daftarkan bisnis retail sayur/buah Anda dan jangkau konsumen luas";
+                btn.innerText = "Daftar Kemitraan Toko";
+                btn.className = "w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black py-3 rounded-xl transition shadow-lg text-sm mt-2";
+            } else {
+                title.innerText = "Merchant Control Center";
+                subtitle.innerText = "Sistem manajemen penjualan produk segar langsung ke pembeli";
+                btn.innerText = "Masuk Dashboard Toko";
+                btn.className = "w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black py-3 rounded-xl transition shadow-lg text-sm mt-2";
+            }
+        }
+
+        function handleMerchantAuth(e) {
+            e.preventDefault();
+            const userVal = document.getElementById('m-username').value.trim();
+            const passVal = document.getElementById('m-password').value;
+            let users = JSON.parse(localStorage.getItem('segari_users')) || [];
+
+            if(merchantMode === 'register') {
+                if(users.some(u => u.username.toLowerCase() === userVal.toLowerCase())) {
+                    alert("Nama user toko telah terpakai!");
+                    return;
+                }
+                users.push({ username: userVal, password: passVal, role: 'Toko' });
+                localStorage.setItem('segari_users', JSON.stringify(users));
+                alert("Registrasi Mitra Berhasil! Tunggu verifikasi atau langsung login.");
+                switchMerchantMode('login');
+            } else {
+                const checkUser = users.find(u => u.username.toLowerCase() === userVal.toLowerCase() && u.password === passVal);
+                if(!checkUser) {
+                    alert("Kredensial login mitra toko salah!");
+                    return;
+                }
+                if(checkUser.role !== 'Toko') {
+                    alert(`Hak akses ditolak! Tipe akun ini adalah ${checkUser.role}.`);
+                    return;
+                }
+                localStorage.setItem('segari_session', JSON.stringify({ username: checkUser.username, role: checkUser.role }));
+                window.location.href = 'toko.html'; // Dilempar menuju dashboard milik mitra toko
+            }
+        }
+    </script>
+</body>
+</html>
