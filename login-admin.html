@@ -128,7 +128,7 @@
         function checkSession() {
             const session = JSON.parse(localStorage.getItem(SESSION_KEY));
             if (session && session.role === 'Admin') {
-                window.location.href = 'index.html';
+                window.location.href = 'admin.html';
             } else {
                 switchView('login');
             }
@@ -183,7 +183,7 @@
             localStorage.setItem(SESSION_KEY, JSON.stringify({ username: targetAdmin.username, role: targetAdmin.role }));
             
             // REDIRECT KE DASHBOARD UTAMA
-            window.location.href = 'index.html';
+            window.location.href = 'admin.html';
         }
     </script>
 </body>
