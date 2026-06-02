@@ -19,6 +19,7 @@
 
     <div class="w-full max-w-[480px] min-h-screen bg-white shadow-2xl relative flex flex-col pb-24 border-x border-gray-100">
         
+        <!-- HOME PAGE -->
         <div id="home-page" class="space-y-4">
             <header class="bg-white sticky top-0 z-30 p-4 border-b border-gray-50 shadow-sm space-y-3">
                 <div class="flex justify-between items-center">
@@ -77,6 +78,7 @@
             </div>
         </div>
 
+        <!-- CART PAGE -->
         <div id="cart-page" class="hidden p-4 space-y-4">
             <h2 class="text-base font-black text-gray-800 border-b border-gray-100 pb-2 flex items-center gap-2"><i data-lucide="shopping-cart" class="text-green-600 w-5 h-5"></i> Keranjang Belanja Anda</h2>
             <div id="empty-cart-state" class="text-center py-12 space-y-2 hidden">
@@ -110,6 +112,7 @@
             </div>
         </div>
 
+        <!-- PROMO PAGE -->
         <div id="promo-page" class="hidden p-4 space-y-4">
             <h2 class="text-base font-black text-gray-800 flex items-center gap-2"><i data-lucide="ticket" class="text-orange-500 w-5 h-5"></i> Voucher & Promo Spesial</h2>
             <div class="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl p-4 text-white flex justify-between items-center shadow-sm">
@@ -122,6 +125,7 @@
             </div>
         </div>
 
+        <!-- TRACKING PAGE -->
         <div id="tracking-page" class="hidden p-4 space-y-4">
             <h2 class="text-base font-black text-gray-800 flex items-center gap-2"><i data-lucide="truck" class="text-blue-500 w-5 h-5"></i> Status Pengiriman Live</h2>
             <div id="no-order-state" class="text-center py-12 text-gray-400 space-y-2 hidden">
@@ -131,6 +135,7 @@
             <div id="active-order-state" class="space-y-4"></div>
         </div>
 
+        <!-- PROFILE PAGE -->
         <div id="akun-page" class="hidden p-4 space-y-4">
             <h2 class="text-base font-black text-gray-800 flex items-center gap-2"><i data-lucide="user" class="text-green-600 w-5 h-5"></i> Profil Akun Saya</h2>
             
@@ -177,8 +182,9 @@
             </div>
         </div>
 
+        <!-- AI BUTTON & NAVIGATION -->
         <button onclick="openAiModal()" class="fixed bottom-20 right-[calc(50%-220px)] sm:right-auto bg-gradient-to-r from-teal-500 to-emerald-600 text-white p-3 rounded-full shadow-xl btn-active z-40 flex items-center gap-1.5 text-xs font-bold ring-4 ring-white">
-            <i data-lucide="sparkles" class="w-4 h-4 animate-spin"></i> Tanya AI Koki
+            <i data-lucide="sparkles" class="w-4 h-4"></i> Tanya AI Koki
         </button>
 
         <nav class="absolute bottom-0 inset-x-0 h-16 bg-white border-t border-gray-100 grid grid-cols-5 items-center text-center text-gray-400 z-40 shadow-[0_-4px_12px_rgba(0,0,0,0.03)]">
@@ -192,6 +198,7 @@
             <button onclick="switchTab('akun')" class="nav-btn flex flex-col items-center gap-0.5"><i data-lucide="user" class="w-4 h-4"></i><span class="text-[9px] font-bold">Akun</span></button>
         </nav>
 
+        <!-- LOCATION MODAL -->
         <div id="location-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end justify-center hidden opacity-0 transition-opacity duration-300">
             <div class="bg-white w-full max-w-[480px] rounded-t-3xl p-6 animate-slide-up space-y-4">
                 <div class="flex justify-between items-center border-b border-gray-100 pb-3">
@@ -205,6 +212,7 @@
             </div>
         </div>
 
+        <!-- AI MODAL -->
         <div id="ai-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end justify-center hidden opacity-0 transition-opacity duration-300">
             <div class="bg-white w-full max-w-[480px] rounded-t-3xl p-6 animate-slide-up space-y-4 max-h-[80vh] flex flex-col">
                 <div class="flex justify-between items-center border-b border-gray-100 pb-3 shrink-0">
@@ -228,6 +236,7 @@
         <div id="toast-container"></div>
     </div>
 
+    <!-- JAVASCRIPT SYSTEM -->
     <script>
         const defaultProducts = [
             { id: 1, name: "Wortel Berastagi Segar", category: "sayur", price: 6000, oldPrice: 12000, size: "500 gr", stock: 45, img: "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?auto=format&fit=crop&q=80&w=300" },
@@ -259,7 +268,6 @@
         }
 
         function redirectToLogin() {
-            // Melempar konsumen ke halaman auth terpisah sesuai instruksi
             window.location.href = "login-consumer.html";
         }
 
@@ -272,9 +280,9 @@
                 btn.classList.remove('text-green-600'); btn.classList.add('text-gray-400');
             });
             
-            if(event && event.currentTarget) {
-                event.currentTarget.classList.remove('text-gray-400');
-                event.currentTarget.classList.add('text-green-600');
+            if(window.event && window.event.currentTarget) {
+                window.event.currentTarget.classList.remove('text-gray-400');
+                window.event.currentTarget.classList.add('text-green-600');
             }
             
             if (tabId === 'cart') renderCartItems();
@@ -348,8 +356,8 @@
         function filterCategory(cat) {
             selectedCategory = cat;
             document.querySelectorAll('.category-btn').forEach(btn => { btn.className = "category-btn flex flex-col items-center gap-1 bg-gray-50 p-2 rounded-xl text-gray-600 text-xs"; });
-            if (event && event.currentTarget) {
-                event.currentTarget.className = "category-btn flex flex-col items-center gap-1 bg-green-50 p-2 rounded-xl border border-green-100 font-bold text-green-700 text-xs";
+            if (window.event && window.event.currentTarget) {
+                window.event.currentTarget.className = "category-btn flex flex-col items-center gap-1 bg-green-50 p-2 rounded-xl border border-green-100 font-bold text-green-700 text-xs";
             }
             renderProducts();
         }
@@ -402,7 +410,7 @@
             renderCartItems(); updateCartCount();
         }
 
-        /* INTEGRASI FIX: VALIDASI AUTENTIKASI SEBELUM CHECKOUT */
+        /* INTEGRASI FIX: VALIDASI & LOGOUT USER UNTUK CHECKOUT SESUAI NAMA PRODUK & USERNAME */
         function processCheckout() {
             if (!activeUser || activeUser.role !== 'Konsumen') { 
                 alert("Wajib masuk atau daftar akun Konsumen terlebih dahulu di halaman login untuk memesan bahan makanan!"); 
@@ -413,7 +421,7 @@
             
             let masterProducts = JSON.parse(localStorage.getItem('segari_products')) || defaultProducts;
             
-            // Mengurangi stok barang di server data lokal
+            // Kurangi stok barang di server data lokal
             cart.forEach(item => { 
                 let p = masterProducts.find(mp => mp.id === item.id); 
                 if(p) p.stock = Math.max(0, p.stock - item.qty); 
@@ -424,10 +432,11 @@
             const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
             const chosenSlot = document.querySelector('input[name="shipping-slot"]:checked')?.value || "Pagi (06:00 - 09:00)";
             
+            // Menyimpan invoice pesanan sesuai dengan Nama Produk Toko dan Terikat Username Konsumen
             const newOrder = {
                 id: "SGR-" + Math.floor(1000 + Math.random() * 9000),
                 user: activeUser.username,
-                items: [...cart],
+                items: [...cart], // Mencakup array objek {name: "...", price: ..., qty: ...}
                 total: subtotal,
                 slot: chosenSlot,
                 status: "Diproses",
@@ -446,12 +455,14 @@
             switchTab('tracking');
         }
 
+        /* INTEGRASI FIX: MENAMPILKAN ORDER LIVE BERDASARKAN USERNAME DAN DETAIL PRODUK */
         function renderTrackingView() {
             const noOrder = document.getElementById('no-order-state');
             const activeOrder = document.getElementById('active-order-state');
             if(!noOrder || !activeOrder) return;
 
             const orders = JSON.parse(localStorage.getItem('segari_orders')) || [];
+            // Filter pesanan khusus untuk konsumen/username yang sedang aktif login
             const myOrders = activeUser ? orders.filter(o => o.user === activeUser.username) : [];
 
             if(myOrders.length === 0) {
@@ -461,65 +472,58 @@
                 noOrder.classList.add('hidden');
                 activeOrder.classList.remove('hidden');
                 activeOrder.innerHTML = '';
-
-                // Membalik urutan agar orderan terbaru tampil paling atas
-                myOrders.reverse().forEach(o => {
+                
+                // Urutkan dari pesanan terbaru
+                myOrders.reverse().forEach(order => {
                     const div = document.createElement('div');
-                    div.className = "bg-white p-4 rounded-2xl border border-gray-100 space-y-3 shadow-sm text-xs";
+                    div.className = "bg-white border border-gray-100 rounded-2xl p-4 space-y-3 shadow-sm";
                     
-                    let badgeColor = "bg-orange-50 text-orange-600 border border-orange-100";
-                    if(o.status === "Selesai") badgeColor = "bg-green-50 text-green-600 border border-green-100";
-                    if(o.status === "Dikirim") badgeColor = "bg-blue-50 text-blue-600 border border-blue-100";
+                    let itemDetailsHTML = '';
+                    order.items.forEach(item => {
+                        itemDetailsHTML += `
+                            <div class="text-[11px] text-gray-600 flex justify-between items-center bg-gray-50 p-2 rounded-lg">
+                                <span class="font-bold">${item.name} <span class="text-orange-500">x${item.qty}</span></span>
+                                <span class="font-mono text-gray-500">Rp${(item.price * item.qty).toLocaleString('id-ID')}</span>
+                            </div>`;
+                    });
 
                     div.innerHTML = `
                         <div class="flex justify-between items-center border-b border-gray-50 pb-2">
                             <div>
-                                <p class="font-black text-gray-800">${o.id}</p>
-                                <p class="text-[10px] text-gray-400">${o.date} • ${o.slot}</p>
+                                <span class="text-xs font-black text-gray-800">${order.id}</span>
+                                <p class="text-[10px] text-gray-400">${order.date} • ${order.slot}</p>
                             </div>
-                            <span class="${badgeColor} font-bold px-2 py-0.5 rounded-full text-[10px] uppercase">${o.status}</span>
+                            <span class="bg-blue-50 text-blue-600 text-[10px] font-black px-2 py-0.5 rounded-full">${order.status}</span>
                         </div>
-                        <div class="space-y-1">
-                            ${o.items.map(i => `<div class="flex justify-between text-gray-600"><span>${i.name} (x${i.qty})</span><span>Rp${(i.price*i.qty).toLocaleString('id-ID')}</span></div>`).join('')}
+                        <div class="space-y-1.5">
+                            ${itemDetailsHTML}
                         </div>
-                        <div class="border-t border-dashed border-gray-100 pt-2 flex justify-between font-black text-gray-800 text-sm">
-                            <span>Total Pembayaran</span>
-                            <span class="text-green-600">Rp${o.total.toLocaleString('id-ID')}</span>
+                        <div class="border-t border-gray-50 pt-2 flex justify-between items-center text-xs font-bold">
+                            <span class="text-gray-400">Pemesan: <span class="text-gray-700">@${order.user}</span></span>
+                            <span class="text-green-600 font-black text-sm">Rp${order.total.toLocaleString('id-ID')}</span>
                         </div>
                     `;
                     activeOrder.appendChild(div);
                 });
             }
+            lucide.createIcons();
         }
 
-        function startFlashSaleTimer() {
-            let hr = 2, min = 14, sec = 45;
-            setInterval(() => {
-                sec--;
-                if(sec < 0) { sec = 59; min--; }
-                if(min < 0) { min = 59; hr--; }
-                if(hr < 0) { hr = 2; min = 14; sec = 45; } // reset otomatis loop
-                document.getElementById('timer-hours').innerText = String(hr).padStart(2, '0');
-                document.getElementById('timer-mins').innerText = String(min).padStart(2, '0');
-                document.getElementById('timer-secs').innerText = String(sec).padStart(2, '0');
-            }, 1000);
-        }
-
+        /* MODAL & COMPONENT UTILITY FUNCTIONS */
         function openLocationModal() {
             const m = document.getElementById('location-modal'); m.classList.remove('hidden');
             setTimeout(() => m.classList.remove('opacity-0'), 10);
         }
         function closeLocationModal() {
             const m = document.getElementById('location-modal'); m.classList.add('opacity-0');
-            setTimeout(() => m.classList.add('hidden'), 300);
+            setTimeout(() => m.classList.add('hidden'), 30);
         }
         function saveLocation() {
-            const val = document.getElementById('address-input').value.trim();
-            if(val) {
+            const val = document.getElementById('address-input').value;
+            if(val.trim()) {
                 localStorage.setItem('segari_address', val);
                 document.getElementById('current-address-text').innerText = "Kirim ke: " + val;
-                showToast("Alamat pengiriman berhasil diubah!");
-                closeLocationModal();
+                closeLocationModal(); showToast("Alamat pengiriman diperbarui!");
             }
         }
 
@@ -529,29 +533,44 @@
         }
         function closeAiModal() {
             const m = document.getElementById('ai-modal'); m.classList.add('opacity-0');
-            setTimeout(() => m.classList.add('hidden'), 300);
+            setTimeout(() => m.classList.add('hidden'), 30);
         }
         function askAiChef() {
-            const inp = document.getElementById('ai-input'); const text = inp.value.trim(); if(!text) return;
-            const history = document.getElementById('ai-chat-history');
+            const input = document.getElementById('ai-input'); const history = document.getElementById('ai-chat-history');
+            if(!input.value.trim()) return;
             
-            const uDiv = document.createElement('div');
-            uDiv.className = "bg-green-50 border border-green-100 rounded-xl p-3 text-green-900 ml-6 text-right font-bold";
-            uDiv.innerText = text; history.appendChild(uDiv); inp.value = '';
+            const userMsg = document.createElement('div');
+            userMsg.className = "bg-green-50 border border-green-100 p-2.5 rounded-xl ml-8 text-right font-bold text-green-800";
+            userMsg.innerText = input.value; history.appendChild(userMsg);
             
+            const typingMsg = document.createElement('div');
+            typingMsg.className = "bg-gray-50 border border-gray-100 p-2.5 rounded-xl mr-8 text-gray-400 italic animate-pulse";
+            typingMsg.innerText = "Koki Sedang Mengetik..."; history.appendChild(typingMsg);
+            
+            const userQuery = input.value; input.value = '';
             setTimeout(() => {
-                const aiDiv = document.createElement('div');
-                aiDiv.className = "bg-gray-50 border border-gray-100 rounded-xl p-3 text-gray-700 mr-6 font-medium";
-                aiDiv.innerText = `Rekomendasi Menu Koki Segari: Dengan bahan ${text}, hidangan tumis sehat bumbu minimalis siap dimasak! Yuk checkout tambahan bahannya sekarang.`;
-                history.appendChild(aiDiv);
-                history.scrollTop = history.scrollHeight;
+                typingMsg.remove();
+                const botMsg = document.createElement('div');
+                botMsg.className = "bg-gray-50 border border-gray-100 p-2.5 rounded-xl text-gray-700 mr-8";
+                botMsg.innerText = `Wah, paduan hidangan "${userQuery}" sangat lezat jika ditumis segar! Pastikan Anda memakai racikan bawang putih murni. Belanja semua kebutuhannya praktis di aplikasi Segari!`;
+                history.appendChild(botMsg);
             }, 750);
         }
 
+        function startFlashSaleTimer() {
+            let h = 2, m = 14, s = 45;
+            setInterval(() => {
+                s--; if(s < 0) { s = 59; m--; } if(m < 0) { m = 59; h--; }
+                document.getElementById('timer-hours').innerText = String(h).padStart(2, '0');
+                document.getElementById('timer-mins').innerText = String(m).padStart(2, '0');
+                document.getElementById('timer-secs').innerText = String(s).padStart(2, '0');
+            }, 1000);
+        }
+
         function showToast(msg) {
-            const con = document.getElementById('toast-container');
-            const t = document.createElement('div'); t.className = "toast-msg"; t.innerText = msg;
-            con.appendChild(t); setTimeout(() => t.remove(), 2200);
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div'); toast.className = "toast-msg"; toast.innerText = msg;
+            container.appendChild(toast); setTimeout(() => toast.remove(), 2500);
         }
     </script>
 </body>
