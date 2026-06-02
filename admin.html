@@ -3,122 +3,353 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Segari HQ - Control Center Panel</title>
+    <title>Segari Backoffice - Master Administrator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-slate-900 text-slate-100 antialiased font-sans">
+<body class="bg-slate-900 text-slate-100 font-sans antialiased">
 
-    <div class="flex min-h-screen">
-        <aside class="w-64 bg-slate-950 border-r border-slate-800 flex flex-col justify-between p-4 shrink-0">
-            <div>
-                <div class="flex items-center gap-2 px-2 py-4 border-b border-slate-800 mb-6">
-                    <span class="text-xl font-black text-green-500 tracking-tight">se<span class="text-orange-500">gari</span> <span class="text-xs font-mono font-medium text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded ml-1">HQ</span></span>
+    <div class="lg:hidden bg-slate-950 p-4 flex justify-between items-center sticky top-0 z-50 border-b border-slate-800 shadow-xl">
+        <div class="flex items-center gap-2">
+            <span class="text-xl font-black text-green-500">se<span class="text-orange-500">gari</span></span>
+            <span class="bg-red-500/20 text-red-400 text-[9px] font-bold px-1.5 py-0.5 rounded border border-red-500/30">HQ</span>
+        </div>
+        <button onclick="toggleAdminSidebar()" class="p-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl transition" id="admin-hamburger-btn">
+            <i data-lucide="menu" class="w-6 h-6 text-slate-300"></i>
+        </button>
+    </div>
+
+    <div id="admin-sidebar-overlay" onclick="toggleAdminSidebar()" class="fixed inset-0 bg-black/70 z-40 hidden lg:hidden transition-opacity duration-300"></div>
+
+    <div class="min-h-screen flex flex-col lg:flex-row relative">
+        
+        <aside id="admin-sidebar-menu" class="fixed lg:static inset-y-0 left-0 z-50 w-64 bg-slate-950 p-6 flex flex-col justify-between transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out border-r border-slate-800/80 shadow-2xl lg:shadow-none">
+            
+            <div class="space-y-6">
+                <div class="hidden lg:flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <span class="text-2xl font-black text-green-500">se<span class="text-orange-500">gari</span></span>
+                        <span class="bg-red-500/20 text-red-400 text-[10px] font-bold px-1.5 py-0.5 rounded border border-red-500/30">HQ</span>
+                    </div>
                 </div>
-                <nav class="space-y-1">
-                    <button onclick="changeView('analytics')" class="admin-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold bg-slate-800 text-white text-left">
-                        <i data-lucide="bar-chart-3" class="w-4 h-4 text-green-500"></i> Sistem Analitik
+
+                <div class="flex lg:hidden justify-between items-center border-b border-slate-800 pb-4">
+                    <span class="text-xs font-black text-slate-500 uppercase tracking-widest">Main Console</span>
+                    <button onclick="toggleAdminSidebar()" class="p-1 hover:bg-slate-900 rounded-lg text-slate-400 border border-transparent hover:border-slate-800">
+                        <i data-lucide="x" class="w-5 h-5"></i>
                     </button>
-                    <button onclick="changeView('verification')" class="admin-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800/40 hover:text-white text-left">
-                        <i data-lucide="shield-check" class="w-4 h-4 text-orange-500"></i> Verifikasi Mitra
-                    </button>
-                    <button onclick="changeView('users')" class="admin-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800/40 hover:text-white text-left">
-                        <i data-lucide="users" class="w-4 h-4 text-blue-500"></i> Manajemen User
-                    </button>
-                </nav>
+                </div>
+
+                <div class="space-y-4">
+                    <p class="text-[11px] text-slate-500 uppercase tracking-widest font-black hidden lg:block">Control Panel</p>
+                    <nav class="space-y-1 text-xs font-bold">
+                        <button id="nav-overview" onclick="switchAdminTab('overview')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-800 text-white transition">
+                            <i data-lucide="bar-chart-3" class="w-4 h-4 text-green-500"></i> Ringkasan Platform
+                        </button>
+                        <button id="nav-users" onclick="switchAdminTab('users')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/50 transition">
+                            <i data-lucide="users" class="w-4 h-4 text-slate-400"></i> Kelola Hak Akun User
+                        </button>
+                        <button id="nav-products" onclick="switchAdminTab('products')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/50 transition">
+                            <i data-lucide="shield-alert" class="w-4 h-4 text-slate-400"></i> Audit Master Produk
+                        </button>
+                        
+                        <div class="border-t border-slate-800/80 my-4 pt-4"></div>
+                        
+                        <a href="index.html" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-orange-400 hover:bg-slate-800/50 transition">
+                            <i data-lucide="external-link" class="w-4 h-4 text-orange-500"></i> Buka Mall Konsumen
+                        </a>
+                    </nav>
+                </div>
             </div>
-            <div class="p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs">
-                <p class="font-bold text-slate-300">Super Administrator</p>
-                <p class="text-[10px] text-slate-500 font-mono mt-0.5">ID: SGR-ADMIN-2026</p>
+
+            <div class="pt-6 border-t border-slate-800">
+                <button onclick="handleAdminLogout()" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-400 hover:bg-red-950/40 hover:text-red-300 font-bold text-xs transition border border-transparent hover:border-red-500/20">
+                    <i data-lucide="log-out" class="w-4 h-4"></i> Keluar Master Console
+                </button>
             </div>
         </aside>
 
-        <div class="flex-grow flex flex-col bg-slate-900">
-            <header class="h-16 border-b border-slate-800 px-6 flex items-center justify-between bg-slate-950/50 backdrop-blur">
-                <h1 id="admin-title" class="text-base font-bold text-slate-200">Sistem Analitik Global</h1>
-                <div class="flex items-center gap-3">
-                    <span class="text-xs font-mono bg-green-500/10 border border-green-500/20 text-green-400 px-3 py-1 rounded-full flex items-center gap-1.5">
-                        <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-ping"></span> Jaringan Normal
-                    </span>
-                </div>
+        <main class="flex-grow p-4 md:p-8 space-y-6 text-slate-200 w-full overflow-x-hidden">
+            <header class="flex justify-between items-center bg-slate-950 p-4 rounded-2xl border border-slate-800">
+                <h2 class="text-sm md:text-base font-black text-white flex items-center gap-2" id="admin-page-title">
+                    <i data-lucide="bar-chart-3" class="text-green-500"></i> Platform Operational Overview
+                </h2>
+                <span class="bg-indigo-500/10 text-indigo-400 font-mono text-[10px] md:text-[11px] font-bold px-2.5 py-1 rounded-xl border border-indigo-500/20 flex items-center gap-1.5 shrink-0">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> Superadmin Mode
+                </span>
             </header>
 
-            <main class="p-6 flex-grow">
-                
-                <div id="view-analytics" class="space-y-6">
-                    <div class="grid grid-cols-4 gap-4">
-                        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4"><p class="text-xs font-medium text-slate-400">Total GMV Platform</p><h3 class="text-2xl font-mono font-bold mt-1 text-green-400">Rp428.540.000</h3><p class="text-[10px] text-slate-500 mt-1">Bulan Berjalan (Juni 2026)</p></div>
-                        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4"><p class="text-xs font-medium text-slate-400">Transaksi Berhasil</p><h3 class="text-2xl font-mono font-bold mt-1 text-white">12.450 order</h3><p class="text-[10px] text-green-400">↑ 4.2% Efisiensi Rute</p></div>
-                        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4"><p class="text-xs font-medium text-slate-400">Total Pengguna Terdaftar</p><h3 class="text-2xl font-mono font-bold mt-1 text-white">84.120 Akun</h3><p class="text-[10px] text-slate-500">Konsumen Aktif Ter-Aktivasi</p></div>
-                        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4"><p class="text-xs font-medium text-slate-400">Pendapatan Komisi (10%)</p><h3 class="text-2xl font-mono font-bold mt-1 text-orange-400">Rp42.854.000</h3><p class="text-[10px] text-slate-400">Nett Platform Margin</p></div>
+            <section id="tab-overview" class="space-y-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800">
+                        <div class="flex justify-between items-center text-slate-400 text-xs mb-2"><span>Total Omzet Pendapatan</span><i data-lucide="wallet" class="text-emerald-500 w-4 h-4"></i></div>
+                        <h3 class="text-xl font-black text-white" id="stat-revenue">Rp0</h3>
                     </div>
-
-                    <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5">
-                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">Traffic Pesanan Per Jam (Seluruh Indonesia)</h3>
-                        <div class="h-32 flex items-end gap-3 pt-4 border-b border-slate-800">
-                            <div class="bg-slate-800 w-full h-[20%] rounded-t" title="Jam 00-06"></div>
-                            <div class="bg-green-600 w-full h-[90%] rounded-t relative" title="Jam 06-12"><span class="absolute -top-5 left-1/2 -translate-x-1/2 text-[9px] font-mono text-green-400">Peak</span></div>
-                            <div class="bg-emerald-600 w-full h-[65%] rounded-t" title="Jam 12-18"></div>
-                            <div class="bg-slate-700 w-full h-[40%] rounded-t" title="Jam 18-24"></div>
-                        </div>
-                        <div class="flex justify-between text-[10px] text-slate-500 font-mono mt-2"><span>Dini Hari</span><span>Pagi-Siang (Sembako)</span><span>Sore Hari</span><span>Malam Restock</span></div>
+                    <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800">
+                        <div class="flex justify-between items-center text-slate-400 text-xs mb-2"><span>Volume Order Masuk</span><i data-lucide="shopping-bag" class="text-amber-500 w-4 h-4"></i></div>
+                        <h3 class="text-xl font-black text-white" id="stat-orders-count">0 Transaksi</h3>
+                    </div>
+                    <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800">
+                        <div class="flex justify-between items-center text-slate-400 text-xs mb-2"><span>Total Akun Terdaftar</span><i data-lucide="users-2" class="text-indigo-500 w-4 h-4"></i></div>
+                        <h3 class="text-xl font-black text-white" id="stat-users-count">0 User</h3>
+                    </div>
+                    <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800">
+                        <div class="flex justify-between items-center text-slate-400 text-xs mb-2"><span>Peringatan Kritis Stok</span><i data-lucide="alert-triangle" class="text-red-500 w-4 h-4"></i></div>
+                        <h3 class="text-xl font-black text-white text-red-400" id="stat-alert-count">0 SKU</h3>
                     </div>
                 </div>
 
-                <div id="view-verification" class="hidden space-y-4">
-                    <div class="bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden">
-                        <table class="w-full text-left border-collapse text-xs">
-                            <thead><tr class="bg-slate-900 border-b border-slate-800 font-semibold text-slate-400"><th class="p-4">Tanggal Daftar</th><th class="p-4">Nama Hub / Kelompok Tani</th><th class="p-4">Lokasi Wilayah</th><th class="p-4">Komoditas Utama</th><th class="p-4">Aksi Peninjauan</th></tr></thead>
-                            <tbody class="divide-y divide-slate-800">
-                                <tr id="row-mitra-1">
-                                    <td class="p-4 font-mono text-slate-400">01-06-2026</td>
-                                    <td class="p-4 font-bold text-white">Tani Makmur Lembang</td>
-                                    <td class="p-4">Kab. Bandung Barat</td>
-                                    <td class="p-4 text-emerald-400">Brokoli, Kentang, Selada</td>
-                                    <td class="p-4 flex gap-2">
-                                        <button onclick="approveMitra('Tani Makmur Lembang')" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-lg font-bold">Approve & Publish</button>
-                                        <button onclick="rejectMitra()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1 rounded-lg">Tolak</button>
-                                    </td>
+                <div class="bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden">
+                    <div class="p-4 bg-slate-900 text-xs font-bold text-white tracking-wide border-b border-slate-800">SISTEM MONITORING TRANSAKSI SE-PLATFORM</div>
+                    <div class="overflow-x-auto text-xs">
+                        <table class="w-full text-left text-slate-400 min-w-[700px]">
+                            <thead class="bg-slate-900 font-bold text-slate-300">
+                                <tr>
+                                    <th class="p-4">No. Invoice</th>
+                                    <th class="p-4">Akun Pembeli</th>
+                                    <th class="p-4">Nilai Finansial</th>
+                                    <th class="p-4">Logistik Status</th>
+                                    <th class="p-4">Alamat Distribusi</th>
                                 </tr>
-                            </tbody>
+                            </thead>
+                            <tbody id="global-orders-rows" class="divide-y divide-slate-800">
+                                </tbody>
                         </table>
                     </div>
                 </div>
+            </section>
 
-                <div id="view-users" class="hidden space-y-4">
-                    <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5">
-                        <div class="flex justify-between items-center mb-4"><h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Log Audit Aktivitas User Terkini</h3><span class="text-xs text-blue-400 cursor-pointer">Lihat Semua Log →</span></div>
-                        <div class="space-y-3 text-xs font-mono">
-                            <div class="p-2.5 bg-slate-900 border border-slate-800 rounded-xl flex justify-between"><span class="text-slate-400">[21:10:04] User @0812998271 melakukan pendaftaran akun baru</span><span class="text-green-500">SUCCESS</span></div>
-                            <div class="p-2.5 bg-slate-900 border border-slate-800 rounded-xl flex justify-between"><span class="text-slate-400">[21:08:45] Hub Sukabumi memperbarui harga 'Wortel Berastagi'</span><span class="text-blue-400">UPDATED</span></div>
-                        </div>
+            <section id="tab-users" class="hidden">
+                <div class="bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden">
+                    <div class="p-4 bg-slate-900 font-bold text-xs text-white border-b border-slate-800">MUTASI HAK AKSES SISTEM PERAN USER</div>
+                    <div class="overflow-x-auto text-xs">
+                        <table class="w-full text-left text-slate-400 min-w-[500px]">
+                            <thead class="bg-slate-900 text-slate-300 font-bold">
+                                <tr>
+                                    <th class="p-4">Username Akun</th>
+                                    <th class="p-4">Peran Saat Ini (Role)</th>
+                                    <th class="p-4 text-center">Ganti Status Hak Otoritas Peran</th>
+                                </tr>
+                            </thead>
+                            <tbody id="global-users-rows" class="divide-y divide-slate-800">
+                                </tbody>
+                        </table>
                     </div>
                 </div>
+            </section>
 
-            </main>
-        </div>
+            <section id="tab-products" class="hidden">
+                <div class="bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden">
+                    <div class="p-4 bg-slate-900 font-bold text-xs text-white border-b border-slate-800">MAINTENANCE SKU / HAPUS PRODUK DARI MALL</div>
+                    <div class="overflow-x-auto text-xs">
+                        <table class="w-full text-left text-slate-400 min-w-[650px]">
+                            <thead class="bg-slate-900 text-slate-300 font-bold">
+                                <tr>
+                                    <th class="p-4">Nama Item</th>
+                                    <th class="p-4">Kategori</th>
+                                    <th class="p-4">Harga Platform</th>
+                                    <th class="p-4">Sisa Stok</th>
+                                    <th class="p-4 text-center">Tindakan Destruktif</th>
+                                </tr>
+                            </thead>
+                            <tbody id="global-products-rows" class="divide-y divide-slate-800">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
     </div>
 
     <script>
-        function changeView(viewId) {
-            document.getElementById('view-analytics').classList.add('hidden');
-            document.getElementById('view-verification').classList.add('hidden');
-            document.getElementById('view-users').classList.add('hidden');
-            document.getElementById(`view-${viewId}`).classList.remove('hidden');
+        let isSidebarOpen = false;
 
-            const headers = { analytics: 'Sistem Analitik Global', verification: 'Antrean Verifikasi Dokumen Mitra', users: 'Manajemen Akun & Log Audit' };
-            document.getElementById('admin-title').innerText = headers[viewId];
+        window.addEventListener('DOMContentLoaded', () => {
+            loadAdminSession();
+            calculateOverviewMetrics();
+            renderUserManagement();
+            renderProductAudit();
+            lucide.createIcons();
 
-            document.querySelectorAll('.admin-btn').forEach(btn => btn.classList.replace('bg-slate-800', 'text-slate-400'));
-            event.currentTarget.classList.replace('text-slate-400', 'bg-slate-800');
+            window.addEventListener('storage', () => {
+                calculateOverviewMetrics();
+                renderUserManagement();
+                renderProductAudit();
+            });
+        });
+
+        // 1. Auth Guard - Proteksi Keamanan Akses Backoffice
+        function loadAdminSession() {
+            const session = JSON.parse(localStorage.getItem('segari_session'));
+            
+            // Periksa token login dan pastikan wajib bertipe role 'Admin'
+            if (!session || session.role !== 'Admin') {
+                alert("Akses Ilegal! Area Terbatas Khusus Master Administrator.");
+                window.location.href = 'index.html';
+                return;
+            }
         }
 
-        function approveMitra(name) {
-            alert(`Mitra "${name}" Berhasil diverifikasi dan langsung tayang di aplikasi konsumen.`);
-            document.getElementById('row-mitra-1').remove();
+        // 2. Fungsi Log Out Sistem Master Administrator
+        function handleAdminLogout() {
+            if (confirm("Apakah Anda yakin ingin menutup sesi keamanan dan keluar dari Master Admin Backoffice?")) {
+                localStorage.removeItem('segari_session'); // Hapus token session login
+                window.location.href = 'index.html';       // Tendang kembali ke halaman depan konsumen
+            }
         }
-        function rejectMitra() { alert('Pendaftaran mitra ditolak.'); }
-        window.onload = () => { lucide.createIcons(); };
+
+        // 3. Engine Togel Menu Navigasi / Hamburger (Mobile Mode)
+        function toggleAdminSidebar() {
+            const sidebar = document.getElementById('admin-sidebar-menu');
+            const overlay = document.getElementById('admin-sidebar-overlay');
+            
+            isSidebarOpen = !isSidebarOpen;
+            
+            if (isSidebarOpen) {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            }
+        }
+
+        // 4. Pengendali Pemindah Tab Utama & Style Aktif Navigasi
+        function switchAdminTab(target) {
+            document.getElementById('tab-overview').classList.add('hidden');
+            document.getElementById('tab-users').classList.add('hidden');
+            document.getElementById('tab-products').classList.add('hidden');
+            document.getElementById(`tab-${target}`).classList.remove('hidden');
+
+            // Pengolah visual active state menu
+            const tabs = ['overview', 'users', 'products'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`nav-${t}`);
+                const icon = btn.querySelector('i');
+                if (t === target) {
+                    btn.className = "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-800 text-white transition";
+                    if(icon) icon.className = "w-4 h-4 text-green-500";
+                } else {
+                    btn.className = "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/50 transition";
+                    if(icon) icon.className = "w-4 h-4 text-slate-400";
+                }
+            });
+
+            const title = document.getElementById('admin-page-title');
+            if(target === 'overview') title.innerHTML = `<i data-lucide="bar-chart-3" class="text-green-500"></i> Platform Operational Overview`;
+            if(target === 'users') title.innerHTML = `<i data-lucide="users" class="text-green-500"></i> Otoritas Manajemen User`;
+            if(target === 'products') title.innerHTML = `<i data-lucide="shield-alert" class="text-green-500"></i> Audit Data & SKU Produk Utama`;
+            
+            // Sembunyikan kembali drawer menu jika user mengeklik tab via mobile screen
+            if (isSidebarOpen) toggleAdminSidebar();
+
+            lucide.createIcons();
+        }
+
+        // Kalkulator & Render Ringkasan Finansial Platform
+        function calculateOverviewMetrics() {
+            const orders = JSON.parse(localStorage.getItem('segari_orders')) || [];
+            const products = JSON.parse(localStorage.getItem('segari_products')) || [];
+            const users = JSON.parse(localStorage.getItem('segari_users')) || [];
+
+            const totalRevenue = orders.reduce((sum, o) => sum + o.total, 0);
+            document.getElementById('stat-revenue').innerText = `Rp${totalRevenue.toLocaleString('id-ID')}`;
+            document.getElementById('stat-orders-count').innerText = `${orders.length} Invoice`;
+            document.getElementById('stat-users-count').innerText = `${users.length} Account`;
+
+            const lowStockCount = products.filter(p => p.stock <= 5).length;
+            document.getElementById('stat-alert-count').innerText = `${lowStockCount} Item SKU`;
+
+            const tbody = document.getElementById('global-orders-rows');
+            tbody.innerHTML = '';
+            if(orders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-500 italic">Belum ada transaksi pembelian global terjadi di platform.</td></tr>`;
+                return;
+            }
+
+            orders.forEach(o => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-900/50 transition";
+                tr.innerHTML = `
+                    <td class="p-4 font-mono font-bold text-white">${o.invoice}</td>
+                    <td class="p-4">${o.username}</td>
+                    <td class="p-4 font-bold text-green-400">Rp${o.total.toLocaleString('id-ID')}</td>
+                    <td class="p-4"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-300 border border-slate-700">${o.status}</span></td>
+                    <td class="p-4 text-slate-500 truncate max-w-xs">${o.address}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Render & Mutasi Hak Akses Akun User
+        function renderUserManagement() {
+            const tbody = document.getElementById('global-users-rows');
+            const users = JSON.parse(localStorage.getItem('segari_users')) || [];
+            tbody.innerHTML = '';
+
+            users.forEach((u, idx) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-900/50 transition";
+                tr.innerHTML = `
+                    <td class="p-4 font-bold text-slate-200">${u.username}</td>
+                    <td class="p-4"><span class="px-2 py-0.5 rounded font-bold text-[10px] ${u.role==='Admin'?'bg-red-500/10 text-red-400 border border-red-500/20':u.role==='Toko'?'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20':'bg-blue-500/10 text-blue-400 border border-blue-500/20'}">${u.role}</span></td>
+                    <td class="p-4 text-center">
+                        <select onchange="changeUserRole(${idx}, this.value)" class="p-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-slate-300 font-bold focus:outline-none focus:ring-1 focus:ring-green-500">
+                            <option value="Konsumen" ${u.role==='Konsumen'?'selected':''}>Konsumen</option>
+                            <option value="Toko" ${u.role==='Toko'?'selected':''}>Mitra Toko</option>
+                            <option value="Admin" ${u.role==='Admin'?'selected':''}>Master Admin</option>
+                        </select>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function changeUserRole(index, newRole) {
+            let users = JSON.parse(localStorage.getItem('segari_users'));
+            users[index].role = newRole;
+            localStorage.setItem('segari_users', JSON.stringify(users));
+            renderUserManagement();
+            alert(`Otoritas hak akses akun "${users[index].username}" berhasil diubah menjadi ${newRole}!`);
+        }
+
+        // Render & Penghapusan SKU Produk Utama
+        function renderProductAudit() {
+            const tbody = document.getElementById('global-products-rows');
+            const products = JSON.parse(localStorage.getItem('segari_products')) || [];
+            tbody.innerHTML = '';
+
+            products.forEach((p, idx) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-900/50 transition";
+                tr.innerHTML = `
+                    <td class="p-4 flex items-center gap-2 font-bold text-slate-200">
+                        <img src="${p.img}" class="w-8 h-8 object-cover rounded bg-slate-800">
+                        <span>${p.name}</span>
+                    </td>
+                    <td class="p-4 uppercase font-mono text-[10px] tracking-wider text-slate-400">${p.category}</td>
+                    <td class="p-4 font-bold text-green-400">Rp${p.price.toLocaleString('id-ID')}</td>
+                    <td class="p-4 font-bold ${p.stock<=5?'text-red-400':''}">${p.stock} pcs</td>
+                    <td class="p-4 text-center">
+                        <button onclick="deleteProductMaster(${p.id})" class="bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/20 px-2.5 py-1 rounded-xl font-bold text-[11px] transition flex items-center gap-1 mx-auto">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Hapus SKU
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            lucide.createIcons();
+        }
+
+        function deleteProductMaster(prodId) {
+            if(confirm("Apakah Anda yakin ingin menghapus produk ini secara permanen dari ekosistem Segari?")) {
+                let products = JSON.parse(localStorage.getItem('segari_products')) || [];
+                products = products.filter(p => p.id !== prodId);
+                localStorage.setItem('segari_products', JSON.stringify(products));
+                renderProductAudit();
+                calculateOverviewMetrics();
+            }
+        }
     </script>
 </body>
 </html>
