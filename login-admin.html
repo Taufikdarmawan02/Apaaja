@@ -11,11 +11,9 @@
 
     <div class="w-full max-w-sm bg-slate-950 border border-red-500/20 p-8 rounded-3xl shadow-2xl relative overflow-hidden">
         
-        <!-- Hiasan Garis Warning Superadmin -->
         <div class="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500"></div>
 
         <div class="space-y-6">
-            <!-- Branding HQ -->
             <div class="text-center space-y-1">
                 <div class="flex items-center justify-center gap-2">
                     <span class="text-2xl font-black text-green-500">se<span class="text-orange-500">gari</span></span>
@@ -25,7 +23,6 @@
                 <p class="text-[11px] text-slate-500">Restricted area for authorized platform master only</p>
             </div>
 
-            <!-- Form Direct Login Admin -->
             <form onsubmit="handleAdminLogin(event)" class="space-y-4 text-xs font-bold">
                 <div class="space-y-1.5">
                     <label class="text-slate-400 uppercase tracking-wide text-[10px]">Security Clearance ID</label>
@@ -53,9 +50,15 @@
     <script>
         window.addEventListener('DOMContentLoaded', () => { 
             lucide.createIcons(); 
-            // Amankan inisialisasi user bawaan
+            
+            // Amankan inisialisasi daftar user admin bawaan
             if(!localStorage.getItem('segari_users')) {
-                localStorage.setItem('segari_users', JSON.stringify([{username: 'admin', password: 'admin123', role: 'Admin'}]));
+                const defaultAdmins = [
+                    { username: 'admin', password: 'admin123', role: 'Admin' },
+                    { username: 'superadmin', password: 'hq_master2026', role: 'Admin' },
+                    { username: 'root_segari', password: 'securepass99', role: 'Admin' }
+                ];
+                localStorage.setItem('segari_users', JSON.stringify(defaultAdmins));
             }
         });
 
