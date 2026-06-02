@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Segari HQ - Control Center Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 antialiased font-sans">
+
+    <div class="flex min-h-screen">
+        <aside class="w-64 bg-slate-950 border-r border-slate-800 flex flex-col justify-between p-4 shrink-0">
+            <div>
+                <div class="flex items-center gap-2 px-2 py-4 border-b border-slate-800 mb-6">
+                    <span class="text-xl font-black text-green-500 tracking-tight">se<span class="text-orange-500">gari</span> <span class="text-xs font-mono font-medium text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded ml-1">HQ</span></span>
+                </div>
+                <nav class="space-y-1">
+                    <button onclick="changeView('analytics')" class="admin-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold bg-slate-800 text-white text-left">
+                        <i data-lucide="bar-chart-3" class="w-4 h-4 text-green-500"></i> Sistem Analitik
+                    </button>
+                    <button onclick="changeView('verification')" class="admin-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800/40 hover:text-white text-left">
+                        <i data-lucide="shield-check" class="w-4 h-4 text-orange-500"></i> Verifikasi Mitra
+                    </button>
+                    <button onclick="changeView('users')" class="admin-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800/40 hover:text-white text-left">
+                        <i data-lucide="users" class="w-4 h-4 text-blue-500"></i> Manajemen User
+                    </button>
+                </nav>
+            </div>
+            <div class="p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs">
+                <p class="font-bold text-slate-300">Super Administrator</p>
+                <p class="text-[10px] text-slate-500 font-mono mt-0.5">ID: SGR-ADMIN-2026</p>
+            </div>
+        </aside>
+
+        <div class="flex-grow flex flex-col bg-slate-900">
+            <header class="h-16 border-b border-slate-800 px-6 flex items-center justify-between bg-slate-950/50 backdrop-blur">
+                <h1 id="admin-title" class="text-base font-bold text-slate-200">Sistem Analitik Global</h1>
+                <div class="flex items-center gap-3">
+                    <span class="text-xs font-mono bg-green-500/10 border border-green-500/20 text-green-400 px-3 py-1 rounded-full flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-ping"></span> Jaringan Normal
+                    </span>
+                </div>
+            </header>
+
+            <main class="p-6 flex-grow">
+                
+                <div id="view-analytics" class="space-y-6">
+                    <div class="grid grid-cols-4 gap-4">
+                        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4"><p class="text-xs font-medium text-slate-400">Total GMV Platform</p><h3 class="text-2xl font-mono font-bold mt-1 text-green-400">Rp428.540.000</h3><p class="text-[10px] text-slate-500 mt-1">Bulan Berjalan (Juni 2026)</p></div>
+                        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4"><p class="text-xs font-medium text-slate-400">Transaksi Berhasil</p><h3 class="text-2xl font-mono font-bold mt-1 text-white">12.450 order</h3><p class="text-[10px] text-green-400">↑ 4.2% Efisiensi Rute</p></div>
+                        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4"><p class="text-xs font-medium text-slate-400">Total Pengguna Terdaftar</p><h3 class="text-2xl font-mono font-bold mt-1 text-white">84.120 Akun</h3><p class="text-[10px] text-slate-500">Konsumen Aktif Ter-Aktivasi</p></div>
+                        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4"><p class="text-xs font-medium text-slate-400">Pendapatan Komisi (10%)</p><h3 class="text-2xl font-mono font-bold mt-1 text-orange-400">Rp42.854.000</h3><p class="text-[10px] text-slate-400">Nett Platform Margin</p></div>
+                    </div>
+
+                    <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">Traffic Pesanan Per Jam (Seluruh Indonesia)</h3>
+                        <div class="h-32 flex items-end gap-3 pt-4 border-b border-slate-800">
+                            <div class="bg-slate-800 w-full h-[20%] rounded-t" title="Jam 00-06"></div>
+                            <div class="bg-green-600 w-full h-[90%] rounded-t relative" title="Jam 06-12"><span class="absolute -top-5 left-1/2 -translate-x-1/2 text-[9px] font-mono text-green-400">Peak</span></div>
+                            <div class="bg-emerald-600 w-full h-[65%] rounded-t" title="Jam 12-18"></div>
+                            <div class="bg-slate-700 w-full h-[40%] rounded-t" title="Jam 18-24"></div>
+                        </div>
+                        <div class="flex justify-between text-[10px] text-slate-500 font-mono mt-2"><span>Dini Hari</span><span>Pagi-Siang (Sembako)</span><span>Sore Hari</span><span>Malam Restock</span></div>
+                    </div>
+                </div>
+
+                <div id="view-verification" class="hidden space-y-4">
+                    <div class="bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead><tr class="bg-slate-900 border-b border-slate-800 font-semibold text-slate-400"><th class="p-4">Tanggal Daftar</th><th class="p-4">Nama Hub / Kelompok Tani</th><th class="p-4">Lokasi Wilayah</th><th class="p-4">Komoditas Utama</th><th class="p-4">Aksi Peninjauan</th></tr></thead>
+                            <tbody class="divide-y divide-slate-800">
+                                <tr id="row-mitra-1">
+                                    <td class="p-4 font-mono text-slate-400">01-06-2026</td>
+                                    <td class="p-4 font-bold text-white">Tani Makmur Lembang</td>
+                                    <td class="p-4">Kab. Bandung Barat</td>
+                                    <td class="p-4 text-emerald-400">Brokoli, Kentang, Selada</td>
+                                    <td class="p-4 flex gap-2">
+                                        <button onclick="approveMitra('Tani Makmur Lembang')" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-lg font-bold">Approve & Publish</button>
+                                        <button onclick="rejectMitra()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1 rounded-lg">Tolak</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="view-users" class="hidden space-y-4">
+                    <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5">
+                        <div class="flex justify-between items-center mb-4"><h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Log Audit Aktivitas User Terkini</h3><span class="text-xs text-blue-400 cursor-pointer">Lihat Semua Log →</span></div>
+                        <div class="space-y-3 text-xs font-mono">
+                            <div class="p-2.5 bg-slate-900 border border-slate-800 rounded-xl flex justify-between"><span class="text-slate-400">[21:10:04] User @0812998271 melakukan pendaftaran akun baru</span><span class="text-green-500">SUCCESS</span></div>
+                            <div class="p-2.5 bg-slate-900 border border-slate-800 rounded-xl flex justify-between"><span class="text-slate-400">[21:08:45] Hub Sukabumi memperbarui harga 'Wortel Berastagi'</span><span class="text-blue-400">UPDATED</span></div>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <script>
+        function changeView(viewId) {
+            document.getElementById('view-analytics').classList.add('hidden');
+            document.getElementById('view-verification').classList.add('hidden');
+            document.getElementById('view-users').classList.add('hidden');
+            document.getElementById(`view-${viewId}`).classList.remove('hidden');
+
+            const headers = { analytics: 'Sistem Analitik Global', verification: 'Antrean Verifikasi Dokumen Mitra', users: 'Manajemen Akun & Log Audit' };
+            document.getElementById('admin-title').innerText = headers[viewId];
+
+            document.querySelectorAll('.admin-btn').forEach(btn => btn.classList.replace('bg-slate-800', 'text-slate-400'));
+            event.currentTarget.classList.replace('text-slate-400', 'bg-slate-800');
+        }
+
+        function approveMitra(name) {
+            alert(`Mitra "${name}" Berhasil diverifikasi dan langsung tayang di aplikasi konsumen.`);
+            document.getElementById('row-mitra-1').remove();
+        }
+        function rejectMitra() { alert('Pendaftaran mitra ditolak.'); }
+        window.onload = () => { lucide.createIcons(); };
+    </script>
+</body>
+</html>
