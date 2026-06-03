@@ -75,6 +75,40 @@
                 </div>
             </header>
 
+            <!-- 📊 PANEL UTAMA INFORMASI METRIK DASHBOARD TOKO -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <!-- Metrik Pendapatan -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+                    <div class="space-y-1">
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Total Pendapatan Toko</p>
+                        <h3 id="stat-revenue" class="text-lg font-black text-emerald-700">Rp0</h3>
+                    </div>
+                    <div class="p-3 bg-emerald-50 rounded-xl text-emerald-600">
+                        <i data-lucide="wallet" class="w-5 h-5"></i>
+                    </div>
+                </div>
+                <!-- Metrik Total Order Sesuai Transaksi -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+                    <div class="space-y-1">
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Order Sesuai Transaksi</p>
+                        <h3 id="stat-orders" class="text-lg font-black text-gray-800">0 Transaksi</h3>
+                    </div>
+                    <div class="p-3 bg-orange-50 rounded-xl text-orange-500">
+                        <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                    </div>
+                </div>
+                <!-- Metrik Peringatan Stok Sesuai Kode/Username Pemilik Toko -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
+                    <div class="space-y-1">
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Peringatan Stok Kritis</p>
+                        <h3 id="stat-low-stock" class="text-lg font-black text-gray-800">0 Produk</h3>
+                    </div>
+                    <div id="stat-low-stock-icon-bg" class="p-3 bg-gray-50 rounded-xl text-gray-400 transition-all duration-300">
+                        <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                    </div>
+                </div>
+            </div>
+
             <section id="section-inventory" class="space-y-6">
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
                     <h3 class="text-sm font-bold text-gray-800 flex items-center gap-2"><i data-lucide="plus-circle" class="text-emerald-600"></i> Tambah / Suplai Produk Baru ke Hub</h3>
@@ -158,11 +192,13 @@
             loadMerchantSession();
             renderInventoryTable();
             renderOrdersTable();
+            updateDashboardMetrics();
             lucide.createIcons();
 
             window.addEventListener('storage', () => {
                 renderInventoryTable();
                 renderOrdersTable();
+                updateDashboardMetrics();
             });
         });
 
@@ -227,6 +263,43 @@
             lucide.createIcons();
         }
 
+        // 📊 ENGINE NAVIGASI DATA PANEL METRIK DASHBOARD UTAMA
+        function updateDashboardMetrics() {
+            const currentMerchant = getActiveMerchant();
+            if (!currentMerchant) return;
+
+            // 1. Hitung Pendapatan & Jumlah Order Berdasarkan Relasi Toko
+            const allOrders = JSON.parse(localStorage.getItem('segari_orders')) || [];
+            const myOrders = allOrders.filter(o => 
+                (!o.merchant && !o.storeCode && (!o.items || o.items.length === 0)) || 
+                o.merchant === currentMerchant || 
+                o.storeCode === currentMerchant ||
+                (o.items && o.items.some(item => item.merchant === currentMerchant))
+            );
+
+            const totalRevenue = myOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+            
+            document.getElementById('stat-revenue').innerText = `Rp${totalRevenue.toLocaleString('id-ID')}`;
+            document.getElementById('stat-orders').innerText = `${myOrders.length} Transaksi`;
+
+            // 2. Hitung Peringatan Stok Kritis Khusus Produk Milik Username Toko Ini (Stok <= 5)
+            const allProducts = JSON.parse(localStorage.getItem('segari_products')) || [];
+            const myLowStockCount = allProducts.filter(p => p.merchant === currentMerchant && p.stock <= 5).length;
+
+            const labelStock = document.getElementById('stat-low-stock');
+            const bgStockIcon = document.getElementById('stat-low-stock-icon-bg');
+
+            labelStock.innerText = `${myLowStockCount} Produk`;
+
+            if (myLowStockCount > 0) {
+                labelStock.className = "text-lg font-black text-rose-600";
+                bgStockIcon.className = "p-3 bg-rose-50 text-rose-500 rounded-xl animate-pulse border border-rose-100";
+            } else {
+                labelStock.className = "text-lg font-black text-gray-800";
+                bgStockIcon.className = "p-3 bg-gray-50 text-gray-400 rounded-xl";
+            }
+        }
+
         function renderInventoryTable() {
             const tbody = document.getElementById('inventory-table-body');
             const allProducts = JSON.parse(localStorage.getItem('segari_products')) || [];
@@ -277,6 +350,7 @@
                 allProducts[pIdx].stock = Math.max(0, allProducts[pIdx].stock + amount);
                 localStorage.setItem('segari_products', JSON.stringify(allProducts));
                 renderInventoryTable();
+                updateDashboardMetrics(); // Sinkronisasi Panel Utama
             }
         }
 
@@ -286,6 +360,7 @@
                 allProducts = allProducts.filter(p => p.id !== productId);
                 localStorage.setItem('segari_products', JSON.stringify(allProducts));
                 renderInventoryTable();
+                updateDashboardMetrics(); // Sinkronisasi Panel Utama
             }
         }
 
@@ -323,21 +398,19 @@
 
             alert("Produk berhasil terbit secara live untuk toko Anda!");
             renderInventoryTable();
+            updateDashboardMetrics(); // Sinkronisasi Panel Utama
         }
 
-        // 🔄 PEMBARUAN ENGINE RENDERING & FILTER LOG ORDER KONSUMEN
         function renderOrdersTable() {
             const tbody = document.getElementById('orders-table-body');
             const allOrders = JSON.parse(localStorage.getItem('segari_orders')) || [];
             const currentMerchant = getActiveMerchant();
             
-            // Mengambil kata kunci pencarian dari input text box
             const searchInput = document.getElementById('order-search');
             const keyword = searchInput ? searchInput.value.toLowerCase().trim() : '';
             
             tbody.innerHTML = '';
 
-            // 1. Saring awal data berdasarkan hak milik Merchant Toko Aktif
             let filteredOrders = allOrders.filter(o => 
                 (!o.merchant && !o.storeCode && (!o.items || o.items.length === 0)) || 
                 o.merchant === currentMerchant || 
@@ -345,7 +418,6 @@
                 (o.items && o.items.some(item => item.merchant === currentMerchant))
             );
 
-            // 2. Evaluasi Filter Berdasarkan Kata Kunci (Invoice, Tanggal, Nama, Alamat)
             if (keyword !== '') {
                 filteredOrders = filteredOrders.filter(o => {
                     const displayInvoice = (o.invoice || o.id || '').toString().toLowerCase();
@@ -360,7 +432,6 @@
                 });
             }
 
-            // Validasi tampilan jika hasil filter kosong
             if(filteredOrders.length === 0) {
                 tbody.innerHTML = keyword !== '' 
                     ? `<tr><td colspan="6" class="p-8 text-center text-gray-400 italic">Pesanan dengan kata kunci "${keyword}" tidak ditemukan.</td></tr>`
@@ -428,8 +499,9 @@
                 allOrders[oIdx].status = newStatus;
                 localStorage.setItem('segari_orders', JSON.stringify(allOrders));
                 renderOrdersTable();
+                updateDashboardMetrics(); // Sinkronisasi Panel Utama jika total/status mempengaruhi filter pendapatan
             }
         }
     </script>
 </body>
-    </html>
+</html>
