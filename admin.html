@@ -6,6 +6,10 @@
     <title>Segari Backoffice - Master Administrator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .animate-slide-up { animation: slideUp 0.3s ease-out forwards; }
+    </style>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans antialiased">
 
@@ -100,10 +104,26 @@
                     </div>
                 </div>
 
+                <div class="flex flex-col sm:flex-row gap-3 bg-slate-950 p-4 rounded-2xl border border-slate-800">
+                    <div class="relative flex-grow">
+                        <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute left-3 top-3"></i>
+                        <input type="text" id="order-search" oninput="handleOrderFilter()" placeholder="Cari berdasarkan Invoice / Nama Pembeli..." class="w-full pl-9 pr-4 py-2 bg-slate-900 border border-slate-800 text-xs rounded-xl focus:outline-none focus:border-green-500 text-slate-200 placeholder-slate-500">
+                    </div>
+                    <div class="sm:w-48">
+                        <select id="order-status-filter" onchange="handleOrderFilter()" class="w-full px-3 py-2 bg-slate-900 border border-slate-800 text-xs rounded-xl focus:outline-none focus:border-green-500 text-slate-200">
+                            <option value="all">Semua Status Logistik</option>
+                            <option value="Diproses">Diproses</option>
+                            <option value="Menyiapkan Pesanan">Menyiapkan Pesanan</option>
+                            <option value="Dalam Perjalanan">Dalam Perjalanan</option>
+                            <option value="Selesai">Selesai</option>
+                        </select>
+                    </div>
+                </div>
+
                 <div class="bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden">
                     <div class="p-4 bg-slate-900 text-xs font-bold text-white tracking-wide border-b border-slate-800">SISTEM MONITORING TRANSAKSI SE-PLATFORM</div>
                     <div class="overflow-x-auto text-xs">
-                        <table class="w-full text-left text-slate-400 min-w-[700px]">
+                        <table class="w-full text-left text-slate-400 min-w-[750px]">
                             <thead class="bg-slate-900 font-bold text-slate-300">
                                 <tr>
                                     <th class="p-4">No. Invoice</th>
@@ -111,6 +131,7 @@
                                     <th class="p-4">Nilai Finansial</th>
                                     <th class="p-4">Logistik Status</th>
                                     <th class="p-4">Alamat Distribusi</th>
+                                    <th class="p-4 text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody id="global-orders-rows" class="divide-y divide-slate-800"></tbody>
@@ -159,6 +180,37 @@
         </main>
     </div>
 
+    <div id="edit-order-modal" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-slate-950 border border-slate-800 w-full max-w-md rounded-2xl p-6 space-y-4 shadow-2xl animate-slide-up">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                    <i data-lucide="edit-3" class="text-orange-500 w-4 h-4"></i> Update Transaksi <span id="modal-invoice-id" class="font-mono text-green-400"></span>
+                </h3>
+                <button onclick="closeEditOrderModal()" class="text-slate-400 hover:text-slate-200"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <input type="hidden" id="edit-order-id">
+            <div class="space-y-3 text-xs">
+                <div class="space-y-1">
+                    <label class="text-slate-400 font-bold">Status Logistik Pengiriman</label>
+                    <select id="edit-order-status" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-800 rounded-xl focus:outline-none focus:border-green-500 text-slate-200">
+                        <option value="Diproses">Diproses</option>
+                        <option value="Menyiapkan Pesanan">Menyiapkan Pesanan</option>
+                        <option value="Dalam Perjalanan">Dalam Perjalanan</option>
+                        <option value="Selesai">Selesai</option>
+                    </select>
+                </div>
+                <div class="space-y-1">
+                    <label class="text-slate-400 font-bold">Alamat Distribusi Baru</label>
+                    <textarea id="edit-order-address" rows="3" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-800 rounded-xl focus:outline-none focus:border-green-500 text-slate-200 resize-none"></textarea>
+                </div>
+            </div>
+            <div class="flex gap-2 pt-2">
+                <button onclick="closeEditOrderModal()" class="w-1/2 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold py-2 rounded-xl text-xs transition">Batal</button>
+                <button onclick="saveOrderEdits()" class="w-1/2 bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded-xl text-xs transition">Simpan Perubahan</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let isSidebarOpen = false;
 
@@ -182,7 +234,6 @@
             });
         });
 
-        // 1. Auth Guard - Jika ilegal tendang ke login-admin.html
         function loadAdminSession() {
             const session = JSON.parse(localStorage.getItem(SESSION_KEY));
             if (!session || session.role !== 'Admin') {
@@ -204,7 +255,7 @@
             }
             if (!localStorage.getItem(ORDER_KEY)) {
                 const dummyOrders = [
-                    { invoice: "INV-20260602-01", username: "budi_konsumen", total: 28500, status: "DIPROSES", address: "Jl. Sudirman No. 45, Jakarta" }
+                    { id: "SGR-7712", user: "budi", total: 28500, status: "Diproses", address: "Jl. Sudirman No. 45, Jakarta", slot: "Pagi (06:00 - 09:00)", date: "2026-06-02" }
                 ];
                 localStorage.setItem(ORDER_KEY, JSON.stringify(dummyOrders));
             }
@@ -217,7 +268,6 @@
             }
         }
 
-        // Hamburger Menu Engine
         function toggleAdminSidebar() {
             const sidebar = document.getElementById('admin-sidebar-menu');
             const overlay = document.getElementById('admin-sidebar-overlay');
@@ -252,50 +302,139 @@
             lucide.createIcons();
         }
 
-        // GANTI FUNGSI INI DI DALAM FILE ADMIN.HTML ANDA
-function calculateOverviewMetrics() {
-    const orders = JSON.parse(localStorage.getItem(ORDER_KEY)) || [];
-    const products = JSON.parse(localStorage.getItem(PRODUCT_KEY)) || [];
-    const users = JSON.parse(localStorage.getItem(USER_KEY)) || [];
+        // 🆕 5. ENGINE FILTER & LIVE RENDERING DENGAN INTEGRASI UPDATE-DELETE DATA TABEL ORDER
+        function handleOrderFilter() {
+            calculateOverviewMetrics();
+        }
 
-    const totalRevenue = orders.reduce((sum, o) => sum + (o.total || 0), 0);
-    document.getElementById('stat-revenue').innerText = `Rp${totalRevenue.toLocaleString('id-ID')}`;
-    document.getElementById('stat-orders-count').innerText = `${orders.length} Transaksi`;
-    document.getElementById('stat-users-count').innerText = `${users.length} Akun`;
+        function calculateOverviewMetrics() {
+            const orders = JSON.parse(localStorage.getItem(ORDER_KEY)) || [];
+            const products = JSON.parse(localStorage.getItem(PRODUCT_KEY)) || [];
+            const users = JSON.parse(localStorage.getItem(USER_KEY)) || [];
 
-    const lowStockCount = products.filter(p => p.stock <= 5).length;
-    document.getElementById('stat-alert-count').innerText = `${lowStockCount} SKU`;
+            const totalRevenue = orders.reduce((sum, o) => sum + (o.total || 0), 0);
+            document.getElementById('stat-revenue').innerText = `Rp${totalRevenue.toLocaleString('id-ID')}`;
+            document.getElementById('stat-orders-count').innerText = `${orders.length} Transaksi`;
+            document.getElementById('stat-users-count').innerText = `${users.length} Akun`;
 
-    const tbody = document.getElementById('global-orders-rows');
-    if (orders.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">Belum ada pesanan masuk.</td></tr>`;
-        return;
-    }
+            const lowStockCount = products.filter(p => p.stock <= 5).length;
+            document.getElementById('stat-alert-count').innerText = `${lowStockCount} SKU`;
 
-    // Mengikat struktur data o.id, o.user, o.total, o.status, dan o.address
-    tbody.innerHTML = orders.map(o => {
-        const displayInvoice = o.id || o.invoice || 'Tanpa ID';
-        const displayUsername = o.user || o.username || 'Anonim';
-        const displayAddress = o.address || 'Alamat tidak terisi';
-        const displayTotal = o.total || 0;
-        const displayStatus = o.status || 'Diproses';
+            const searchQuery = document.getElementById('order-search').value.toLowerCase();
+            const statusFilter = document.getElementById('order-status-filter').value;
 
-        return `
-            <tr class="hover:bg-slate-900/40 border-b border-slate-900">
-                <td class="p-4 font-mono font-bold text-white">${displayInvoice}</td>
-                <td class="p-4 font-medium text-slate-300">@${displayUsername}</td>
-                <td class="p-4 text-emerald-400 font-bold">Rp${displayTotal.toLocaleString('id-ID')}</td>
-                <td class="p-4"><span class="bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded text-[10px] font-bold border border-amber-500/20">${displayStatus}</span></td>
-                <td class="p-4 truncate max-w-[200px]" title="${displayAddress}">${displayAddress}</td>
-            </tr>
-        `;
-    }).join('');
-}
+            // Saring Data Berdasarkan Query Pencarian dan Opsi Filter Status Logistik
+            const filteredOrders = orders.filter(o => {
+                const invoice = (o.id || o.invoice || '').toLowerCase();
+                const username = (o.user || o.username || '').toLowerCase();
+                const status = o.status || 'Diproses';
+
+                const matchesSearch = invoice.includes(searchQuery) || username.includes(searchQuery);
+                const matchesStatus = statusFilter === 'all' || status.toLowerCase() === statusFilter.toLowerCase();
+
+                return matchesSearch && matchesStatus;
+            });
+
+            const tbody = document.getElementById('global-orders-rows');
+            if (filteredOrders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-500">Tidak ada data transaksi yang cocok dengan kriteria filter.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filteredOrders.map(o => {
+                const displayInvoice = o.id || o.invoice || 'Tanpa ID';
+                const displayUsername = o.user || o.username || 'Anonim';
+                const displayAddress = o.address || 'Alamat tidak terisi';
+                const displayTotal = o.total || 0;
+                const displayStatus = o.status || 'Diproses';
+
+                return `
+                    <tr class="hover:bg-slate-900/40 border-b border-slate-900">
+                        <td class="p-4 font-mono font-bold text-white">${displayInvoice}</td>
+                        <td class="p-4 font-medium text-slate-300">@${displayUsername}</td>
+                        <td class="p-4 text-emerald-400 font-bold">Rp${displayTotal.toLocaleString('id-ID')}</td>
+                        <td class="p-4">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold border ${
+                                displayStatus === 'Selesai' 
+                                ? 'bg-green-500/10 text-green-400 border-green-500/20' 
+                                : displayStatus === 'Dalam Perjalanan'
+                                ? 'bg-blue-500/10 text-blue-400 border-blue-500/20'
+                                : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                            }">${displayStatus}</span>
+                        </td>
+                        <td class="p-4 truncate max-w-[180px]" title="${displayAddress}">${displayAddress}</td>
+                        <td class="p-4 text-center">
+                            <div class="flex items-center justify-center gap-1.5">
+                                <button onclick="openEditOrderModal('${displayInvoice}')" class="p-1.5 bg-slate-900 border border-slate-800 hover:bg-slate-800 text-orange-400 rounded-xl transition" title="Edit Transaksi">
+                                    <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                                </button>
+                                <button onclick="deleteOrder('${displayInvoice}')" class="p-1.5 bg-red-950/20 border border-red-900/20 hover:bg-red-900/30 text-red-400 rounded-xl transition" title="Hapus Transaksi">
+                                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        // 🆕 5.a ENGINE EDIT & DATA MODAL HANDLERS
+        function openEditOrderModal(invoiceId) {
+            const orders = JSON.parse(localStorage.getItem(ORDER_KEY)) || [];
+            const targetOrder = orders.find(o => (o.id === invoiceId || o.invoice === invoiceId));
+            
+            if (!targetOrder) return;
+
+            document.getElementById('edit-order-id').value = invoiceId;
+            document.getElementById('modal-invoice-id').innerText = invoiceId;
+            document.getElementById('edit-order-status').value = targetOrder.status || "Diproses";
+            document.getElementById('edit-order-address').value = targetOrder.address || "";
+
+            const modal = document.getElementById('edit-order-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.remove('opacity-0'), 10);
+            lucide.createIcons();
+        }
+
+        function closeEditOrderModal() {
+            const modal = document.getElementById('edit-order-modal');
+            modal.classList.add('opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        function saveOrderEdits() {
+            const invoiceId = document.getElementById('edit-order-id').value;
+            const newStatus = document.getElementById('edit-order-status').value;
+            const newAddress = document.getElementById('edit-order-address').value.trim();
+
+            let orders = JSON.parse(localStorage.getItem(ORDER_KEY)) || [];
+            const orderIndex = orders.findIndex(o => (o.id === invoiceId || o.invoice === invoiceId));
+
+            if (orderIndex !== -1) {
+                orders[orderIndex].status = newStatus;
+                orders[orderIndex].address = newAddress;
+                localStorage.setItem(ORDER_KEY, JSON.stringify(orders));
+                
+                calculateOverviewMetrics();
+                closeEditOrderModal();
+            }
+        }
+
+        // 🆕 5.b ENGINE DELETE LOGIC ORDER Masuk
+        function deleteOrder(invoiceId) {
+            if (confirm(`Apakah Anda yakin ingin menghapus data invoice ${invoiceId} dari sistem platform? Tindakan ini permanen.`)) {
+                let orders = JSON.parse(localStorage.getItem(ORDER_KEY)) || [];
+                orders = orders.filter(o => !(o.id === invoiceId || o.invoice === invoiceId));
+                localStorage.setItem(ORDER_KEY, JSON.stringify(orders));
+                
+                calculateOverviewMetrics();
+            }
+        }
 
         // 6. User Management Mutation
         function renderUserManagement() {
             const users = JSON.parse(localStorage.getItem(USER_KEY)) || [];
-            const tbody = document.getElementById('global-orders-rows'); // Pastikan target ID benar jika dibutuhkan, namun ini memetakan global-users-rows
             const userTbody = document.getElementById('global-users-rows');
             
             if (userTbody) {
@@ -360,4 +499,4 @@ function calculateOverviewMetrics() {
         }
     </script>
 </body>
-    </html>
+</html>
