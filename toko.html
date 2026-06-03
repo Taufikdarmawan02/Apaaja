@@ -121,8 +121,14 @@
 
             <section id="section-orders" class="hidden space-y-4">
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                    <div class="p-4 bg-gray-50/50 border-b border-gray-100">
+                    <div class="p-4 bg-gray-50/50 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                         <h3 class="text-xs font-bold text-gray-700 uppercase tracking-wider">Log Order Logistik Pembeli</h3>
+                        <div class="relative w-full sm:w-72">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+                                <i data-lucide="search" class="w-4 h-4"></i>
+                            </span>
+                            <input type="text" id="order-search" oninput="renderOrdersTable()" placeholder="Cari invoice, tanggal, nama, alamat..." class="w-full pl-9 pr-4 py-2 border border-gray-200 text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-gray-800 placeholder-gray-400 transition shadow-sm">
+                        </div>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-xs text-gray-600 min-w-[800px]">
@@ -319,28 +325,50 @@
             renderInventoryTable();
         }
 
-        // 🔄 PEMBARUAN ENGINE LOG KONSUMEN (INVOICE, TANGGAL, NAMA, ALAMAT)
+        // 🔄 PEMBARUAN ENGINE RENDERING & FILTER LOG ORDER KONSUMEN
         function renderOrdersTable() {
             const tbody = document.getElementById('orders-table-body');
             const allOrders = JSON.parse(localStorage.getItem('segari_orders')) || [];
             const currentMerchant = getActiveMerchant();
+            
+            // Mengambil kata kunci pencarian dari input text box
+            const searchInput = document.getElementById('order-search');
+            const keyword = searchInput ? searchInput.value.toLowerCase().trim() : '';
+            
             tbody.innerHTML = '';
 
-            // Penyaringan fleksibel: menampilkan data dummy awal ATAU data yang terikat ke ID toko mitra
-            const myOrders = allOrders.filter(o => 
+            // 1. Saring awal data berdasarkan hak milik Merchant Toko Aktif
+            let filteredOrders = allOrders.filter(o => 
                 (!o.merchant && !o.storeCode && (!o.items || o.items.length === 0)) || 
                 o.merchant === currentMerchant || 
                 o.storeCode === currentMerchant ||
                 (o.items && o.items.some(item => item.merchant === currentMerchant))
             );
 
-            if(myOrders.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-gray-400 italic">Belum ada pesanan konsumen masuk ke sistem gudang logistik toko Anda.</td></tr>`;
+            // 2. Evaluasi Filter Berdasarkan Kata Kunci (Invoice, Tanggal, Nama, Alamat)
+            if (keyword !== '') {
+                filteredOrders = filteredOrders.filter(o => {
+                    const displayInvoice = (o.invoice || o.id || '').toString().toLowerCase();
+                    const displayDate = (o.date || o.tanggal || '').toString().toLowerCase();
+                    const displayUsername = (o.username || o.user || '').toString().toLowerCase();
+                    const displayAddress = (o.address || '').toString().toLowerCase();
+
+                    return displayInvoice.includes(keyword) || 
+                           displayDate.includes(keyword) || 
+                           displayUsername.includes(keyword) || 
+                           displayAddress.includes(keyword);
+                });
+            }
+
+            // Validasi tampilan jika hasil filter kosong
+            if(filteredOrders.length === 0) {
+                tbody.innerHTML = keyword !== '' 
+                    ? `<tr><td colspan="6" class="p-8 text-center text-gray-400 italic">Pesanan dengan kata kunci "${keyword}" tidak ditemukan.</td></tr>`
+                    : `<tr><td colspan="6" class="p-8 text-center text-gray-400 italic">Belum ada pesanan konsumen masuk ke sistem gudang logistik toko Anda.</td></tr>`;
                 return;
             }
 
-            myOrders.forEach((o) => {
-                // NORMALISASI PROPERTI DATA: Menangani fallback o.id/o.invoice dan o.user/o.username secara dinamis
+            filteredOrders.forEach((o) => {
                 const displayInvoice = o.invoice || o.id || 'Tanpa ID';
                 const displayDate = o.date || o.tanggal || '-';
                 const displayUsername = o.username || o.user || 'Anonim';
@@ -392,10 +420,8 @@
             });
         }
 
-        // 🔄 PEMBARUAN MUTASI UPDATE STATUS LOGISTIK TOKO
         function updateOrderStatus(invoice, newStatus) {
             let allOrders = JSON.parse(localStorage.getItem('segari_orders')) || [];
-            // Mencari indeks order berdasarkan kecocokan invoice maupun id asal data dummy
             const oIdx = allOrders.findIndex(o => (o.invoice === invoice || o.id === invoice));
 
             if (oIdx !== -1) {
@@ -406,4 +432,4 @@
         }
     </script>
 </body>
-</html>
+    </html>
