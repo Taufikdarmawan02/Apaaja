@@ -252,13 +252,13 @@
             lucide.createIcons();
         }
 
-        // 5. Render Overview Metrics & Order Rows (SUDAH DIPERBAIKI)
-        function calculateOverviewMetrics() {
-          const orders = JSON.parse(localStorage.getItem(ORDER_KEY)) || [];
-          const products = JSON.parse(localStorage.getItem(PRODUCT_KEY)) || [];
+        // GANTI FUNGSI INI DI DALAM FILE ADMIN.HTML ANDA
+function calculateOverviewMetrics() {
+    const orders = JSON.parse(localStorage.getItem(ORDER_KEY)) || [];
+    const products = JSON.parse(localStorage.getItem(PRODUCT_KEY)) || [];
     const users = JSON.parse(localStorage.getItem(USER_KEY)) || [];
 
-    const totalRevenue = orders.reduce((sum, o) => sum + (o.total || o.totalHarga || 0), 0);
+    const totalRevenue = orders.reduce((sum, o) => sum + (o.total || 0), 0);
     document.getElementById('stat-revenue').innerText = `Rp${totalRevenue.toLocaleString('id-ID')}`;
     document.getElementById('stat-orders-count').innerText = `${orders.length} Transaksi`;
     document.getElementById('stat-users-count').innerText = `${users.length} Akun`;
@@ -272,31 +272,25 @@
         return;
     }
 
-    // Pemetaan defensif mendalam untuk mengantisipasi perbedaan key dari halaman konsumen
+    // Mengikat struktur data o.id, o.user, o.total, o.status, dan o.address
     tbody.innerHTML = orders.map(o => {
-        // 1. Antisipasi variasi Key Invoice
-        const displayInvoice = o.invoice || o.id || o.noInvoice || 'Tanpa Invoice';
-        
-        // 2. Antisipasi variasi Key Akun Pembeli (Sering memicu undefined)
-        const displayUsername = o.username || o.buyer || o.buyerName || o.namaPembeli || o.nama || 'Anonim';
-        
-        // 3. Antisipasi variasi Key Alamat Distribusi (Sering memicu undefined)
-        const displayAddress = o.address || o.alamat || o.alamatKirim || o.alamatLengkap || 'Alamat tidak terisi';
-        
-        const displayTotal = o.total || o.totalHarga || 0;
-        const displayStatus = o.status || 'DIPROSES';
+        const displayInvoice = o.id || o.invoice || 'Tanpa ID';
+        const displayUsername = o.user || o.username || 'Anonim';
+        const displayAddress = o.address || 'Alamat tidak terisi';
+        const displayTotal = o.total || 0;
+        const displayStatus = o.status || 'Diproses';
 
         return `
             <tr class="hover:bg-slate-900/40 border-b border-slate-900">
                 <td class="p-4 font-mono font-bold text-white">${displayInvoice}</td>
-                <td class="p-4 font-medium text-slate-300">${displayUsername}</td>
+                <td class="p-4 font-medium text-slate-300">@${displayUsername}</td>
                 <td class="p-4 text-emerald-400 font-bold">Rp${displayTotal.toLocaleString('id-ID')}</td>
                 <td class="p-4"><span class="bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded text-[10px] font-bold border border-amber-500/20">${displayStatus}</span></td>
-                <td class="p-4 truncate max-w-[250px]" title="${displayAddress}">${displayAddress}</td>
+                <td class="p-4 truncate max-w-[200px]" title="${displayAddress}">${displayAddress}</td>
             </tr>
         `;
     }).join('');
-        }
+}
 
         // 6. User Management Mutation
         function renderUserManagement() {
