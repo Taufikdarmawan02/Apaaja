@@ -336,7 +336,7 @@
                     </div>
                     <div class="mt-2">
                         <span class="text-xs font-extrabold text-green-600">Rp${p.price.toLocaleString('id-ID')}</span>
-                        <button onclick="handleAddToCart(${p.id})" ${isOut ? 'disabled class="w-full mt-1 bg-gray-200 text-gray-400 py-1.5 rounded-xl text-[11px] font-bold cursor-not-allowed"':'class="w-full mt-1 bg-green-500 hover:bg-green-600 text-white py-1.5 rounded-xl text-[11px] font-bold btn-active transition"'}>>Beli</button>
+                        <button onclick="handleAddToCart(${p.id})" ${isOut ? 'disabled class="w-full mt-1 bg-gray-200 text-gray-400 py-1.5 rounded-xl text-[11px] font-bold cursor-not-allowed"':'class="w-full mt-1 bg-green-500 hover:bg-green-600 text-white py-1.5 rounded-xl text-[11px] font-bold btn-active transition"'}>Beli</button>
                     </div>
                 `;
                 grid.appendChild(card);
@@ -424,7 +424,7 @@
             const newOrder = {
                 id: "SGR-" + Math.floor(1000 + Math.random() * 9000),
                 user: activeUser.username,
-                items: [...cart],
+                items: [...cart], 
                 total: subtotal,
                 slot: chosenSlot,
                 status: "Diproses",
@@ -442,13 +442,13 @@
             switchTab('tracking');
         }
 
-        /* SELESAI & PERBARUI: MENAMPILKAN ORDER LIVE DENGAN AKSI BATAL */
+        /* 🆕 UPDATE & FIX: MENAMPILKAN ORDER LIVE DAN MENAMBAHKAN AKSI HAPUS PESANAN */
         function renderTrackingView() {
             const noOrder = document.getElementById('no-order-state');
             const activeOrder = document.getElementById('active-order-state');
             if (!noOrder || !activeOrder) return;
 
-            if (!activeUser || activeUser.role !== 'Konsumen') {
+            if (!activeUser) {
                 noOrder.classList.remove('hidden');
                 activeOrder.classList.add('hidden');
                 activeOrder.innerHTML = '';
@@ -469,129 +469,126 @@
             activeOrder.classList.remove('hidden');
             activeOrder.innerHTML = '';
 
-            // Menampilkan riwayat pesanan (Urutan terbaru di atas)
-            [...userOrders].reverse().forEach(order => {
-                const card = document.createElement('div');
-                card.className = "bg-white border border-gray-100 rounded-2xl p-4 space-y-3 shadow-sm";
+            userOrders.forEach(order => {
+                const div = document.createElement('div');
+                div.className = "bg-white border border-gray-100 rounded-2xl p-4 space-y-3 shadow-sm animate-slide-up";
                 
-                let colorStyle = "text-amber-600 bg-amber-50";
-                if (order.status === 'Dikirim') colorStyle = "text-blue-600 bg-blue-50";
-                if (order.status === 'Selesai') colorStyle = "text-green-600 bg-green-50";
-                if (order.status === 'Dibatalkan') colorStyle = "text-rose-600 bg-rose-50";
+                let itemsHtml = order.items.map(item => `
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="text-gray-600">${item.name} <span class="text-gray-400">x${item.qty}</span></span>
+                        <span class="font-bold text-gray-800">Rp${(item.price * item.qty).toLocaleString('id-ID')}</span>
+                    </div>
+                `).join('');
 
-                const itemsText = order.items.map(i => `${i.name} (${i.qty}x)`).join(', ');
-
-                // Tombol Batal hanya muncul jika status pesanan masih "Diproses"
-                let cancelBtnHtml = '';
-                if (order.status === 'Diproses') {
-                    cancelBtnHtml = `
-                        <button onclick="cancelOrder('${order.id}')" class="w-full mt-2 bg-rose-50 border border-rose-100 text-rose-600 py-2 rounded-xl text-xs font-bold transition btn-active flex items-center justify-center gap-1">
-                            <i data-lucide="x-circle" class="w-3.5 h-3.5"></i> Batalkan Pesanan
-                        </button>
-                    `;
-                }
-
-                card.innerHTML = `
+                div.innerHTML = `
                     <div class="flex justify-between items-center border-b border-gray-50 pb-2">
                         <div>
                             <span class="text-xs font-black text-gray-800">${order.id}</span>
-                            <p class="text-[10px] text-gray-400">${order.date} • Slot: ${order.slot}</p>
+                            <p class="text-[10px] text-gray-400">${order.date} • ${order.slot}</p>
                         </div>
-                        <span class="text-[10px] font-bold px-2.5 py-1 rounded-full ${colorStyle}">${order.status}</span>
+                        <span class="text-[10px] font-extrabold px-2.5 py-1 rounded-full ${
+                            order.status === 'Diproses' ? 'bg-orange-50 text-orange-600' : 'bg-green-50 text-green-600'
+                        }">${order.status}</span>
                     </div>
-                    <div class="text-xs space-y-1">
-                        <p class="text-gray-600"><span class="text-gray-400 font-medium">Item:</span> ${itemsText}</p>
-                        <p class="font-black text-gray-800">Total: <span class="text-green-600">Rp${order.total.toLocaleString('id-ID')}</span></p>
+                    <div class="space-y-1.5 py-1">
+                        ${itemsHtml}
                     </div>
-                    ${cancelBtnHtml}
+                    <div class="flex justify-between items-center pt-2 border-t border-gray-50">
+                        <div>
+                            <span class="text-[10px] text-gray-400 block">Total Belanja</span>
+                            <span class="text-xs font-black text-green-600">Rp${order.total.toLocaleString('id-ID')}</span>
+                        </div>
+                        <button onclick="deleteOrder('${order.id}')" class="text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100 font-bold px-3 py-1.5 rounded-xl text-[10px] btn-active flex items-center gap-1 transition">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Hapus Pesanan
+                        </button>
+                    </div>
                 `;
-                activeOrder.appendChild(card);
+                activeOrder.appendChild(div);
             });
             lucide.createIcons();
         }
 
-        /* FUNGSI BARU: AKSI BATAL PESANAN & PENGEMBALIAN STOK */
-        function cancelOrder(orderId) {
-            if (!confirm("Apakah kamu yakin ingin membatalkan pesanan " + orderId + "?")) return;
-
-            let currentOrders = JSON.parse(localStorage.getItem('segari_orders')) || [];
-            const orderIndex = currentOrders.findIndex(o => o.id === orderId);
-
-            if (orderIndex > -1) {
-                const order = currentOrders[orderIndex];
-                order.status = "Dibatalkan";
-
-                // Kembalikan jumlah stok barang ke master data produk lokal
-                let masterProducts = JSON.parse(localStorage.getItem('segari_products')) || defaultProducts;
-                order.items.forEach(item => {
-                    let p = masterProducts.find(mp => mp.id === item.id);
-                    if (p) p.stock += item.qty;
-                });
-
-                localStorage.setItem('segari_products', JSON.stringify(masterProducts));
+        /* 🆕 FUNGSI BARU: MENGHAPUS PESANAN DARI LOCALSTORAGE */
+        function deleteOrder(orderId) {
+            if (confirm("Apakah Anda yakin ingin menghapus/membatalkan pesanan " + orderId + " ini?")) {
+                let currentOrders = JSON.parse(localStorage.getItem('segari_orders')) || [];
+                currentOrders = currentOrders.filter(o => o.id !== orderId);
                 localStorage.setItem('segari_orders', JSON.stringify(currentOrders));
-
-                // Sinkronisasi data di halaman depan (Home)
-                products = masterProducts;
-                renderProducts();
-                
-                showToast(`Pesanan ${orderId} berhasil dibatalkan.`);
+                showToast("Pesanan berhasil dihapus!");
                 renderTrackingView();
             }
         }
 
-        // FUNGSI UTILITAS TAMBAHAN (WAKTU, TOAST, LOKASI, AI)
-        function startFlashSaleTimer() {
-            setInterval(() => {
-                let h = document.getElementById('timer-hours'), m = document.getElementById('timer-mins'), s = document.getElementById('timer-secs');
-                if(!h || !m || !s) return;
-                let hours = parseInt(h.innerText), mins = parseInt(m.innerText), secs = parseInt(s.innerText);
-                if(secs > 0) secs--;
-                else { secs = 59; if(mins > 0) mins--; else { mins = 59; if(hours > 0) hours--; } }
-                h.innerText = hours.toString().padStart(2, '0'); m.innerText = mins.toString().padStart(2, '0'); s.innerText = secs.toString().padStart(2, '0');
+        /* ⚙️ UTILITY CONTROLS (MODAL, TIMERS, TOAST & CHAT AI) */
+        function openLocationModal() {
+            const m = document.getElementById('location-modal'); if(!m) return;
+            m.classList.remove('hidden'); setTimeout(() => m.classList.remove('opacity-0'), 10);
+        }
+        function closeLocationModal() {
+            const m = document.getElementById('location-modal'); if(!m) return;
+            m.classList.add('opacity-0'); setTimeout(() => m.classList.add('hidden'), 300);
+        }
+        function saveLocation() {
+            const addr = document.getElementById('address-input').value.trim();
+            if(addr) {
+                localStorage.setItem('segari_address', addr);
+                document.getElementById('current-address-text').innerText = "Kirim ke: " + addr;
+                showToast("Alamat berhasil diperbarui!");
+                closeLocationModal();
+            }
+        }
+
+        function openAiModal() {
+            const m = document.getElementById('ai-modal'); if(!m) return;
+            m.classList.remove('hidden'); setTimeout(() => m.classList.remove('opacity-0'), 10);
+        }
+        function closeAiModal() {
+            const m = document.getElementById('ai-modal'); if(!m) return;
+            m.classList.add('opacity-0'); setTimeout(() => m.classList.add('hidden'), 300);
+        }
+        function askAiChef() {
+            const inp = document.getElementById('ai-input');
+            const history = document.getElementById('ai-chat-history');
+            if(!inp || !inp.value.trim() || !history) return;
+            
+            const userMsg = document.createElement('div');
+            userMsg.className = "bg-green-50 border border-green-100 rounded-xl p-3 text-gray-700 text-right font-bold ml-8 ml-auto max-w-[80%]";
+            userMsg.innerText = inp.value;
+            history.appendChild(userMsg);
+            
+            const aiMsg = document.createElement('div');
+            aiMsg.className = "bg-gray-50 border border-gray-100 rounded-xl p-3 text-gray-700 mr-8 mt-2 animate-pulse max-w-[80%]";
+            aiMsg.innerText = "Koki AI sedang meracik rekomendasi...";
+            history.appendChild(aiMsg);
+            
+            const query = inp.value; inp.value = '';
+            
+            setTimeout(() => {
+                aiMsg.classList.remove('animate-pulse');
+                aiMsg.innerText = `Rekomendasi Koki: Wah, dengan bahan "${query}", kamu bisa membuat menu tumisan spesial sehat instan dalam waktu 15 menit saja!`;
             }, 1000);
         }
 
         function showToast(msg) {
             const container = document.getElementById('toast-container'); if(!container) return;
-            const div = document.createElement('div'); div.className = "toast-msg"; div.innerText = msg;
-            container.appendChild(div); setTimeout(() => div.remove(), 2500);
+            const t = document.createElement('div'); t.className = "toast-msg"; t.innerText = msg;
+            container.appendChild(t); setTimeout(() => t.remove(), 2500);
         }
 
-        function openLocationModal() {
-            const m = document.getElementById('location-modal'); m.classList.remove('hidden'); setTimeout(() => m.classList.remove('opacity-0'), 10);
-        }
-        function closeLocationModal() {
-            const m = document.getElementById('location-modal'); m.classList.add('opacity-0'); setTimeout(() => m.classList.add('hidden'), 300);
-        }
-        function saveLocation() {
-            const input = document.getElementById('address-input').value;
-            if(input.trim()) {
-                localStorage.setItem('segari_address', input);
-                document.getElementById('current-address-text').innerText = "Kirim ke: " + input;
-                showToast("Alamat berhasil diubah!"); closeLocationModal();
-            }
-        }
-
-        function openAiModal() {
-            const m = document.getElementById('ai-modal'); m.classList.remove('hidden'); setTimeout(() => m.classList.remove('opacity-0'), 10);
-        }
-        function closeAiModal() {
-            const m = document.getElementById('ai-modal'); m.classList.add('opacity-0'); setTimeout(() => m.classList.add('hidden'), 300);
-        }
-        function askAiChef() {
-            const input = document.getElementById('ai-input'), history = document.getElementById('ai-chat-history');
-            if(!input || !input.value.trim()) return;
-            const uDiv = document.createElement('div'); uDiv.className = "bg-green-50 border border-green-100 rounded-xl p-3 text-right font-bold text-green-800 ml-8";
-            uDiv.innerText = input.value; history.appendChild(uDiv);
-            
-            setTimeout(() => {
-                const aiDiv = document.createElement('div'); aiDiv.className = "bg-gray-50 border border-gray-100 rounded-xl p-3 text-gray-700 mr-8 mt-2";
-                aiDiv.innerText = `Rekomendasi Koki: Kamu bisa mengolah "${input.value}" menjadi hidangan tumis sehat instan bumbu bawang putih yang gurih dan bernutrisi tinggi!`;
-                history.appendChild(aiDiv); history.scrollTop = history.scrollHeight;
-            }, 600);
-            input.value = '';
+        function startFlashSaleTimer() {
+            let h = 2, m = 14, s = 45;
+            setInterval(() => {
+                s--; if(s < 0) { s = 59; m--; } if(m < 0) { m = 59; h--; } if(h < 0) { h = 2; m = 14; s = 45; }
+                const th = document.getElementById('timer-hours');
+                const tm = document.getElementById('timer-mins');
+                const ts = document.getElementById('timer-secs');
+                if(th && tm && ts) {
+                    th.innerText = String(h).padStart(2, '0');
+                    tm.innerText = String(m).padStart(2, '0');
+                    ts.innerText = String(s).padStart(2, '0');
+                }
+            }, 1000);
         }
     </script>
 </body>
-    </html>
+</html>
