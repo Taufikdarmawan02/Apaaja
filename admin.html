@@ -9,6 +9,7 @@
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans antialiased">
 
+    <!-- MOBILE HEADER -->
     <div class="lg:hidden bg-slate-950 p-4 flex justify-between items-center sticky top-0 z-50 border-b border-slate-800 shadow-xl">
         <div class="flex items-center gap-2">
             <span class="text-xl font-black text-green-500">se<span class="text-orange-500">gari</span></span>
@@ -23,6 +24,7 @@
 
     <div class="min-h-screen flex flex-col lg:flex-row relative">
         
+        <!-- SIDEBAR CONTAINER -->
         <aside id="admin-sidebar-menu" class="fixed lg:static inset-y-0 left-0 z-50 w-64 bg-slate-950 p-6 flex flex-col justify-between transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out border-r border-slate-800/80 shadow-2xl lg:shadow-none">
             
             <div class="space-y-6">
@@ -69,6 +71,7 @@
             </div>
         </aside>
 
+        <!-- MAIN MAIN PANEL -->
         <main class="flex-grow p-4 md:p-8 space-y-6 text-slate-200 w-full overflow-x-hidden">
             <header class="flex justify-between items-center bg-slate-950 p-4 rounded-2xl border border-slate-800">
                 <h2 class="text-sm md:text-base font-black text-white flex items-center gap-2" id="admin-page-title">
@@ -80,6 +83,7 @@
                 </span>
             </header>
 
+            <!-- SECTION OVERVIEW -->
             <section id="tab-overview" class="space-y-6">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800">
@@ -100,30 +104,10 @@
                     </div>
                 </div>
 
-                <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 flex flex-col md:flex-row gap-4 justify-between items-center">
-                    <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-                        <div class="relative flex-grow">
-                            <input id="filter-order-search" type="text" placeholder="Cari No. Invoice / Akun..." oninput="calculateOverviewMetrics()" class="w-full sm:w-64 bg-slate-900 border border-slate-800 text-xs font-medium px-4 py-2.5 rounded-xl text-slate-200 focus:outline-none focus:border-green-500 placeholder-slate-500 transition">
-                        </div>
-                        <div>
-                            <select id="filter-order-status" onchange="calculateOverviewMetrics()" class="w-full sm:w-44 bg-slate-900 border border-slate-800 text-xs font-bold px-4 py-2.5 rounded-xl text-slate-300 focus:outline-none focus:border-green-500 transition cursor-pointer">
-                                <option value="ALL">Semua Status</option>
-                                <option value="DIPROSES">DIPROSES</option>
-                                <option value="DIKIRIM">DIKIRIM</option>
-                                <option value="SELESAI">SELESAI</option>
-                                <option value="BATAL">BATAL</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="text-[11px] font-bold text-slate-400 bg-slate-900/50 px-3 py-1.5 rounded-lg border border-slate-800/60" id="filter-result-count">
-                        Menampilkan: 0 Order
-                    </div>
-                </div>
-
                 <div class="bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden">
                     <div class="p-4 bg-slate-900 text-xs font-bold text-white tracking-wide border-b border-slate-800">SISTEM MONITORING TRANSAKSI SE-PLATFORM</div>
                     <div class="overflow-x-auto text-xs">
-                        <table class="w-full text-left text-slate-400 min-w-[850px]">
+                        <table class="w-full text-left text-slate-400 min-w-[700px]">
                             <thead class="bg-slate-900 font-bold text-slate-300">
                                 <tr>
                                     <th class="p-4">No. Invoice</th>
@@ -131,7 +115,6 @@
                                     <th class="p-4">Nilai Finansial</th>
                                     <th class="p-4">Logistik Status</th>
                                     <th class="p-4">Alamat Distribusi</th>
-                                    <th class="p-4 text-center">Tindakan Otoritas</th>
                                 </tr>
                             </thead>
                             <tbody id="global-orders-rows" class="divide-y divide-slate-800"></tbody>
@@ -140,6 +123,7 @@
                 </div>
             </section>
 
+            <!-- SECTION USERS -->
             <section id="tab-users" class="hidden">
                 <div class="bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden">
                     <div class="p-4 bg-slate-900 font-bold text-xs text-white border-b border-slate-800">MUTASI HAK AKSES SISTEM PERAN USER</div>
@@ -158,6 +142,7 @@
                 </div>
             </section>
 
+            <!-- SECTION PRODUCTS -->
             <section id="tab-products" class="hidden">
                 <div class="bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden">
                     <div class="p-4 bg-slate-900 font-bold text-xs text-white border-b border-slate-800">MAINTENANCE SKU / HAPUS PRODUK DARI MALL</div>
@@ -180,44 +165,7 @@
         </main>
     </div>
 
-    <div id="modal-order-editor" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 hidden">
-        <div class="bg-slate-950 border border-slate-800 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden transform transition-transform duration-200">
-            <div class="p-4 bg-slate-900 border-b border-slate-800 flex justify-between items-center">
-                <h3 class="text-xs font-black tracking-wider text-white flex items-center gap-2 uppercase">
-                    <i data-lucide="edit-2" class="w-4 h-4 text-orange-500"></i> Mutasi Lembar Invoice
-                </h3>
-                <button onclick="closeOrderModal()" class="p-1 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition">
-                    <i data-lucide="x" class="w-4 h-4"></i>
-                </button>
-            </div>
-            
-            <div class="p-5 space-y-4 text-xs">
-                <div>
-                    <label class="block text-slate-400 font-bold mb-1.5 uppercase tracking-wide">No. Invoice</label>
-                    <input type="text" id="edit-order-invoice" disabled class="w-full bg-slate-900/40 border border-slate-800 rounded-xl px-3 py-2.5 text-slate-500 font-mono font-bold cursor-not-allowed">
-                </div>
-                <div>
-                    <label class="block text-slate-400 font-bold mb-1.5 uppercase tracking-wide">Status Logistik Operasional</label>
-                    <select id="edit-order-status" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2.5 text-slate-200 focus:outline-none focus:border-orange-500 font-bold cursor-pointer transition">
-                        <option value="DIPROSES">DIPROSES</option>
-                        <option value="DIKIRIM">DIKIRIM</option>
-                        <option value="SELESAI">SELESAI</option>
-                        <option value="BATAL">BATAL</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-slate-400 font-bold mb-1.5 uppercase tracking-wide">Alamat Distribusi Baru</label>
-                    <textarea id="edit-order-address" rows="3" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-orange-500 leading-relaxed font-medium transition"></textarea>
-                </div>
-            </div>
-
-            <div class="p-4 bg-slate-900 border-t border-slate-800 flex justify-end gap-2 text-xs font-bold">
-                <button onclick="closeOrderModal()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl transition">Batal</button>
-                <button onclick="commitOrderUpdate()" class="px-4 py-2.5 bg-orange-600 hover:bg-orange-500 text-white rounded-xl transition shadow-lg shadow-orange-600/10">Simpan Perubahan</button>
-            </div>
-        </div>
-    </div>
-
+    <!-- CORE BACKOFFICE SYSTEM ENGINES -->
     <script>
         let isSidebarOpen = false;
 
@@ -310,24 +258,12 @@
             lucide.createIcons();
         }
 
-        // Helper dinamika warna status logistik
-        function getStatusColorClass(status) {
-            switch(status) {
-                case 'DIPROSES': return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
-                case 'DIKIRIM': return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
-                case 'SELESAI': return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
-                case 'BATAL': return 'bg-red-500/10 text-red-400 border-red-500/20';
-                default: return 'bg-slate-500/10 text-slate-400 border-slate-500/20';
-            }
-        }
-
-        // 5. Render Overview Metrics & Order Rows (Dengan Fitur Filter Terintegrasi)
+        // 5. Render Overview Metrics & Order Rows
         function calculateOverviewMetrics() {
             const orders = JSON.parse(localStorage.getItem(ORDER_KEY)) || [];
             const products = JSON.parse(localStorage.getItem(PRODUCT_KEY)) || [];
             const users = JSON.parse(localStorage.getItem(USER_KEY)) || [];
 
-            // Penghitungan Metrik Utama Dashboard Utama (Berdasarkan Data Murni Global)
             const totalRevenue = orders.reduce((sum, o) => sum + o.total, 0);
             document.getElementById('stat-revenue').innerText = `Rp${totalRevenue.toLocaleString('id-ID')}`;
             document.getElementById('stat-orders-count').innerText = `${orders.length} Transaksi`;
@@ -336,101 +272,21 @@
             const lowStockCount = products.filter(p => p.stock <= 5).length;
             document.getElementById('stat-alert-count').innerText = `${lowStockCount} SKU`;
 
-            // Proses Engine Filter Data
-            const searchVal = document.getElementById('filter-order-search').value.toLowerCase().trim();
-            const statusFilter = document.getElementById('filter-order-status').value;
-
-            const filteredOrders = orders.filter(o => {
-                const matchesSearch = o.invoice.toLowerCase().includes(searchVal) || o.username.toLowerCase().includes(searchVal);
-                const matchesStatus = (statusFilter === 'ALL') || (o.status === statusFilter);
-                return matchesSearch && matchesStatus;
-            });
-
-            // Tampilkan jumlah hasil pencarian filter
-            document.getElementById('filter-result-count').innerText = `Menampilkan: ${filteredOrders.length} Order`;
-
             const tbody = document.getElementById('global-orders-rows');
-            if (filteredOrders.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-500 font-medium">Data pesanan tidak ditemukan atau tidak sesuai filter.</td></tr>`;
+            if (orders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">Belum ada pesanan masuk.</td></tr>`;
                 return;
             }
 
-            tbody.innerHTML = filteredOrders.map(o => `
-                <tr class="hover:bg-slate-900/40 border-b border-slate-900 transition duration-150">
+            tbody.innerHTML = orders.map(o => `
+                <tr class="hover:bg-slate-900/40 border-b border-slate-900">
                     <td class="p-4 font-mono font-bold text-white">${o.invoice}</td>
                     <td class="p-4">${o.username}</td>
                     <td class="p-4 text-emerald-400 font-bold">Rp${o.total.toLocaleString('id-ID')}</td>
-                    <td class="p-4">
-                        <span class="px-2 py-0.5 rounded text-[10px] font-bold border ${getStatusColorClass(o.status)}">
-                            ${o.status}
-                        </span>
-                    </td>
-                    <td class="p-4 truncate max-w-[180px]" title="${o.address}">${o.address}</td>
-                    <td class="p-4 text-center">
-                        <div class="flex justify-center items-center gap-2">
-                            <button onclick="openOrderModal('${o.invoice}')" class="px-2.5 py-1 text-[11px] font-bold bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-orange-400 rounded-lg transition">
-                                Edit
-                            </button>
-                            <button onclick="deleteOrder('${o.invoice}')" class="px-2.5 py-1 text-[11px] font-bold bg-red-950/20 hover:bg-red-900/30 border border-red-900/20 text-red-400 rounded-lg transition">
-                                Hapus
-                            </button>
-                        </div>
-                    </td>
+                    <td class="p-4"><span class="bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded text-[10px] font-bold border border-amber-500/20">${o.status}</span></td>
+                    <td class="p-4 truncate max-w-[200px]">${o.address}</td>
                 </tr>
             `).join('');
-        }
-
-        // Fitur Kendali Otoritas Manajemen Hapus Order
-        function deleteOrder(invoiceCode) {
-            if (confirm(`Apakah Anda yakin ingin menghapus arsip data pesanan ${invoiceCode} secara permanen?`)) {
-                let orders = JSON.parse(localStorage.getItem(ORDER_KEY)) || [];
-                orders = orders.filter(o => o.invoice !== invoiceCode);
-                localStorage.setItem(ORDER_KEY, JSON.stringify(orders));
-                
-                calculateOverviewMetrics();
-            }
-        }
-
-        // Fitur Kendali Otoritas Manajemen Edit Order (Modal Controller)
-        function openOrderModal(invoiceCode) {
-            const orders = JSON.parse(localStorage.getItem(ORDER_KEY)) || [];
-            const targetedOrder = orders.find(o => o.invoice === invoiceCode);
-            
-            if (!targetedOrder) return;
-
-            document.getElementById('edit-order-invoice').value = targetedOrder.invoice;
-            document.getElementById('edit-order-status').value = targetedOrder.status;
-            document.getElementById('edit-order-address').value = targetedOrder.address;
-
-            document.getElementById('modal-order-editor').classList.remove('hidden');
-            lucide.createIcons();
-        }
-
-        function closeOrderModal() {
-            document.getElementById('modal-order-editor').classList.add('hidden');
-        }
-
-        function commitOrderUpdate() {
-            const invoiceCode = document.getElementById('edit-order-invoice').value;
-            const updatedStatus = document.getElementById('edit-order-status').value;
-            const updatedAddress = document.getElementById('edit-order-address').value.trim();
-
-            if (!updatedAddress) {
-                alert("Alamat pengiriman tidak boleh kosong!");
-                return;
-            }
-
-            let orders = JSON.parse(localStorage.getItem(ORDER_KEY)) || [];
-            orders = orders.map(o => {
-                if (o.invoice === invoiceCode) {
-                    return { ...o, status: updatedStatus, address: updatedAddress };
-                }
-                return o;
-            });
-
-            localStorage.setItem(ORDER_KEY, JSON.stringify(orders));
-            closeOrderModal();
-            calculateOverviewMetrics();
         }
 
         // 6. User Management Mutation
@@ -498,4 +354,4 @@
         }
     </script>
 </body>
-</html>
+    </html>
