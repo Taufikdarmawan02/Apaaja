@@ -611,7 +611,7 @@
                 return `
                     <tr class="hover:bg-gray-50 transition text-xs">
                         <td class="p-4 font-bold text-gray-800">${o.id}<br><span class="text-[10px] text-gray-400 font-medium">${o.date || o.tanggal}</span></td>
-                        <td class="p-4 font-medium text-gray-700">${o.customerName || 'Anonim'}<br><span class="text-[10px] text-gray-400">${o.address || '-'}</span></td>
+                        <td class="p-4 font-medium text-gray-700">${o.customerName || ''}<br><span class="text-[10px] text-gray-400">${o.address || '-'}</span></td>
                         <td class="p-4 text-gray-500 max-w-[200px] truncate" title="${detailItems}">${detailItems}</td>
                         <td class="p-4 font-black text-emerald-700">Rp${(o.total || 0).toLocaleString('id-ID')}</td>
                         <td class="p-4"><span class="px-2.5 py-1 text-[10px] rounded-full font-bold bg-orange-100 text-orange-800">${o.status || 'Diproses'}</span></td>
