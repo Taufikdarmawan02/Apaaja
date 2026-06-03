@@ -6,13 +6,11 @@
     <title>Segari Merchant - Manajemen Mitra Toko</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Tambahan Pustaka Ekspor Dokumen -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body class="bg-gray-100 font-sans antialiased">
 
-    <!-- MOBILE HEADER -->
     <div class="md:hidden bg-emerald-900 text-white p-4 flex justify-between items-center sticky top-0 z-50 shadow-md">
         <div class="flex items-center gap-2">
             <span class="text-xl font-black tracking-tight text-white">se<span class="text-orange-400">gari</span></span>
@@ -27,7 +25,6 @@
 
     <div class="min-h-screen flex flex-col md:flex-row relative">
         
-        <!-- SIDEBAR NAVIGATION PANEL -->
         <aside id="sidebar-menu" class="fixed md:static inset-y-0 left-0 z-50 w-64 bg-emerald-900 text-white p-6 flex flex-col justify-between transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out shadow-2xl md:shadow-none">
             
             <div class="space-y-6">
@@ -45,7 +42,6 @@
                     </button>
                 </div>
 
-                <!-- STATUS BERLANGGANAN / TRIAL PANEL -->
                 <div id="subscription-status-card" class="p-3 bg-emerald-950 rounded-xl border border-emerald-800 space-y-2">
                     <div class="flex items-center gap-2 text-xs font-bold text-orange-300">
                         <i data-lucide="shield-check" class="w-4 h-4"></i>
@@ -86,7 +82,6 @@
             </div>
         </aside>
 
-        <!-- MAIN LAYOUT DISPLAY -->
         <main class="flex-grow p-4 md:p-8 space-y-6 w-full overflow-x-hidden">
             <header class="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
                 <h1 class="text-base md:text-lg font-bold text-gray-800 flex items-center gap-2" id="section-title">
@@ -99,7 +94,6 @@
                 </div>
             </header>
 
-            <!-- LOCK SCREEN NOTICE (IF TRIAL EXPIRED) -->
             <div id="lock-expired-notice" class="hidden bg-gradient-to-r from-red-600 to-rose-700 text-white p-6 rounded-2xl shadow-md space-y-3">
                 <div class="flex items-center gap-3">
                     <div class="p-2.5 bg-white/20 rounded-xl"><i data-lucide="lock" class="w-6 h-6"></i></div>
@@ -111,7 +105,6 @@
                 <button onclick="openPaymentModal()" class="bg-white text-rose-700 hover:bg-rose-50 text-xs font-black px-5 py-2.5 rounded-xl shadow transition">Aktivasi Berlangganan Sekarang</button>
             </div>
 
-            <!-- SECTION 1: DASHBOARD HUB -->
             <section id="section-dashboard" class="space-y-6">
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
@@ -180,7 +173,6 @@
                 </div>
             </section>
 
-            <!-- SECTION 2: INVENTORI PRODUK -->
             <section id="section-inventory" class="hidden space-y-6">
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
                     <h3 class="text-sm font-bold text-gray-800 flex items-center gap-2"><i data-lucide="plus-circle" class="text-emerald-600"></i> Tambah / Suplai Produk Baru ke Hub</h3>
@@ -224,7 +216,6 @@
                 </div>
             </section>
 
-            <!-- SECTION 3: PESANAN MASUK -->
             <section id="section-orders" class="hidden space-y-4">
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                     <div class="p-4 bg-gray-50/50 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
@@ -255,7 +246,6 @@
                 </div>
             </section>
 
-            <!-- SECTION 4: LAPORAN KEUANGAN & FILTER PERIODIK -->
             <section id="section-finance" class="hidden space-y-6">
                 <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div class="space-y-0.5">
@@ -307,7 +297,6 @@
         </main>
     </div>
 
-    <!-- MODAL SIMULASI PEMBAYARAN BERLANGGANAN -->
     <div id="payment-modal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white max-w-md w-full rounded-2xl p-6 shadow-2xl border border-gray-100 space-y-4 transform scale-95 transition-transform duration-300">
             <div class="flex justify-between items-start">
@@ -338,7 +327,6 @@
         </div>
     </div>
 
-    <!-- SYSTEM BACKOFFICE ENGINES -->
     <script>
         let isSidebarOpen = false;
         let currentFinanceFilter = 'harian';
@@ -383,7 +371,6 @@
             const subKey = `segari_sub_${currentMerchant}`;
             let subData = JSON.parse(localStorage.getItem(subKey));
 
-            // Jika belum ada record, buat tracking trial baru hari ini
             if (!subData) {
                 const today = new Date();
                 subData = {
@@ -396,7 +383,7 @@
             const start = new Date(subData.startDate);
             const now = new Date();
             const timeDiff = now.getTime() - start.getTime();
-            const daysDiff = Math.floor(timeDiff / (1000 * 3060 * 24)); // Hitung selisih hari baku
+            const daysDiff = Math.floor(timeDiff / (1000 * 3600 * 24));
 
             const badgeText = document.getElementById('sub-badge-text');
             const btnPay = document.getElementById('btn-pay-subscription');
@@ -502,418 +489,387 @@
             const title = document.getElementById('section-title');
             if(secId === 'dashboard') title.innerHTML = `<i data-lucide="layout-dashboard" class="text-emerald-600"></i> Ringkasan Dashboard`;
             if(secId === 'inventory') title.innerHTML = `<i data-lucide="boxes" class="text-emerald-600"></i> Inventori Produk Toko`;
-            if(secId === 'orders') title.innerHTML = `<i data-lucide="clipboard-list" class="text-emerald-600"></i> Manajemen Pesanan Masuk`;
-            if(secId === 'finance') {
-                title.innerHTML = `<i data-lucide="bar-chart-3" class="text-emerald-600"></i> Audit Keuangan & Laporan Pendapatan`;
-                renderFinanceReport();
-            }
+            if(secId === 'orders') title.innerHTML = `<i data-lucide="clipboard-list" class="text-emerald-600"></i> Manajemen Pesanan`;
+            if(secId === 'finance') title.innerHTML = `<i data-lucide="bar-chart-3" class="text-emerald-600"></i> Laporan Keuangan Toko`;
             
+            lucide.createIcons();
             if (isSidebarOpen) toggleSidebar();
-            lucide.createIcons();
         }
 
-        function updateDashboardMetrics() {
-            const currentMerchant = getActiveMerchant();
-            if (!currentMerchant) return;
-
-            const allOrders = JSON.parse(localStorage.getItem('segari_orders')) || [];
-            const allProducts = JSON.parse(localStorage.getItem('segari_products')) || [];
-
-            const myOrders = allOrders.filter(o => 
-                o.merchant === currentMerchant || o.storeCode === currentMerchant ||
-                (o.items && o.items.some(item => item.merchant === currentMerchant))
-            );
-
-            const totalRevenue = myOrders.reduce((sum, o) => sum + (o.total || 0), 0);
-            
-            document.getElementById('stat-revenue').innerText = `Rp${totalRevenue.toLocaleString('id-ID')}`;
-            document.getElementById('stat-orders').innerText = `${myOrders.length} Transaksi`;
-
-            const myLowStockProducts = allProducts.filter(p => p.merchant === currentMerchant && p.stock <= 5);
-            const lowStockCount = myLowStockProducts.length;
-
-            const labelStock = document.getElementById('stat-low-stock');
-            const bgStockIcon = document.getElementById('stat-low-stock-icon-bg');
-            labelStock.innerText = `${lowStockCount} Produk`;
-
-            if (lowStockCount > 0) {
-                labelStock.className = "text-lg font-black text-rose-600";
-                bgStockIcon.className = "p-3 bg-rose-50 text-rose-500 rounded-xl animate-pulse border border-rose-100";
-            } else {
-                labelStock.className = "text-lg font-black text-gray-800";
-                bgStockIcon.className = "p-3 bg-gray-50 text-gray-400 rounded-xl";
-            }
-
-            const dateRecapTbody = document.getElementById('dashboard-date-recap-rows');
-            if (myOrders.length === 0) {
-                dateRecapTbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-gray-400 italic">Belum ada riwayat omzet terjadwal.</td></tr>`;
-            } else {
-                const dateMap = myOrders.reduce((map, o) => {
-                    const tgl = o.date || o.tanggal || 'Tanggal Kosong';
-                    if (!map[tgl]) map[tgl] = { count: 0, revenue: 0 };
-                    map[tgl].count++;
-                    map[tgl].revenue += (o.total || 0);
-                    return map;
-                }, {});
-
-                dateRecapTbody.innerHTML = Object.keys(dateMap).sort((a,b) => new Date(b) - new Date(a)).map(tgl => `
-                    <tr class="hover:bg-gray-50 transition">
-                        <td class="p-3 font-medium text-gray-700">${tgl}</td>
-                        <td class="p-3 font-bold text-gray-800">${dateMap[tgl].count} Order</td>
-                        <td class="p-3 text-right font-black text-emerald-600">Rp${dateMap[tgl].revenue.toLocaleString('id-ID')}</td>
-                    </tr>
-                `).join('');
-            }
-
-            const lowStockTbody = document.getElementById('dashboard-low-stock-rows');
-            if (myLowStockProducts.length === 0) {
-                lowStockTbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-gray-500 font-medium">Aman! Semua komoditas aman terkendali.</td></tr>`;
-            } else {
-                lowStockTbody.innerHTML = myLowStockProducts.map(p => `
-                    <tr class="hover:bg-red-50/50 transition">
-                        <td class="p-3 font-bold text-gray-800 flex items-center gap-2">
-                            <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> ${p.name}
-                        </td>
-                        <td class="p-3 text-gray-500 font-medium">${p.size}</td>
-                        <td class="p-3 text-center"><span class="bg-red-100 text-red-700 px-2 py-0.5 rounded-lg text-[11px] font-black">${p.stock} Pcs</span></td>
-                    </tr>
-                `).join('');
-            }
-        }
-
-        // 📋 ENGINE PESANAN MASUK & DOKUMEN GENERATOR (PDF & EXCEL)
-        function renderOrdersTable() {
-            const currentMerchant = getActiveMerchant();
-            if (!currentMerchant) return;
-
-            const allOrders = JSON.parse(localStorage.getItem('segari_orders')) || [];
-            const searchQuery = document.getElementById('order-search').value.toLowerCase();
-            const tbody = document.getElementById('orders-table-body');
-
-            const myOrders = allOrders.filter(o => 
-                o.merchant === currentMerchant || o.storeCode === currentMerchant ||
-                (o.items && o.items.some(item => item.merchant === currentMerchant))
-            );
-
-            const filtered = myOrders.filter(o => 
-                (o.id && o.id.toLowerCase().includes(searchQuery)) ||
-                (o.customerName && o.customerName.toLowerCase().includes(searchQuery)) ||
-                (o.address && o.address.toLowerCase().includes(searchQuery))
-            );
-
-            if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-gray-400 italic">Data invoice tidak ditemukan atau masih kosong.</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = filtered.map(o => {
-                const detailItems = o.items ? o.items.map(i => `${i.name} (${i.qty}x)`).join(', ') : 'Tidak ada detail';
-                return `
-                    <tr class="hover:bg-gray-50 transition text-xs">
-                        <td class="p-4 font-bold text-gray-800">${o.id}<br><span class="text-[10px] text-gray-400 font-medium">${o.date || o.tanggal}</span></td>
-                        <td class="p-4 font-medium text-gray-700">${o.customerName || ''}<br><span class="text-[10px] text-gray-400">${o.address || '-'}</span></td>
-                        <td class="p-4 text-gray-500 max-w-[200px] truncate" title="${detailItems}">${detailItems}</td>
-                        <td class="p-4 font-black text-emerald-700">Rp${(o.total || 0).toLocaleString('id-ID')}</td>
-                        <td class="p-4"><span class="px-2.5 py-1 text-[10px] rounded-full font-bold bg-orange-100 text-orange-800">${o.status || 'Diproses'}</span></td>
-                        <td class="p-4 text-center">
-                            <div class="flex items-center justify-center gap-1.5">
-                                <button onclick="printInvoicePDF('${o.id}')" class="bg-rose-500 hover:bg-rose-600 text-white font-bold p-1.5 rounded-lg transition flex items-center gap-1 text-[10px]" title="Cetak Struk PDF">
-                                    <i data-lucide="file-text" class="w-3.5 h-3.5"></i> PDF
-                                </button>
-                                <button onclick="printInvoiceExcel('${o.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold p-1.5 rounded-lg transition flex items-center gap-1 text-[10px]" title="Ekspor Nota Excel">
-                                    <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i> Excel
-                                </button>
-                            </div>
-                        </td>
-                        <td class="p-4 text-center">
-                            <button onclick="updateOrderStatus('${o.id}')" class="bg-gray-800 hover:bg-gray-900 text-white font-bold px-3 py-1.5 rounded-xl transition text-[10px]">Update</button>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-            lucide.createIcons();
-        }
-
-        function updateOrderStatus(orderId) {
-            let allOrders = JSON.parse(localStorage.getItem('segari_orders')) || [];
-            const index = allOrders.findIndex(o => o.id === orderId);
-            if (index !== -1) {
-                const nextStatus = prompt("Masukkan status kurir logistik baru (cth: Dikirim / Selesai):", allOrders[index].status || "");
-                if (nextStatus) {
-                    allOrders[index].status = nextStatus;
-                    localStorage.setItem('segari_orders', JSON.stringify(allOrders));
-                    renderOrdersTable();
-                    updateDashboardMetrics();
-                    renderFinanceReport();
-                }
-            }
-        }
-
-        // 📄 API PRINT STRUK PDF (MENGGUNAKAN JSPDF DENGAN GATE KUNCI)
-        function printInvoicePDF(orderId) {
-            if (!checkFeatureAccess()) return; // Cek status lisensi sebelum mencetak
-
-            const allOrders = JSON.parse(localStorage.getItem('segari_orders')) || [];
-            const order = allOrders.find(o => o.id === orderId);
-            if (!order) return alert("Data pesanan tidak ditemukan.");
-
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-
-            // Pengaturan Font dan Header Dokumen
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(20);
-            doc.text("STRUK BELANJA MITRA SEGARI", 20, 20);
-            doc.setFontSize(10);
-            doc.setFont("helvetica", "normal");
-            doc.text(`Kode Toko Penjual: ${getActiveMerchant()}`, 20, 26);
-            
-            doc.line(20, 30, 190, 30);
-
-            // Metadata Transaksi
-            doc.setFont("helvetica", "bold");
-            doc.text(`ID Invoice : ${order.id}`, 20, 38);
-            doc.setFont("helvetica", "normal");
-            doc.text(`Tanggal    : ${order.date || order.tanggal || '-'}`, 20, 44);
-            doc.text(`Pelanggan  : ${order.customerName || 'Anonim'}`, 20, 50);
-            doc.text(`Alamat     : ${order.address || '-'}`, 20, 56);
-
-            doc.line(20, 62, 190, 62);
-
-            // Judul Tabel Item
-            doc.setFont("helvetica", "bold");
-            doc.text("Nama Produk / SKU", 25, 70);
-            doc.text("Qty", 120, 70);
-            doc.text("Subtotal", 150, 70);
-            doc.line(20, 74, 190, 74);
-
-            doc.setFont("helvetica", "normal");
-            let yCursor = 82;
-
-            if (order.items && order.items.length > 0) {
-                order.items.forEach(item => {
-                    doc.text(item.name, 25, yCursor);
-                    doc.text(`${item.qty}x`, 121, yCursor);
-                    const cost = item.price ? item.price * item.qty : (order.total || 0);
-                    doc.text(`Rp${cost.toLocaleString('id-ID')}`, 150, yCursor);
-                    yCursor += 8;
-                });
-            } else {
-                doc.text("Paket Produk Komoditas Segari", 25, yCursor);
-                doc.text("1x", 121, yCursor);
-                doc.text(`Rp${(order.total || 0).toLocaleString('id-ID')}`, 150, yCursor);
-                yCursor += 8;
-            }
-
-            doc.line(20, yCursor, 190, yCursor);
-            yCursor += 8;
-            doc.setFont("helvetica", "bold");
-            doc.text("TOTAL PEMBAYARAN", 25, yCursor);
-            doc.text(`Rp${(order.total || 0).toLocaleString('id-ID')}`, 150, yCursor);
-
-            doc.save(`Struk_Segari_${order.id}.pdf`);
-        }
-
-        // 📊 API EXPORT EXCEL (MENGGUNAKAN SHEETJS DENGAN GATE KUNCI)
-        function printInvoiceExcel(orderId) {
-            if (!checkFeatureAccess()) return; // Cek status lisensi sebelum mengekspor
-
-            const allOrders = JSON.parse(localStorage.getItem('segari_orders')) || [];
-            const order = allOrders.find(o => o.id === orderId);
-            if (!order) return alert("Data pesanan gagal dimuat.");
-
-            // Susun representasi data baris spreadsheet kustom
-            const dataRows = [
-                ["NOTA PENJUALAN RESMI MERCHANT SEGARI"],
-                [`Kode Toko Penjual`, getActiveMerchant()],
-                [],
-                ["Nomor Invoice", order.id],
-                ["Tanggal Pembelian", order.date || order.tanggal || "-"],
-                ["Nama Pembeli", order.customerName || "Anonim"],
-                ["Alamat Tujuan", order.address || "-"],
-                [],
-                ["Nama SKU Barang", "Kuantitas", "Harga Satuan / Total Kredit"]
-            ];
-
-            if (order.items && order.items.length > 0) {
-                order.items.forEach(item => {
-                    dataRows.push([item.name, item.qty, item.price || (order.total / item.qty)]);
-                });
-            } else {
-                dataRows.push(["Paket Belanja Konsumen Segari", 1, order.total]);
-            }
-
-            dataRows.push([]);
-            dataRows.push(["TOTAL NILAI TRANSAKSI", "", order.total]);
-
-            const wb = XLSX.utils.book_new();
-            const ws = XLSX.utils.aoa_to_sheet(dataRows);
-            XLSX.utils.book_append_sheet(wb, ws, "Nota Belanja");
-            XLSX.writeFile(wb, `Nota_Excel_Segari_${order.id}.xlsx`);
-        }
-
-        // 🔧 ENGINE INVENTORI PRODUK TOKO
+        // ==========================================
+        //  ENGINE UTAMA: MANAJEMEN INVENTORI PRODUK
+        // ==========================================
         function renderInventoryTable() {
-            const currentMerchant = getActiveMerchant();
-            if (!currentMerchant) return;
+            const products = JSON.parse(localStorage.getItem('segari_products')) || [];
+            const body = document.getElementById('inventory-table-body');
+            if(!body) return;
+            body.innerHTML = '';
 
-            const allProducts = JSON.parse(localStorage.getItem('segari_products')) || [];
-            const myProducts = allProducts.filter(p => p.merchant === currentMerchant);
-            const tbody = document.getElementById('inventory-table-body');
-
-            if (myProducts.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-400 italic">Belum ada komoditas terdaftar di toko Anda.</td></tr>`;
+            if(products.length === 0) {
+                body.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-400 italic">Belum ada produk di gudang hub toko.</td></tr>`;
                 return;
             }
 
-            tbody.innerHTML = myProducts.map(p => `
-                <tr class="hover:bg-gray-50 transition text-xs">
-                    <td class="p-4 font-bold text-gray-800">${p.name}</td>
-                    <td class="p-4 text-gray-500 uppercase font-medium">${p.category || p.cat || 'Sayur'}</td>
-                    <td class="p-4 font-black text-gray-700">Rp${parseInt(p.price || 0).toLocaleString('id-ID')}</td>
-                    <td class="p-4 text-gray-500">${p.size || '1 Pak'}</td>
-                    <td class="p-4"><span class="${p.stock <= 5 ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-800'} font-bold px-2.5 py-1 rounded-lg">${p.stock} Pcs</span></td>
+            products.forEach(p => {
+                body.innerHTML += `
+                <tr class="hover:bg-gray-50 transition border-b border-gray-100">
+                    <td class="p-4 font-bold text-gray-800 flex items-center gap-3">
+                        <img src="${p.img || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=120'}" class="w-10 h-10 object-cover rounded-xl shadow-sm border border-gray-100">
+                        ${p.name}
+                    </td>
+                    <td class="p-4 text-xs font-bold text-emerald-800 uppercase tracking-wider"><span class="bg-emerald-50 px-2 py-1 rounded-lg">${p.cat}</span></td>
+                    <td class="p-4 font-extrabold text-gray-700">Rp${Number(p.price).toLocaleString('id-ID')}</td>
+                    <td class="p-4 text-gray-500 font-medium">${p.size || '-'}</td>
+                    <td class="p-4">
+                        <span class="px-2 py-0.5 rounded text-xs font-black ${p.stock <= 5 ? 'bg-red-100 text-red-800 animate-pulse' : 'bg-gray-100 text-gray-700'}">${p.stock} Unit</span>
+                    </td>
                     <td class="p-4 text-center">
-                        <div class="flex items-center justify-center gap-1">
-                            <input type="number" id="input-stock-${p.id}" placeholder="Set" class="w-14 p-1 border border-gray-300 rounded text-center text-gray-800">
-                            <button onclick="manualUpdateStock('${p.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-2 py-1 rounded transition text-[10px]">Simpan</button>
+                        <div class="inline-flex items-center gap-1 bg-gray-100 p-1 rounded-xl shadow-inner">
+                            <button onclick="updateStockManual('${p.id}', -1)" class="w-7 h-7 bg-white hover:bg-gray-50 rounded-lg text-xs font-bold text-gray-600 shadow-sm transition">-</button>
+                            <button onclick="updateStockManual('${p.id}', 1)" class="w-7 h-7 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-xs font-bold text-white shadow-sm transition">+</button>
                         </div>
                     </td>
                     <td class="p-4 text-center">
-                        <button onclick="deleteProduct('${p.id}')" class="text-rose-600 hover:text-rose-800 font-bold transition text-[10px]">Hapus</button>
+                        <button onclick="deleteProduct('${p.id}')" class="p-2 text-rose-500 hover:bg-rose-50 hover:text-rose-700 rounded-xl transition">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
                     </td>
-                </tr>
-            `).join('');
+                </tr>`;
+            });
+            lucide.createIcons();
         }
 
         function addNewProduct() {
-            const currentMerchant = getActiveMerchant();
-            if (!currentMerchant) return;
-
             const name = document.getElementById('p-name').value;
             const cat = document.getElementById('p-cat').value;
-            const price = parseFloat(document.getElementById('p-price').value);
+            const price = Number(document.getElementById('p-price').value);
             const size = document.getElementById('p-size').value;
-            const stock = parseInt(document.getElementById('p-stock').value);
-            const img = document.getElementById('p-img').value || "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400";
+            const stock = Number(document.getElementById('p-stock').value);
+            let img = document.getElementById('p-img').value;
 
-            if (!name || !price || !size || isNaN(stock)) {
-                alert("Harap lengkapi formulir produk baru!");
+            if(!name || !price || !size || !stock) {
+                alert("Mohon lengkapi semua form input item produk!");
                 return;
             }
 
-            let allProducts = JSON.parse(localStorage.getItem('segari_products')) || [];
-            const newProd = {
-                id: 'SKU-' + Math.floor(100000 + Math.random() * 900000),
-                name, category: cat, price, size, stock, img, merchant: currentMerchant
-            };
+            if(!img) img = "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400";
 
-            allProducts.push(newProd);
-            localStorage.setItem('segari_products', JSON.stringify(allProducts));
-            alert("Sukses merilis produk ke sistem Hub Segari!");
-            
+            const products = JSON.parse(localStorage.getItem('segari_products')) || [];
+            products.push({ id: 'SKU-' + Date.now(), name, cat, price, size, stock, img });
+            localStorage.setItem('segari_products', JSON.stringify(products));
+
+            // Reset Form
             document.getElementById('p-name').value = '';
             document.getElementById('p-price').value = '';
             document.getElementById('p-size').value = '';
             document.getElementById('p-stock').value = '';
-            
+            document.getElementById('p-img').value = '';
+
             renderInventoryTable();
             updateDashboardMetrics();
         }
 
-        function manualUpdateStock(productId) {
-            const inputVal = document.getElementById(`input-stock-${productId}`).value;
-            if (inputVal === "") return alert("Isi nilai kuantitas stok baru.");
-
-            let allProducts = JSON.parse(localStorage.getItem('segari_products')) || [];
-            const idx = allProducts.findIndex(p => p.id === productId);
-            if (idx !== -1) {
-                allProducts[idx].stock = parseInt(inputVal);
-                localStorage.setItem('segari_products', JSON.stringify(allProducts));
+        function updateStockManual(id, delta) {
+            let products = JSON.parse(localStorage.getItem('segari_products')) || [];
+            const idx = products.findIndex(p => p.id === id);
+            if(idx !== -1) {
+                products[idx].stock = Math.max(0, products[idx].stock + delta);
+                localStorage.setItem('segari_products', JSON.stringify(products));
                 renderInventoryTable();
                 updateDashboardMetrics();
             }
         }
 
-        function deleteProduct(productId) {
-            if (confirm("Hapus produk ini dari katalog toko Anda?")) {
-                let allProducts = JSON.parse(localStorage.getItem('segari_products')) || [];
-                allProducts = allProducts.filter(p => p.id !== productId);
-                localStorage.setItem('segari_products', JSON.stringify(allProducts));
+        function deleteProduct(id) {
+            if(confirm("Apakah Anda yakin ingin menghapus produk ini dari katalog database hub gudang?")) {
+                let products = JSON.parse(localStorage.getItem('segari_products')) || [];
+                products = products.filter(p => p.id !== id);
+                localStorage.setItem('segari_products', JSON.stringify(products));
                 renderInventoryTable();
                 updateDashboardMetrics();
             }
         }
 
-        function changeFinanceFilter(filterType) {
-            currentFinanceFilter = filterType;
-            ['harian', 'mingguan', 'bulanan', 'tahunan'].forEach(type => {
-                const btn = document.getElementById(`btn-fin-${type}`);
-                if (btn) btn.className = "px-4 py-1.5 text-xs font-bold rounded-lg transition text-gray-600 hover:text-gray-900";
+        // ==========================================
+        //    ENGINE UTAMA: MANAJEMEN LOG PESANAN
+        // ==========================================
+        function renderOrdersTable() {
+            const orders = JSON.parse(localStorage.getItem('segari_orders')) || [];
+            const search = document.getElementById('order-search').value.toLowerCase();
+            const body = document.getElementById('orders-table-body');
+            if(!body) return;
+            body.innerHTML = '';
+
+            // Filter pencarian invoice, tanggal, maupun fallback multi-properti username pembeli
+            const filtered = orders.filter(o => {
+                const buyerName = (o.customerName || o.username || o.buyer || o.name || 'Anonim').toLowerCase();
+                return o.id.toLowerCase().includes(search) || o.date.includes(search) || buyerName.includes(search);
             });
 
-            const targetBtn = document.getElementById(`btn-fin-${filterType}`);
-            if (targetBtn) targetBtn.className = "px-4 py-1.5 text-xs font-bold rounded-lg transition shadow-sm bg-white text-emerald-900";
-
-            renderFinanceReport();
-        }
-
-        // 📈 ENGINE LAPORAN KEUANGAN BARU BESERTA FILTRASI WAKTU LENGKAP
-        function renderFinanceReport() {
-            const currentMerchant = getActiveMerchant();
-            if (!currentMerchant) return;
-
-            const allOrders = JSON.parse(localStorage.getItem('segari_orders')) || [];
-            const tbody = document.getElementById('finance-table-rows');
-            
-            let myOrders = allOrders.filter(o => 
-                o.merchant === currentMerchant || o.storeCode === currentMerchant ||
-                (o.items && o.items.some(item => item.merchant === currentMerchant))
-            );
-
-            const now = new Date();
-            
-            let filteredOrders = myOrders.filter(o => {
-                const dateStr = o.date || o.tanggal;
-                if (!dateStr) return false;
-                
-                const orderDate = new Date(dateStr);
-                if (isNaN(orderDate.getTime())) return false;
-
-                if (currentFinanceFilter === 'harian') {
-                    return orderDate.toDateString() === now.toDateString();
-                } else if (currentFinanceFilter === 'mingguan') {
-                    const diffTime = Math.abs(now - orderDate);
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                    return diffDays <= 7;
-                } else if (currentFinanceFilter === 'bulanan') {
-                    return orderDate.getMonth() === now.getMonth() && orderDate.getFullYear() === now.getFullYear();
-                } else if (currentFinanceFilter === 'tahunan') {
-                    return orderDate.getFullYear() === now.getFullYear();
-                }
-                return true;
-            });
-
-            const totalRev = filteredOrders.reduce((sum, o) => sum + (o.total || 0), 0);
-            const avgRev = filteredOrders.length > 0 ? Math.floor(totalRev / filteredOrders.length) : 0;
-
-            document.getElementById('fin-stat-revenue').innerText = `Rp${totalRev.toLocaleString('id-ID')}`;
-            document.getElementById('fin-stat-count').innerText = `${filteredOrders.length} Invoice`;
-            document.getElementById('fin-stat-avg').innerText = `Rp${avgRev.toLocaleString('id-ID')}`;
-
-            if (filteredOrders.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-gray-400 italic">Belum ada data keuangan untuk rentang waktu ini.</td></tr>`;
+            if(filtered.length === 0) {
+                body.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-400 italic">Tidak ditemukan log data pesanan masuk.</td></tr>`;
                 return;
             }
 
-            tbody.innerHTML = filteredOrders.map(o => `
-                <tr class="hover:bg-gray-50 transition text-xs">
-                    <td class="p-4 font-bold text-gray-800">${o.id}</td>
-                    <td class="p-4 text-gray-500">${o.date || o.tanggal}</td>
-                    <td class="p-4 font-medium text-gray-700">${o.customerName || 'Anonim'}</td>
-                    <td class="p-4 text-right font-black text-emerald-600">Rp${(o.total || 0).toLocaleString('id-ID')}</td>
-                </tr>
-            `).join('');
+            filtered.forEach(o => {
+                let itemsList = o.items ? o.items.map(i => `<span class="inline-block bg-gray-50 border border-gray-100 rounded px-1.5 py-0.5 text-[11px] font-medium mb-1">${i.name} (${i.qty}x)</span>`).join(' ') : '-';
+                
+                // MULTI-PROPERTY FALLBACK CHECKER (Solusi Utama Masalah Nama Anonim)
+                const finalBuyerName = o.customerName || o.username || o.buyer || o.name || 'Anonim';
+
+                body.innerHTML += `
+                <tr class="hover:bg-gray-50 transition border-b border-gray-100">
+                    <td class="p-4 font-black text-gray-800">${o.id}<br><span class="text-[10px] text-gray-400 font-normal">${o.date}</span></td>
+                    <td class="p-4 font-bold text-gray-700">
+                        ${finalBuyerName}
+                        <br><span class="text-[10px] text-gray-400 font-normal block max-w-xs truncate">${o.address || '-'}</span>
+                    </td>
+                    <td class="p-4 text-gray-600 max-w-xs">${itemsList}</td>
+                    <td class="p-4 font-black text-emerald-700 text-sm">Rp${(o.total || 0).toLocaleString('id-ID')}</td>
+                    <td class="p-4">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-black uppercase ${o.status === 'Selesai' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800 animate-pulse'}">
+                            ${o.status}
+                        </span>
+                    </td>
+                    <td class="p-4 text-center">
+                        <div class="flex items-center justify-center gap-1">
+                            <button onclick="printInvoicePDF('${o.id}')" class="p-2 bg-gray-100 hover:bg-rose-50 hover:text-rose-600 rounded-xl text-gray-600 transition" title="Cetak PDF Struk">
+                                <i data-lucide="file-text" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="printInvoiceExcel('${o.id}')" class="p-2 bg-gray-100 hover:bg-emerald-50 hover:text-emerald-700 rounded-xl text-gray-600 transition" title="Ekspor Excel Spreadsheet">
+                                <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </td>
+                    <td class="p-4 text-center">
+                        ${o.status !== 'Selesai' ? `
+                            <button onclick="updateOrderStatus('${o.id}', 'Selesai')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold px-3 py-1.5 text-[10px] uppercase tracking-wider rounded-xl transition shadow">
+                                Selesai Kirim
+                            </button>
+                        ` : '<span class="text-xs font-bold text-emerald-600">✔ Paket Diterima</span>'}
+                    </td>
+                </tr>`;
+            });
+            lucide.createIcons();
+        }
+
+        function updateOrderStatus(id, newStatus) {
+            const orders = JSON.parse(localStorage.getItem('segari_orders')) || [];
+            const idx = orders.findIndex(o => o.id === id);
+            if(idx !== -1) {
+                orders[idx].status = newStatus;
+                localStorage.setItem('segari_orders', JSON.stringify(orders));
+                renderOrdersTable();
+                updateDashboardMetrics();
+                renderFinanceReport();
+            }
+        }
+
+        // ==========================================
+        //      ENGINE EKSPOR DOKUMEN PREMIUM
+        // ==========================================
+        function printInvoicePDF(orderId) {
+            if(!checkFeatureAccess()) return;
+            const orders = JSON.parse(localStorage.getItem('segari_orders')) || [];
+            const order = orders.find(o => o.id === orderId);
+            if(!order) return;
+
+            const finalBuyerName = order.customerName || order.username || order.buyer || order.name || 'Anonim';
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ orientation: "p", unit: "mm", format: "a4" });
+            
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(18);
+            doc.setTextColor(6, 78, 59);
+            doc.text("SEGARI MERCHANT - HUB NOTA OFFICIAL", 20, 20);
+            
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(10);
+            doc.setTextColor(31, 41, 55);
+            doc.text(`Nomor Invoice : ${order.id}`, 20, 32);
+            doc.text(`Waktu/Tanggal : ${order.date}`, 20, 38);
+            doc.text(`Nama Pembeli  : ${finalBuyerName}`, 20, 44);
+            doc.text(`Alamat Tujuan : ${order.address || '-'}`, 20, 50);
+            
+            doc.setDrawColor(209, 213, 219);
+            doc.line(20, 56, 190, 56);
+            
+            doc.setFont("helvetica", "bold");
+            doc.text("Item Belanjaan", 20, 62);
+            doc.text("Kuantitas", 120, 62);
+            doc.text("Subtotal", 160, 62);
+            doc.line(20, 65, 190, 65);
+            
+            doc.setFont("helvetica", "normal");
+            let lineY = 72;
+            if(order.items) {
+                order.items.forEach(i => {
+                    doc.text(i.name, 20, lineY);
+                    doc.text(`${i.qty}x`, 120, lineY);
+                    doc.text(`Rp${(i.price * i.qty).toLocaleString('id-ID')}`, 160, lineY);
+                    lineY += 8;
+                });
+            }
+            
+            doc.line(20, lineY, 190, lineY);
+            doc.setFont("helvetica", "bold");
+            doc.text("TOTAL PENGELUARAN NETT:", 20, lineY + 8);
+            doc.text(`Rp${(order.total || 0).toLocaleString('id-ID')}`, 160, lineY + 8);
+            
+            doc.save(`Invoice_Segari_${order.id}.pdf`);
+        }
+
+        function printInvoiceExcel(orderId) {
+            if(!checkFeatureAccess()) return;
+            const orders = JSON.parse(localStorage.getItem('segari_orders')) || [];
+            const order = orders.find(o => o.id === orderId);
+            if(!order) return;
+
+            const finalBuyerName = order.customerName || order.username || order.buyer || order.name || 'Anonim';
+
+            const spreadsheetData = [
+                ["SEGARI OFFICIAL LOGISTIK HUB STRUK"],
+                ["ID Invoice", order.id],
+                ["Tanggal Pemesanan", order.date],
+                ["Nama Pembeli", finalBuyerName],
+                ["Alamat Pengiriman", order.address || '-'],
+                ["Status Transaksi", order.status],
+                [],
+                ["Nama Komoditas Produk", "Harga Satuan", "Jumlah Qty", "Subtotal Belanja"]
+            ];
+
+            if(order.items) {
+                order.items.forEach(i => {
+                    spreadsheetData.push([i.name, i.price, i.qty, i.price * i.qty]);
+                });
+            }
+
+            spreadsheetData.push([], ["TOTAL PENDAPATAN BERSIH KREDIT MASUK", "", "", order.total]);
+
+            const worksheet = XLSX.utils.aoa_to_sheet(spreadsheetData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Nota Rincian");
+            XLSX.writeFile(workbook, `Excel_Segari_Invoice_${order.id}.xlsx`);
+        }
+
+        // ==========================================
+        //    ENGINE OPERASIONAL UTAMA METRIK HUB
+        // ==========================================
+        function updateDashboardMetrics() {
+            const orders = JSON.parse(localStorage.getItem('segari_orders')) || [];
+            const products = JSON.parse(localStorage.getItem('segari_products')) || [];
+
+            let totalRevenue = 0;
+            orders.forEach(o => {
+                if(o.status === 'Selesai') totalRevenue += (o.total || 0);
+            });
+
+            document.getElementById('stat-revenue').innerText = `Rp${totalRevenue.toLocaleString('id-ID')}`;
+            document.getElementById('stat-orders').innerText = `${orders.length} Transaksi`;
+
+            const lowStockProducts = products.filter(p => p.stock <= 5);
+            document.getElementById('stat-low-stock').innerText = `${lowStockProducts.length} Produk`;
+
+            const lowStockIconBg = document.getElementById('stat-low-stock-icon-bg');
+            if(lowStockProducts.length > 0 && lowStockIconBg) {
+                lowStockIconBg.className = "p-3 bg-rose-50 rounded-xl text-rose-500 animate-pulse";
+            } else if(lowStockIconBg) {
+                lowStockIconBg.className = "p-3 bg-gray-50 rounded-xl text-gray-400";
+            }
+
+            // Render Tanggal Omzet
+            const recapBody = document.getElementById('dashboard-date-recap-rows');
+            if(recapBody) {
+                recapBody.innerHTML = '';
+                const dateGrouping = {};
+                orders.forEach(o => {
+                    if(!dateGrouping[o.date]) dateGrouping[o.date] = { count: 0, sum: 0 };
+                    dateGrouping[o.date].count++;
+                    dateGrouping[o.date].sum += (o.total || 0);
+                });
+
+                const uniqueDates = Object.keys(dateGrouping);
+                if(uniqueDates.length === 0) {
+                    recapBody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-gray-400 italic">Belum ada kompilasi omzet harian.</td></tr>`;
+                } else {
+                    uniqueDates.forEach(d => {
+                        recapBody.innerHTML += `
+                        <tr class="hover:bg-gray-50 transition border-b border-gray-100">
+                            <td class="p-3 font-semibold text-gray-700">${d}</td>
+                            <td class="p-3 font-medium text-gray-500">${dateGrouping[d].count} Invoice</td>
+                            <td class="p-3 text-right font-black text-emerald-700">Rp${dateGrouping[d].sum.toLocaleString('id-ID')}</td>
+                        </tr>`;
+                    });
+                }
+            }
+
+            // Render Alert SKU
+            const lowStockRows = document.getElementById('dashboard-low-stock-rows');
+            if(lowStockRows) {
+                lowStockRows.innerHTML = '';
+                if(lowStockProducts.length === 0) {
+                    lowStockRows.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-emerald-600 font-extrabold bg-emerald-50/50">🎉 Seluruh ketersediaan gudang aman terkendali!</td></tr>`;
+                } else {
+                    lowStockProducts.forEach(p => {
+                        lowStockRows.innerHTML += `
+                        <tr class="bg-rose-50/30 hover:bg-rose-50 transition border-b border-gray-100">
+                            <td class="p-3 font-bold text-gray-800">${p.name}</td>
+                            <td class="p-3 font-medium text-gray-500">${p.size || '-'}</td>
+                            <td class="p-3 text-center font-black text-rose-600">${p.stock} Unit</td>
+                        </tr>`;
+                    });
+                }
+            }
+        }
+
+        // ==========================================
+        //       ENGINE UTAMA: BUKU BESAR FINANCE
+        // ==========================================
+        function renderFinanceReport() {
+            const orders = JSON.parse(localStorage.getItem('segari_orders')) || [];
+            const body = document.getElementById('finance-table-rows');
+            if(!body) return;
+            body.innerHTML = '';
+
+            let totalSum = 0;
+            let totalCount = 0;
+
+            orders.forEach(o => {
+                const finalBuyerName = o.customerName || o.username || o.buyer || o.name || 'Anonim';
+                totalSum += (o.total || 0);
+                totalCount++;
+
+                body.innerHTML += `
+                <tr class="hover:bg-gray-50 transition border-b border-gray-100">
+                    <td class="p-4 font-black text-gray-800">${o.id}</td>
+                    <td class="p-4 text-gray-500 font-medium">${o.date}</td>
+                    <td class="p-4 font-bold text-gray-700">${finalBuyerName}</td>
+                    <td class="p-4 text-right font-black text-emerald-700 text-sm">Rp${(o.total || 0).toLocaleString('id-ID')}</td>
+                </tr>`;
+            });
+
+            document.getElementById('fin-stat-revenue').innerText = `Rp${totalSum.toLocaleString('id-ID')}`;
+            document.getElementById('fin-stat-count').innerText = `${totalCount} Invoice`;
+            
+            const average = totalCount ? Math.floor(totalSum / totalCount) : 0;
+            document.getElementById('fin-stat-avg').innerText = `Rp${average.toLocaleString('id-ID')}`;
+        }
+
+        function changeFinanceFilter(type) {
+            currentFinanceFilter = type;
+            const options = ['harian', 'mingguan', 'bulanan', 'tahunan'];
+            options.forEach(opt => {
+                const button = document.getElementById(`btn-fin-${opt}`);
+                if(button) {
+                    if(opt === type) {
+                        button.className = "px-4 py-1.5 text-xs font-bold rounded-lg transition shadow-sm bg-white text-emerald-900";
+                    } else {
+                        button.className = "px-4 py-1.5 text-xs font-bold rounded-lg transition text-gray-600 hover:text-gray-900";
+                    }
+                }
+            });
+            renderFinanceReport();
         }
     </script>
 </body>
