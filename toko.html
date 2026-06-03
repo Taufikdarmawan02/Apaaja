@@ -100,7 +100,7 @@
                         <h3 class="text-xs font-bold text-gray-700 uppercase tracking-wider">Live Inventory Stock Audit</h3>
                     </div>
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs text-gray-600 min-w-[600px]">
+                        <table class="w-full text-left text-xs text-gray-600 min-w-[700px]">
                             <thead class="bg-gray-100 text-gray-700 font-bold">
                                 <tr>
                                     <th class="p-4">Produk</th>
@@ -109,6 +109,7 @@
                                     <th class="p-4">Ukuran Pak</th>
                                     <th class="p-4">Ketersediaan Stok</th>
                                     <th class="p-4 text-center">Update Stok Manual</th>
+                                    <th class="p-4 text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody id="inventory-table-body" class="divide-y divide-gray-100">
@@ -239,7 +240,7 @@
             tbody.innerHTML = '';
 
             if(myProducts.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-gray-400 italic">Belum ada produk dirilis oleh toko Anda.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-gray-400 italic">Belum ada produk dirilis oleh toko Anda.</td></tr>`;
                 return;
             }
 
@@ -261,9 +262,17 @@
                             <button onclick="updateStockDirect(${p.id}, 5)" class="bg-emerald-600 text-white p-1 rounded font-bold hover:bg-emerald-700">+5</button>
                         </div>
                     </td>
+                    <td class="p-4 text-center">
+                        <button onclick="deleteProduct(${p.id})" class="bg-rose-100 text-rose-600 p-1.5 rounded-xl hover:bg-rose-200 transition" title="Hapus Produk">
+                            <i data-lucide="trash-2" class="w-4 h-4 mx-auto"></i>
+                        </button>
+                    </td>
                 `;
                 tbody.appendChild(tr);
             });
+
+            // Re-render Lucide icons agar ikon trash baru terdeteksi
+            lucide.createIcons();
         }
 
         function updateStockDirect(productId, amount) {
@@ -272,6 +281,15 @@
 
             if (pIdx !== -1) {
                 allProducts[pIdx].stock = Math.max(0, allProducts[pIdx].stock + amount);
+                localStorage.setItem('segari_products', JSON.stringify(allProducts));
+                renderInventoryTable();
+            }
+        }
+
+        function deleteProduct(productId) {
+            if (confirm("Apakah Anda yakin ingin menghapus produk ini secara permanen dari inventori?")) {
+                let allProducts = JSON.parse(localStorage.getItem('segari_products')) || [];
+                allProducts = allProducts.filter(p => p.id !== productId);
                 localStorage.setItem('segari_products', JSON.stringify(allProducts));
                 renderInventoryTable();
             }
