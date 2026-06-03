@@ -254,43 +254,48 @@
 
         // 5. Render Overview Metrics & Order Rows (SUDAH DIPERBAIKI)
         function calculateOverviewMetrics() {
-            const orders = JSON.parse(localStorage.getItem(ORDER_KEY)) || [];
-            const products = JSON.parse(localStorage.getItem(PRODUCT_KEY)) || [];
-            const users = JSON.parse(localStorage.getItem(USER_KEY)) || [];
+          const orders = JSON.parse(localStorage.getItem(ORDER_KEY)) || [];
+          const products = JSON.parse(localStorage.getItem(PRODUCT_KEY)) || [];
+    const users = JSON.parse(localStorage.getItem(USER_KEY)) || [];
 
-            const totalRevenue = orders.reduce((sum, o) => sum + (o.total || 0), 0);
-            document.getElementById('stat-revenue').innerText = `Rp${totalRevenue.toLocaleString('id-ID')}`;
-            document.getElementById('stat-orders-count').innerText = `${orders.length} Transaksi`;
-            document.getElementById('stat-users-count').innerText = `${users.length} Akun`;
+    const totalRevenue = orders.reduce((sum, o) => sum + (o.total || o.totalHarga || 0), 0);
+    document.getElementById('stat-revenue').innerText = `Rp${totalRevenue.toLocaleString('id-ID')}`;
+    document.getElementById('stat-orders-count').innerText = `${orders.length} Transaksi`;
+    document.getElementById('stat-users-count').innerText = `${users.length} Akun`;
 
-            const lowStockCount = products.filter(p => p.stock <= 5).length;
-            document.getElementById('stat-alert-count').innerText = `${lowStockCount} SKU`;
+    const lowStockCount = products.filter(p => p.stock <= 5).length;
+    document.getElementById('stat-alert-count').innerText = `${lowStockCount} SKU`;
 
-            const tbody = document.getElementById('global-orders-rows');
-            if (orders.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">Belum ada pesanan masuk.</td></tr>`;
-                return;
-            }
+    const tbody = document.getElementById('global-orders-rows');
+    if (orders.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">Belum ada pesanan masuk.</td></tr>`;
+        return;
+    }
 
-            // Memperbaiki rendering baris tabel menggunakan sistem fallback multi-key
-            tbody.innerHTML = orders.map(o => {
-                // Alternatif fallback jika key di localStorage bervariasi
-                const displayInvoice = o.invoice || o.id || 'Tanpa Invoice';
-                const displayUsername = o.username || o.buyer || o.nama || 'Anonim';
-                const displayAddress = o.address || o.alamat || 'Alamat tidak terisi';
-                const displayTotal = o.total || 0;
-                const displayStatus = o.status || 'DIPROSES';
+    // Pemetaan defensif mendalam untuk mengantisipasi perbedaan key dari halaman konsumen
+    tbody.innerHTML = orders.map(o => {
+        // 1. Antisipasi variasi Key Invoice
+        const displayInvoice = o.invoice || o.id || o.noInvoice || 'Tanpa Invoice';
+        
+        // 2. Antisipasi variasi Key Akun Pembeli (Sering memicu undefined)
+        const displayUsername = o.username || o.buyer || o.buyerName || o.namaPembeli || o.nama || 'Anonim';
+        
+        // 3. Antisipasi variasi Key Alamat Distribusi (Sering memicu undefined)
+        const displayAddress = o.address || o.alamat || o.alamatKirim || o.alamatLengkap || 'Alamat tidak terisi';
+        
+        const displayTotal = o.total || o.totalHarga || 0;
+        const displayStatus = o.status || 'DIPROSES';
 
-                return `
-                    <tr class="hover:bg-slate-900/40 border-b border-slate-900">
-                        <td class="p-4 font-mono font-bold text-white">${displayInvoice}</td>
-                        <td class="p-4 font-medium">${displayUsername}</td>
-                        <td class="p-4 text-emerald-400 font-bold">Rp${displayTotal.toLocaleString('id-ID')}</td>
-                        <td class="p-4"><span class="bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded text-[10px] font-bold border border-amber-500/20">${displayStatus}</span></td>
-                        <td class="p-4 truncate max-w-[200px]" title="${displayAddress}">${displayAddress}</td>
-                    </tr>
-                `;
-            }).join('');
+        return `
+            <tr class="hover:bg-slate-900/40 border-b border-slate-900">
+                <td class="p-4 font-mono font-bold text-white">${displayInvoice}</td>
+                <td class="p-4 font-medium text-slate-300">${displayUsername}</td>
+                <td class="p-4 text-emerald-400 font-bold">Rp${displayTotal.toLocaleString('id-ID')}</td>
+                <td class="p-4"><span class="bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded text-[10px] font-bold border border-amber-500/20">${displayStatus}</span></td>
+                <td class="p-4 truncate max-w-[250px]" title="${displayAddress}">${displayAddress}</td>
+            </tr>
+        `;
+    }).join('');
         }
 
         // 6. User Management Mutation
