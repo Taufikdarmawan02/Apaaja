@@ -148,7 +148,6 @@
     <script>
         let isSidebarOpen = false;
 
-        // Inisialisasi Data Gudang Toko
         window.addEventListener('DOMContentLoaded', () => {
             loadMerchantSession();
             renderInventoryTable();
@@ -161,13 +160,11 @@
             });
         });
 
-        // 获取当前登录商户名助理函数
         function getActiveMerchant() {
             const session = JSON.parse(localStorage.getItem('segari_session'));
             return session ? session.username : null;
         }
 
-        // 1. Auth Guard - Proteksi Halaman Gudang Merchant
         function loadMerchantSession() {
             const session = JSON.parse(localStorage.getItem('segari_session'));
             if (!session || session.role !== 'Toko') {
@@ -178,15 +175,13 @@
             document.getElementById('merchant-user-display').innerText = `${session.username} (${session.role})`;
         }
 
-        // 2. Fungsi Log out Sistem Terintegrasi
         function handleMerchantLogout() {
             if (confirm("Apakah Anda yakin ingin keluar dari manajemen Mitra Toko?")) {
-                localStorage.removeItem('segari_session'); // Hapus token session
-                window.location.href = 'index.html';       // Redirect ke gerbang utama
+                localStorage.removeItem('segari_session');
+                window.location.href = 'index.html';
             }
         }
 
-        // 3. Engine Hambuger Menu Responsif (Mobile)
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar-menu');
             const overlay = document.getElementById('sidebar-overlay');
@@ -202,13 +197,11 @@
             }
         }
 
-        // 4. Switcher Tab Section Menu Utama
         function switchSection(secId) {
             document.getElementById('section-inventory').classList.add('hidden');
             document.getElementById('section-orders').classList.add('hidden');
             document.getElementById(`section-${secId}`).classList.remove('hidden');
             
-            // Atur gaya aktif pada tombol navigasi
             const btnInv = document.getElementById('nav-inventory');
             const btnOrd = document.getElementById('nav-orders');
             
@@ -224,9 +217,7 @@
             if(secId === 'inventory') title.innerHTML = `<i data-lucide="boxes" class="text-emerald-600"></i> Inventori Produk Toko`;
             if(secId === 'orders') title.innerHTML = `<i data-lucide="clipboard-list" class="text-emerald-600"></i> Manajemen Pesanan Masuk`;
             
-            // Jika dalam mode mobile, otomatis tutup sidebar setelah memilih menu
             if (isSidebarOpen) toggleSidebar();
-            
             lucide.createIcons();
         }
 
@@ -235,7 +226,6 @@
             const allProducts = JSON.parse(localStorage.getItem('segari_products')) || [];
             const currentMerchant = getActiveMerchant();
 
-            // Saring produk hanya milik toko yang login
             const myProducts = allProducts.filter(p => p.merchant === currentMerchant);
             tbody.innerHTML = '';
 
@@ -270,8 +260,6 @@
                 `;
                 tbody.appendChild(tr);
             });
-
-            // Re-render Lucide icons agar ikon trash baru terdeteksi
             lucide.createIcons();
         }
 
@@ -314,7 +302,7 @@
             let products = JSON.parse(localStorage.getItem('segari_products')) || [];
             const newProduct = {
                 id: Date.now(),
-                merchant: currentMerchant, // Menyimpan identitas toko pemilik produk
+                merchant: currentMerchant,
                 name, category: cat, price, size, stock, img
             };
 
@@ -331,14 +319,16 @@
             renderInventoryTable();
         }
 
+        // 🔄 PEMBARUAN ENGINE LOG KONSUMEN (INVOICE, TANGGAL, NAMA, ALAMAT)
         function renderOrdersTable() {
             const tbody = document.getElementById('orders-table-body');
             const allOrders = JSON.parse(localStorage.getItem('segari_orders')) || [];
             const currentMerchant = getActiveMerchant();
             tbody.innerHTML = '';
 
-            // Saring pesanan yang mengandung item dari toko ini, atau pesanan yang langsung ditujukan ke toko ini
+            // Penyaringan fleksibel: menampilkan data dummy awal ATAU data yang terikat ke ID toko mitra
             const myOrders = allOrders.filter(o => 
+                (!o.merchant && !o.storeCode && (!o.items || o.items.length === 0)) || 
                 o.merchant === currentMerchant || 
                 o.storeCode === currentMerchant ||
                 (o.items && o.items.some(item => item.merchant === currentMerchant))
@@ -350,27 +340,51 @@
             }
 
             myOrders.forEach((o) => {
-                // Saring item belanjaan agar hanya menampilkan item milik toko ini saja di log dashboard
+                // NORMALISASI PROPERTI DATA: Menangani fallback o.id/o.invoice dan o.user/o.username secara dinamis
+                const displayInvoice = o.invoice || o.id || 'Tanpa ID';
+                const displayDate = o.date || o.tanggal || '-';
+                const displayUsername = o.username || o.user || 'Anonim';
+                const displayAddress = o.address || 'Alamat tidak terisi';
+                const displayTotal = o.total || 0;
+                const displayStatus = o.status || 'Diproses';
+
                 let displayItems = o.items || [];
                 if (displayItems.some(item => item.merchant)) {
                     displayItems = displayItems.filter(item => item.merchant === currentMerchant);
                 }
 
-                let itemsListHtml = displayItems.map(i => `• ${i.name} (${i.qty}x)`).join('<br>');
+                let itemsListHtml = displayItems.length > 0
+                    ? displayItems.map(i => `• ${i.name} (${i.qty}x)`).join('<br>')
+                    : '• Paket Komoditas Gabungan';
                 
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-gray-50 transition";
+                tr.className = "hover:bg-gray-50 transition border-b border-gray-100";
                 tr.innerHTML = `
-                    <td class="p-4 font-mono font-bold text-gray-800">${o.invoice}<br><span class="text-[10px] font-normal text-gray-400">${o.date}</span></td>
-                    <td class="p-4 font-bold text-gray-700">${o.username}<br><span class="text-[10px] font-normal text-gray-400 block max-w-xs truncate">${o.address}</span></td>
+                    <td class="p-4 font-mono font-bold text-gray-800">
+                        <span class="text-emerald-700">${displayInvoice}</span>
+                        <br>
+                        <span class="text-[10px] font-normal text-gray-400 block mt-0.5">${displayDate}</span>
+                    </td>
+                    <td class="p-4 text-gray-700">
+                        <span class="font-bold text-gray-900">@${displayUsername}</span>
+                        <br>
+                        <span class="text-[10px] font-normal text-gray-400 block max-w-xs truncate mt-0.5" title="${displayAddress}">${displayAddress}</span>
+                    </td>
                     <td class="p-4 text-gray-600 font-medium">${itemsListHtml}</td>
-                    <td class="p-4 font-extrabold text-green-600">Rp${o.total.toLocaleString('id-ID')}</td>
-                    <td class="p-4"><span class="px-2 py-1 rounded-full text-[10px] font-black uppercase ${o.status==='Selesai'?'bg-blue-100 text-blue-800':o.status==='Dalam Perjalanan'?'bg-amber-100 text-amber-800':'bg-gray-100 text-gray-800'}">${o.status}</span></td>
+                    <td class="p-4 font-extrabold text-green-600">Rp${displayTotal.toLocaleString('id-ID')}</td>
+                    <td class="p-4">
+                        <span class="px-2 py-1 rounded-full text-[10px] font-black uppercase ${
+                            displayStatus === 'Selesai' ? 'bg-blue-100 text-blue-800' : 
+                            displayStatus === 'Dalam Perjalanan' ? 'bg-amber-100 text-amber-800' : 
+                            'bg-gray-100 text-gray-800'
+                        }">${displayStatus}</span>
+                    </td>
                     <td class="p-4 text-center">
-                        <select onchange="updateOrderStatus('${o.invoice}', this.value)" class="p-1.5 border border-gray-200 rounded-lg text-[11px] font-bold bg-white text-gray-700">
-                            <option value="Menyiapkan Pesanan" ${o.status==='Menyiapkan Pesanan'?'selected':''}>1. Siapkan Paket</option>
-                            <option value="Dalam Perjalanan" ${o.status==='Dalam Perjalanan'?'selected':''}>2. Serahkan Kurir</option>
-                            <option value="Selesai" ${o.status==='Selesai'?'selected':''}>3. Selesai Tiba</option>
+                        <select onchange="updateOrderStatus('${displayInvoice}', this.value)" class="p-1.5 border border-gray-200 rounded-lg text-[11px] font-bold bg-white text-gray-700 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            <option value="Diproses" ${displayStatus==='Diproses'?'selected':''}>0. Diproses</option>
+                            <option value="Menyiapkan Pesanan" ${displayStatus==='Menyiapkan Pesanan'?'selected':''}>1. Siapkan Paket</option>
+                            <option value="Dalam Perjalanan" ${displayStatus==='Dalam Perjalanan'?'selected':''}>2. Serahkan Kurir</option>
+                            <option value="Selesai" ${displayStatus==='Selesai'?'selected':''}>3. Selesai Tiba</option>
                         </select>
                     </td>
                 `;
@@ -378,9 +392,11 @@
             });
         }
 
+        // 🔄 PEMBARUAN MUTASI UPDATE STATUS LOGISTIK TOKO
         function updateOrderStatus(invoice, newStatus) {
             let allOrders = JSON.parse(localStorage.getItem('segari_orders')) || [];
-            const oIdx = allOrders.findIndex(o => o.invoice === invoice);
+            // Mencari indeks order berdasarkan kecocokan invoice maupun id asal data dummy
+            const oIdx = allOrders.findIndex(o => (o.invoice === invoice || o.id === invoice));
 
             if (oIdx !== -1) {
                 allOrders[oIdx].status = newStatus;
