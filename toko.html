@@ -9,6 +9,7 @@
 </head>
 <body class="bg-gray-100 font-sans antialiased">
 
+    <!-- MOBILE HEADER -->
     <div class="md:hidden bg-emerald-900 text-white p-4 flex justify-between items-center sticky top-0 z-50 shadow-md">
         <div class="flex items-center gap-2">
             <span class="text-xl font-black tracking-tight text-white">se<span class="text-orange-400">gari</span></span>
@@ -23,6 +24,7 @@
 
     <div class="min-h-screen flex flex-col md:flex-row relative">
         
+        <!-- SIDEBAR NAVIGATION PANEL -->
         <aside id="sidebar-menu" class="fixed md:static inset-y-0 left-0 z-50 w-64 bg-emerald-900 text-white p-6 flex flex-col justify-between transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out shadow-2xl md:shadow-none">
             
             <div class="space-y-6">
@@ -52,6 +54,10 @@
                         <button id="nav-orders" onclick="switchSection('orders')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-emerald-100 hover:bg-emerald-800/50 transition">
                             <i data-lucide="clipboard-list" class="w-4 h-4"></i> Pesanan Masuk
                         </button>
+                        <!-- 🆕 TOMBOL SIDEBAR LAPORAN KEUANGAN BARU -->
+                        <button id="nav-finance" onclick="switchSection('finance')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-emerald-100 hover:bg-emerald-800/50 transition">
+                            <i data-lucide="bar-chart-3" class="w-4 h-4"></i> Laporan Keuangan
+                        </button>
                         <a href="index.html" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-orange-300 hover:bg-emerald-800/50 transition mt-6">
                             <i data-lucide="arrow-left" class="w-4 h-4"></i> Lihat Sisi Konsumen
                         </a>
@@ -66,6 +72,7 @@
             </div>
         </aside>
 
+        <!-- MAIN LAYOUT DISPLAY -->
         <main class="flex-grow p-4 md:p-8 space-y-6 w-full overflow-x-hidden">
             <header class="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
                 <h1 class="text-base md:text-lg font-bold text-gray-800 flex items-center gap-2" id="section-title">
@@ -78,6 +85,7 @@
                 </div>
             </header>
 
+            <!-- SECTION 1: DASHBOARD HUB RINGKASAN DATA -->
             <section id="section-dashboard" class="space-y-6">
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
@@ -146,6 +154,7 @@
                 </div>
             </section>
 
+            <!-- SECTION 2: INVENTORI PRODUK -->
             <section id="section-inventory" class="hidden space-y-6">
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
                     <h3 class="text-sm font-bold text-gray-800 flex items-center gap-2"><i data-lucide="plus-circle" class="text-emerald-600"></i> Tambah / Suplai Produk Baru ke Hub</h3>
@@ -190,6 +199,7 @@
                 </div>
             </section>
 
+            <!-- SECTION 3: PESANAN MASUK -->
             <section id="section-orders" class="hidden space-y-4">
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                     <div class="p-4 bg-gray-50/50 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
@@ -219,23 +229,82 @@
                     </div>
                 </div>
             </section>
+
+            <!-- 🆕 SECTION 4: LAPORAN KEUANGAN & FILTER PERIODIK BARU -->
+            <section id="section-finance" class="hidden space-y-6">
+                <!-- Bar Filter Periode Kontrol -->
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div class="space-y-0.5">
+                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Cakup Rentang Waktu</h3>
+                        <p class="text-xs text-gray-600">Filter rekap akuntansi pendapatan mitra toko secara dinamis.</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-1.5 bg-gray-100 p-1 rounded-xl">
+                        <button onclick="changeFinanceFilter('harian')" id="btn-fin-harian" class="px-4 py-1.5 text-xs font-bold rounded-lg transition shadow-sm bg-white text-emerald-900">Harian</button>
+                        <button onclick="changeFinanceFilter('mingguan')" id="btn-fin-mingguan" class="px-4 py-1.5 text-xs font-bold rounded-lg transition text-gray-600 hover:text-gray-900">Mingguan</button>
+                        <button onclick="changeFinanceFilter('bulanan')" id="btn-fin-bulanan" class="px-4 py-1.5 text-xs font-bold rounded-lg transition text-gray-600 hover:text-gray-900">Bulanan</button>
+                        <button onclick="changeFinanceFilter('tahunan')" id="btn-fin-tahunan" class="px-4 py-1.5 text-xs font-bold rounded-lg transition text-gray-600 hover:text-gray-900">Tahunan</button>
+                    </div>
+                </div>
+
+                <!-- Kartu Statistik Keuangan Hasil Filter -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Pendapatan Bersih Periode Ini</p>
+                        <h3 id="fin-stat-revenue" class="text-xl font-black text-emerald-700">Rp0</h3>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Kuantitas Nota Transaksi</p>
+                        <h3 id="fin-stat-count" class="text-xl font-black text-gray-800">0 Invoice</h3>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Rata-rata Pendapatan per Order</p>
+                        <h3 id="fin-stat-avg" class="text-xl font-black text-orange-600">Rp0</h3>
+                    </div>
+                </div>
+
+                <!-- Tabel Itemized Ledger Pendapatan -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="p-4 bg-gray-50/50 border-b border-gray-100">
+                        <h3 class="text-xs font-bold text-gray-700 uppercase tracking-wider">Buku Besar Aliran Pendapatan</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-gray-600 min-w-[600px]">
+                            <thead class="bg-gray-100 text-gray-700 font-bold">
+                                <tr>
+                                    <th class="p-4">Nomor Invoice</th>
+                                    <th class="p-4">Tanggal Pembelian</th>
+                                    <th class="p-4">Nama Pelanggan</th>
+                                    <th class="p-4 text-right">Total Kredit Masuk</th>
+                                </tr>
+                            </thead>
+                            <tbody id="finance-table-rows" class="divide-y divide-gray-100">
+                                <tr><td colspan="4" class="p-8 text-center text-gray-400 italic">Belum ada data keuangan untuk rentang waktu ini.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
         </main>
     </div>
 
+    <!-- SYSTEM BACKOFFICE ENGINES -->
     <script>
         let isSidebarOpen = false;
+        let currentFinanceFilter = 'harian'; // Default status filter laporan keuangan
 
         window.addEventListener('DOMContentLoaded', () => {
             loadMerchantSession();
             renderInventoryTable();
             renderOrdersTable();
-            updateDashboardMetrics(); // Sinkronisasi Metrik & Tabel Dashboard Harian saat memuat halaman
+            updateDashboardMetrics(); 
+            renderFinanceReport(); // Muat laporan finansial saat start awal
             lucide.createIcons();
 
             window.addEventListener('storage', () => {
                 renderInventoryTable();
                 renderOrdersTable();
                 updateDashboardMetrics();
+                renderFinanceReport();
             });
         });
 
@@ -275,31 +344,34 @@
             }
         }
 
-        // 🔄 MODIFIKASI SWITCHER TAB UNTUK MENDUKUNG 3 SECTION SEKARANG
+        // 🔄 MODIFIKASI SWITCHER TAB UNTUK MENDUKUNG 4 SECTION SEKARANG
         function switchSection(secId) {
             document.getElementById('section-dashboard').classList.add('hidden');
             document.getElementById('section-inventory').classList.add('hidden');
             document.getElementById('section-orders').classList.add('hidden');
+            document.getElementById('section-finance').classList.add('hidden');
             document.getElementById(`section-${secId}`).classList.remove('hidden');
             
             const btnDash = document.getElementById('nav-dashboard');
             const btnInv = document.getElementById('nav-inventory');
             const btnOrd = document.getElementById('nav-orders');
+            const btnFin = document.getElementById('nav-finance');
             
-            // Atur gaya reset tombol nonaktif terlebih dahulu
-            [btnDash, btnInv, btnOrd].forEach(btn => {
+            [btnDash, btnInv, btnOrd, btnFin].forEach(btn => {
                 if(btn) btn.className = "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-emerald-100 hover:bg-emerald-800/50 transition";
             });
 
-            // Set tombol aktif sesuai parameter tab target
             const activeBtn = document.getElementById(`nav-${secId}`);
             if (activeBtn) activeBtn.className = "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-emerald-800 text-white font-bold transition";
 
-            // Ubah header title secara dinamis
             const title = document.getElementById('section-title');
             if(secId === 'dashboard') title.innerHTML = `<i data-lucide="layout-dashboard" class="text-emerald-600"></i> Ringkasan Dashboard`;
             if(secId === 'inventory') title.innerHTML = `<i data-lucide="boxes" class="text-emerald-600"></i> Inventori Produk Toko`;
             if(secId === 'orders') title.innerHTML = `<i data-lucide="clipboard-list" class="text-emerald-600"></i> Manajemen Pesanan Masuk`;
+            if(secId === 'finance') {
+                title.innerHTML = `<i data-lucide="bar-chart-3" class="text-emerald-600"></i> Audit Keuangan & Laporan Pendapatan`;
+                renderFinanceReport(); // Sinkronisasi ulang saat berpindah tab
+            }
             
             if (isSidebarOpen) toggleSidebar();
             lucide.createIcons();
@@ -313,7 +385,6 @@
             const allOrders = JSON.parse(localStorage.getItem('segari_orders')) || [];
             const allProducts = JSON.parse(localStorage.getItem('segari_products')) || [];
 
-            // 1. Filter Pesanan Khusus Hak Milik Mitra Toko Aktif
             const myOrders = allOrders.filter(o => 
                 (!o.merchant && !o.storeCode && (!o.items || o.items.length === 0)) || 
                 o.merchant === currentMerchant || 
@@ -326,7 +397,6 @@
             document.getElementById('stat-revenue').innerText = `Rp${totalRevenue.toLocaleString('id-ID')}`;
             document.getElementById('stat-orders').innerText = `${myOrders.length} Transaksi`;
 
-            // 2. Filter & Deteksi Peringatan Stok Kritis (Stok <= 5 pcs) Milik Toko Ini
             const myLowStockProducts = allProducts.filter(p => p.merchant === currentMerchant && p.stock <= 5);
             const lowStockCount = myLowStockProducts.length;
 
@@ -342,12 +412,10 @@
                 bgStockIcon.className = "p-3 bg-gray-50 text-gray-400 rounded-xl";
             }
 
-            // 3. Render Pengelompokan Data Omzet/Order Sesuai Tanggal Transaksi
             const dateRecapTbody = document.getElementById('dashboard-date-recap-rows');
             if (myOrders.length === 0) {
                 dateRecapTbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-gray-400 italic">Belum ada riwayat omzet terjadwal.</td></tr>`;
             } else {
-                // Kelompokkan data transaksi harian (Reduce dengan Key Tanggal)
                 const dateMap = myOrders.reduce((map, o) => {
                     const tgl = o.date || o.tanggal || 'Tanggal Kosong';
                     if (!map[tgl]) map[tgl] = { count: 0, revenue: 0 };
@@ -356,7 +424,6 @@
                     return map;
                 }, {});
 
-                // Cetak baris rekap harian
                 dateRecapTbody.innerHTML = Object.keys(dateMap).sort((a,b) => new Date(b) - new Date(a)).map(tgl => `
                     <tr class="hover:bg-gray-50 transition">
                         <td class="p-3 font-medium text-gray-700">${tgl}</td>
@@ -366,7 +433,6 @@
                 `).join('');
             }
 
-            // 4. Render Tabel Quick Alert List Produk Sekarat Di Sisi Kanan Dashboard
             const lowStockTbody = document.getElementById('dashboard-low-stock-rows');
             if (myLowStockProducts.length === 0) {
                 lowStockTbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-gray-500 font-medium">Aman! Semua komoditas aman terkendali.</td></tr>`;
@@ -381,6 +447,98 @@
                     </tr>
                 `).join('');
             }
+        }
+
+        // 📈 ENGINE LAPORAN KEUANGAN BARU BESERTA FILTRASI WAKTU
+        function changeFinanceFilter(filterType) {
+            currentFinanceFilter = filterType;
+            
+            // Atur gaya reset tombol tab filter finansial
+            ['harian', 'mingguan', 'bulanan', 'tahunan'].forEach(type => {
+                const btn = document.getElementById(`btn-fin-${type}`);
+                if (btn) btn.className = "px-4 py-1.5 text-xs font-bold rounded-lg transition text-gray-600 hover:text-gray-900";
+            });
+
+            // Set aktif styling ke tombol terpilih
+            const targetBtn = document.getElementById(`btn-fin-${filterType}`);
+            if (targetBtn) targetBtn.className = "px-4 py-1.5 text-xs font-bold rounded-lg transition shadow-sm bg-white text-emerald-900";
+
+            renderFinanceReport();
+        }
+
+        function renderFinanceReport() {
+            const currentMerchant = getActiveMerchant();
+            if (!currentMerchant) return;
+
+            const allOrders = JSON.parse(localStorage.getItem('segari_orders')) || [];
+            const tbody = document.getElementById('finance-table-rows');
+            
+            // 1. Saring data pesanan milik username toko aktif
+            let myOrders = allOrders.filter(o => 
+                (!o.merchant && !o.storeCode && (!o.items || o.items.length === 0)) || 
+                o.merchant === currentMerchant || 
+                o.storeCode === currentMerchant ||
+                (o.items && o.items.some(item => item.merchant === currentMerchant))
+            );
+
+            // 2. Lakukan evaluasi penanggalan berbasis sistem lokal penanggalan JavaScript
+            const now = new Date();
+            
+            let filteredOrders = myOrders.filter(o => {
+                const dateStr = o.date || o.tanggal;
+                if (!dateStr) return false;
+                
+                const orderDate = new Date(dateStr);
+                if (isNaN(orderDate.getTime())) return false; // Abaikan jika format string tanggal rusak
+
+                if (currentFinanceFilter === 'harian') {
+                    return orderDate.toDateString() === now.toDateString();
+                } else if (currentFinanceFilter === 'mingguan') {
+                    // Selisih dalam batasan 7 hari terakhir belanja
+                    const diffTime = Math.abs(now - orderDate);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    return diffDays <= 7;
+                } else if (currentFinanceFilter === 'bulanan') {
+                    return orderDate.getMonth() === now.getMonth() && orderDate.getFullYear() === now.getFullYear();
+                } else if (currentFinanceFilter === 'tahunan') {
+                    return orderDate.getFullYear() === now.getFullYear();
+                }
+                return true;
+            });
+
+            // 3. Kalkulasi agregat finansial metrik data
+            const totalRevenue = filteredOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+            const totalCount = filteredOrders.length;
+            const averageRevenue = totalCount > 0 ? Math.round(totalRevenue / totalCount) : 0;
+
+            // Cetak nilai agregasi ke kartu statistik laporan keuangan
+            document.getElementById('fin-stat-revenue').innerText = `Rp${totalRevenue.toLocaleString('id-ID')}`;
+            document.getElementById('fin-stat-count').innerText = `${totalCount} Invoice`;
+            document.getElementById('fin-stat-avg').innerText = `Rp${averageRevenue.toLocaleString('id-ID')}`;
+
+            // 4. Render output ke baris data tabel ledger keuangan
+            tbody.innerHTML = '';
+            if (filteredOrders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-gray-400 italic">Tidak ada catatan keuangan terdeteksi pada periode ini.</td></tr>`;
+                return;
+            }
+
+            filteredOrders.sort((a,b) => new Date(b.date || b.tanggal) - new Date(a.date || a.tanggal)).forEach(o => {
+                const invoice = o.invoice || o.id || 'Tanpa ID';
+                const tanggal = o.date || o.tanggal || '-';
+                const pelanggan = o.username || o.user || 'Anonim';
+                const danaMasuk = o.total || 0;
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50 transition";
+                tr.innerHTML = `
+                    <td class="p-4 font-mono font-bold text-emerald-800">${invoice}</td>
+                    <td class="p-4 text-gray-700">${tanggal}</td>
+                    <td class="p-4 text-gray-900 font-medium">@${pelanggan}</td>
+                    <td class="p-4 text-right font-extrabold text-emerald-600">Rp${danaMasuk.toLocaleString('id-ID')}</td>
+                `;
+                tbody.appendChild(tr);
+            });
         }
 
         function renderInventoryTable() {
@@ -433,7 +591,8 @@
                 allProducts[pIdx].stock = Math.max(0, allProducts[pIdx].stock + amount);
                 localStorage.setItem('segari_products', JSON.stringify(allProducts));
                 renderInventoryTable();
-                updateDashboardMetrics(); // Real-time Sinkronisasi Ke Dashboard
+                updateDashboardMetrics();
+                renderFinanceReport();
             }
         }
 
@@ -443,7 +602,8 @@
                 allProducts = allProducts.filter(p => p.id !== productId);
                 localStorage.setItem('segari_products', JSON.stringify(allProducts));
                 renderInventoryTable();
-                updateDashboardMetrics(); // Real-time Sinkronisasi Ke Dashboard
+                updateDashboardMetrics();
+                renderFinanceReport();
             }
         }
 
@@ -481,7 +641,8 @@
 
             alert("Produk berhasil terbit secara live untuk toko Anda!");
             renderInventoryTable();
-            updateDashboardMetrics(); // Real-time Sinkronisasi Ke Dashboard
+            updateDashboardMetrics();
+            renderFinanceReport();
         }
 
         function renderOrdersTable() {
@@ -582,7 +743,8 @@
                 allOrders[oIdx].status = newStatus;
                 localStorage.setItem('segari_orders', JSON.stringify(allOrders));
                 renderOrdersTable();
-                updateDashboardMetrics(); // Real-time Sinkronisasi Ke Dashboard
+                updateDashboardMetrics();
+                renderFinanceReport();
             }
         }
     </script>
