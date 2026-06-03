@@ -9,7 +9,6 @@
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans antialiased">
 
-    <!-- MOBILE HEADER -->
     <div class="lg:hidden bg-slate-950 p-4 flex justify-between items-center sticky top-0 z-50 border-b border-slate-800 shadow-xl">
         <div class="flex items-center gap-2">
             <span class="text-xl font-black text-green-500">se<span class="text-orange-500">gari</span></span>
@@ -24,7 +23,6 @@
 
     <div class="min-h-screen flex flex-col lg:flex-row relative">
         
-        <!-- SIDEBAR CONTAINER -->
         <aside id="admin-sidebar-menu" class="fixed lg:static inset-y-0 left-0 z-50 w-64 bg-slate-950 p-6 flex flex-col justify-between transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out border-r border-slate-800/80 shadow-2xl lg:shadow-none">
             
             <div class="space-y-6">
@@ -71,7 +69,6 @@
             </div>
         </aside>
 
-        <!-- MAIN MAIN PANEL -->
         <main class="flex-grow p-4 md:p-8 space-y-6 text-slate-200 w-full overflow-x-hidden">
             <header class="flex justify-between items-center bg-slate-950 p-4 rounded-2xl border border-slate-800">
                 <h2 class="text-sm md:text-base font-black text-white flex items-center gap-2" id="admin-page-title">
@@ -83,7 +80,6 @@
                 </span>
             </header>
 
-            <!-- SECTION OVERVIEW -->
             <section id="tab-overview" class="space-y-6">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800">
@@ -123,7 +119,6 @@
                 </div>
             </section>
 
-            <!-- SECTION USERS -->
             <section id="tab-users" class="hidden">
                 <div class="bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden">
                     <div class="p-4 bg-slate-900 font-bold text-xs text-white border-b border-slate-800">MUTASI HAK AKSES SISTEM PERAN USER</div>
@@ -142,7 +137,6 @@
                 </div>
             </section>
 
-            <!-- SECTION PRODUCTS -->
             <section id="tab-products" class="hidden">
                 <div class="bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden">
                     <div class="p-4 bg-slate-900 font-bold text-xs text-white border-b border-slate-800">MAINTENANCE SKU / HAPUS PRODUK DARI MALL</div>
@@ -165,7 +159,6 @@
         </main>
     </div>
 
-    <!-- CORE BACKOFFICE SYSTEM ENGINES -->
     <script>
         let isSidebarOpen = false;
 
@@ -224,6 +217,7 @@
             }
         }
 
+        // Hamburger Menu Engine
         function toggleAdminSidebar() {
             const sidebar = document.getElementById('admin-sidebar-menu');
             const overlay = document.getElementById('admin-sidebar-overlay');
@@ -258,13 +252,13 @@
             lucide.createIcons();
         }
 
-        // 5. Render Overview Metrics & Order Rows
+        // 5. Render Overview Metrics & Order Rows (SUDAH DIPERBAIKI)
         function calculateOverviewMetrics() {
             const orders = JSON.parse(localStorage.getItem(ORDER_KEY)) || [];
             const products = JSON.parse(localStorage.getItem(PRODUCT_KEY)) || [];
             const users = JSON.parse(localStorage.getItem(USER_KEY)) || [];
 
-            const totalRevenue = orders.reduce((sum, o) => sum + o.total, 0);
+            const totalRevenue = orders.reduce((sum, o) => sum + (o.total || 0), 0);
             document.getElementById('stat-revenue').innerText = `Rp${totalRevenue.toLocaleString('id-ID')}`;
             document.getElementById('stat-orders-count').innerText = `${orders.length} Transaksi`;
             document.getElementById('stat-users-count').innerText = `${users.length} Akun`;
@@ -278,37 +272,50 @@
                 return;
             }
 
-            tbody.innerHTML = orders.map(o => `
-                <tr class="hover:bg-slate-900/40 border-b border-slate-900">
-                    <td class="p-4 font-mono font-bold text-white">${o.invoice}</td>
-                    <td class="p-4">${o.username}</td>
-                    <td class="p-4 text-emerald-400 font-bold">Rp${o.total.toLocaleString('id-ID')}</td>
-                    <td class="p-4"><span class="bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded text-[10px] font-bold border border-amber-500/20">${o.status}</span></td>
-                    <td class="p-4 truncate max-w-[200px]">${o.address}</td>
-                </tr>
-            `).join('');
+            // Memperbaiki rendering baris tabel menggunakan sistem fallback multi-key
+            tbody.innerHTML = orders.map(o => {
+                // Alternatif fallback jika key di localStorage bervariasi
+                const displayInvoice = o.invoice || o.id || 'Tanpa Invoice';
+                const displayUsername = o.username || o.buyer || o.nama || 'Anonim';
+                const displayAddress = o.address || o.alamat || 'Alamat tidak terisi';
+                const displayTotal = o.total || 0;
+                const displayStatus = o.status || 'DIPROSES';
+
+                return `
+                    <tr class="hover:bg-slate-900/40 border-b border-slate-900">
+                        <td class="p-4 font-mono font-bold text-white">${displayInvoice}</td>
+                        <td class="p-4 font-medium">${displayUsername}</td>
+                        <td class="p-4 text-emerald-400 font-bold">Rp${displayTotal.toLocaleString('id-ID')}</td>
+                        <td class="p-4"><span class="bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded text-[10px] font-bold border border-amber-500/20">${displayStatus}</span></td>
+                        <td class="p-4 truncate max-w-[200px]" title="${displayAddress}">${displayAddress}</td>
+                    </tr>
+                `;
+            }).join('');
         }
 
         // 6. User Management Mutation
         function renderUserManagement() {
             const users = JSON.parse(localStorage.getItem(USER_KEY)) || [];
-            const tbody = document.getElementById('global-users-rows');
+            const tbody = document.getElementById('global-orders-rows'); // Pastikan target ID benar jika dibutuhkan, namun ini memetakan global-users-rows
+            const userTbody = document.getElementById('global-users-rows');
             
-            tbody.innerHTML = users.map(u => `
-                <tr class="hover:bg-slate-900/40 border-b border-slate-800">
-                    <td class="p-4 font-bold">${u.username}</td>
-                    <td class="p-4">
-                        <span class="px-2 py-0.5 rounded text-[10px] font-bold ${u.role === 'Admin' ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'}">
-                            ${u.role}
-                        </span>
-                    </td>
-                    <td class="p-4 text-center">
-                        <button onclick="toggleUserRole('${u.username}')" class="bg-slate-900 border border-slate-800 hover:bg-slate-800 text-orange-400 px-3 py-1 rounded-xl transition text-[11px] font-bold">
-                            Ubah Otoritas
-                        </button>
-                    </td>
-                </tr>
-            `).join('');
+            if (userTbody) {
+                userTbody.innerHTML = users.map(u => `
+                    <tr class="hover:bg-slate-900/40 border-b border-slate-800">
+                        <td class="p-4 font-bold">${u.username}</td>
+                        <td class="p-4">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${u.role === 'Admin' ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'}">
+                                ${u.role}
+                            </span>
+                        </td>
+                        <td class="p-4 text-center">
+                            <button onclick="toggleUserRole('${u.username}')" class="bg-slate-900 border border-slate-800 hover:bg-slate-800 text-orange-400 px-3 py-1 rounded-xl transition text-[11px] font-bold">
+                                Ubah Otoritas
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
         }
 
         function toggleUserRole(username) {
