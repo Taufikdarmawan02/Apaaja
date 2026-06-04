@@ -118,7 +118,7 @@
                     <p class="text-sm font-bold mt-1">Potongan Flat Rp10.000</p>
                     <p class="text-[9px] text-emerald-100">Minimal transaksi belanja Rp50.000</p>
                 </div>
-                <button class="bg-white text-emerald-700 font-extrabold text-[10px] px-3 py-1.5 rounded-xl shadow-sm">Klaim</button>
+                <button onclick="showToast('Voucher berhasil diklaim!')" class="bg-white text-emerald-700 font-extrabold text-[10px] px-3 py-1.5 rounded-xl shadow-sm">Klaim</button>
             </div>
         </div>
 
@@ -192,9 +192,9 @@
                     </div>
                     <button onclick="closeAiModal()" class="text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-5 h-5"></i></button>
                 </div>
-                <div class="flex-grow overflow-y-auto space-y-3 py-2 text-xs no-scrollbar">
-                    <div class="bg-gray-50 border border-gray-100 rounded-xl p-3 text-gray-700">"Halo! Mau masak apa hari ini?"</div>
-                    <div id="ai-chat-history" class="space-y-3"></div>
+                <div class="flex-grow overflow-y-auto space-y-3 py-2 text-xs no-scrollbar flex flex-col">
+                    <div class="bg-gray-50 border border-gray-100 rounded-xl p-3 text-gray-700 self-start mr-12">"Halo! Mau masak apa hari ini? Beritahu saya bahan dapur yang kamu punya!"</div>
+                    <div id="ai-chat-history" class="space-y-3 flex flex-col"></div>
                 </div>
                 <div class="flex gap-2 pt-2 border-t border-gray-100 shrink-0">
                     <input type="text" id="ai-input" placeholder="Misal: bayam, telur..." class="flex-grow px-3 py-2 bg-gray-50 text-xs rounded-xl border-none text-gray-800">
@@ -217,7 +217,6 @@
 
         let products = []; let cart = []; let activeUser = null; let selectedCategory = "semua";
 
-        // SINKRONISASI DATABASE UNTUK STRUKTUR DATABASE BARU (V3 MASTER CORE)
         const MASTER_USER_KEY = 'segari_users_v3';
         const MASTER_SESSION_KEY = 'segari_session';
 
@@ -276,7 +275,6 @@
             const loggedInState = document.getElementById('logged-in-state');
             if (!loggedOutState || !loggedInState) return;
 
-            // Mendukung deteksi tipe peran 'Pembeli' hasil mutasi backoffice admin v3
             if (activeUser && (activeUser.role === 'Pembeli' || activeUser.role === 'Konsumen')) {
                 loggedOutState.classList.add('hidden');
                 loggedInState.classList.remove('hidden');
@@ -327,6 +325,14 @@
 
         function filterCategory(cat) {
             selectedCategory = cat;
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('bg-green-50', 'text-green-700', 'border-green-100');
+                btn.classList.add('bg-gray-50', 'text-gray-600', 'border-transparent');
+            });
+            if(window.event && window.event.currentTarget) {
+                window.event.currentTarget.classList.add('bg-green-50', 'text-green-700', 'border-green-100');
+                window.event.currentTarget.classList.remove('bg-gray-50', 'text-gray-600', 'border-transparent');
+            }
             renderProducts();
         }
 
@@ -443,7 +449,6 @@
             activeOrder.classList.remove('hidden');
             
             activeOrder.innerHTML = userOrders.map(o => {
-                // Skema pewarnaan dinamis mengikuti mutasi status platform admin backoffice
                 let badgeClass = 'bg-amber-50 text-amber-600 border border-amber-200/50';
                 if(o.status === 'Selesai') badgeClass = 'bg-green-50 text-green-600 border border-green-200/50';
                 if(o.status === 'Dalam Perjalanan') badgeClass = 'bg-blue-50 text-blue-600 border border-blue-200/50';
@@ -463,98 +468,95 @@
                         <div class="border-t border-gray-100 pt-2 flex justify-between items-end text-xs">
                             <div>
                                 <p class="text-[9px] text-gray-400 font-bold uppercase">Alamat Pengiriman:</p>
-                                <p class="font-bold text-gray-700 truncate max-w-[200px]" title="${o.address}">${o.address}</p>
+                                <p class="font-bold text-gray-700 truncate max-w-[180px]">${o.address}</p>
                             </div>
                             <div class="text-right">
-                                <p class="text-[9px] text-gray-400 font-bold uppercase">Total Belanja</p>
+                                <p class="text-[9px] text-gray-400 font-bold uppercase">Total Pembayaran:</p>
                                 <p class="font-black text-green-600 text-sm">Rp${o.total.toLocaleString('id-ID')}</p>
                             </div>
                         </div>
                     </div>
                 `;
             }).join('');
-            lucide.createIcons();
         }
 
-        // 🆕 KELANJUTAN PERBAIKAN SCRIPT MODAL LOKASI, TOAST & AI KOKI
-        function openLocationModal() { 
+        // ================= ADDITIONAL UTILITY FUNCTIONS =================
+        
+        // 1. TOAST SYSTEM
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const toast = document.createElement('div');
+            toast.className = "toast-msg";
+            toast.innerText = message;
+            container.appendChild(toast);
+            setTimeout(() => { toast.remove(); }, 2500);
+        }
+
+        // 2. LOCATION MODAL CONTROLS
+        function openLocationModal() {
             const m = document.getElementById('location-modal');
-            m.classList.remove('hidden'); 
-            setTimeout(() => m.classList.remove('opacity-0'), 10); 
+            m.classList.remove('hidden');
+            setTimeout(() => m.classList.remove('opacity-0'), 50);
+            document.getElementById('address-input').value = localStorage.getItem('segari_address') || "";
         }
-
-        function closeLocationModal() { 
+        function closeLocationModal() {
             const m = document.getElementById('location-modal');
-            m.classList.add('opacity-0'); 
-            setTimeout(() => m.classList.add('hidden'), 300); 
+            m.classList.add('opacity-0');
+            setTimeout(() => m.classList.add('hidden'), 300);
         }
-
         function saveLocation() {
-            const val = document.getElementById('address-input').value.trim();
-            if(val !== "") {
-                localStorage.setItem('segari_address', val);
-                document.getElementById('current-address-text').innerText = "Kirim ke: " + val;
-                showToast("Alamat pengiriman diperbarui!");
-                closeLocationModal();
-                if(activeUser) renderTrackingView();
-            }
+            const addr = document.getElementById('address-input').value.trim();
+            if (!addr) { alert("Alamat tidak boleh kosong!"); return; }
+            localStorage.setItem('segari_address', addr);
+            loadSession();
+            closeLocationModal();
+            showToast("Alamat berhasil diubah!");
         }
 
-        function showToast(msg) {
-            const box = document.getElementById('toast-container');
-            const el = document.createElement('div');
-            el.className = "toast-msg";
-            el.innerText = msg;
-            box.appendChild(el);
-            setTimeout(() => { el.remove(); }, 2500);
-        }
-
-        function startFlashSaleTimer() {
-            let h = 2, m = 14, s = 45;
-            setInterval(() => {
-                s--;
-                if(s < 0) { s = 59; m--; }
-                if(m < 0) { m = 59; h--; }
-                if(h < 0) { h = 2; m = 14; s = 45; }
-                document.getElementById('timer-hours').innerText = String(h).padStart(2, '0');
-                document.getElementById('timer-mins').innerText = String(m).padStart(2, '0');
-                document.getElementById('timer-secs').innerText = String(s).padStart(2, '0');
-            }, 1000);
-        }
-
+        // 3. AI KOKI MODAL CONTROLS
         function openAiModal() {
             const m = document.getElementById('ai-modal');
             m.classList.remove('hidden');
-            setTimeout(() => m.classList.remove('opacity-0'), 10);
-            lucide.createIcons();
+            setTimeout(() => m.classList.remove('opacity-0'), 50);
         }
-
         function closeAiModal() {
             const m = document.getElementById('ai-modal');
             m.classList.add('opacity-0');
             setTimeout(() => m.classList.add('hidden'), 300);
         }
-
         function askAiChef() {
-            const inp = document.getElementById('ai-input');
-            const txt = inp.value.trim();
+            const input = document.getElementById('ai-input');
+            const history = document.getElementById('ai-chat-history');
+            const txt = input.value.trim();
             if(!txt) return;
-            
-            const hist = document.getElementById('ai-chat-history');
-            const uBox = document.createElement('div');
-            uBox.className = "bg-green-600 text-white p-3 rounded-xl ml-auto max-w-[85%] font-medium text-right";
-            uBox.innerText = txt;
-            hist.appendChild(uBox);
-            inp.value = '';
 
+            // Append User Chat
+            history.innerHTML += `<div class="bg-green-50 border border-green-100 rounded-xl p-3 text-gray-800 self-end ml-12 mb-2"><b>Kamu:</b> ${txt}</div>`;
+            input.value = '';
+
+            // Simulated Chef Reply
             setTimeout(() => {
-                const aBox = document.createElement('div');
-                aBox.className = "bg-gray-50 border border-gray-100 text-gray-700 p-3 rounded-xl mr-auto max-w-[85%]";
-                aBox.innerText = `Bahan dapur "${txt}" sangat cocok diolah dengan bumbu dapur dasar sayur segar Segari. Tumis menggunakan bawang putih, bawang merah harian, serta tambahkan sedikit garam secukupnya!`;
-                hist.appendChild(aBox);
-                hist.parentElement.scrollTop = hist.parentElement.scrollHeight;
-            }, 800);
+                history.innerHTML += `<div class="bg-gray-50 border border-gray-100 rounded-xl p-3 text-gray-700 self-start mr-12 mb-2"><b>Koki AI:</b> Ide bagus! Bahan "${txt}" sangat cocok dibuat sup bening hangat atau ditumis dengan bawang putih segar. Kamu bisa membeli varian segarnya langsung di tab Belanja Segari ya!</div>`;
+                history.parentElement.scrollTop = history.parentElement.scrollHeight;
+            }, 700);
+        }
+
+        // 4. FLASH SALE TIMER
+        function startFlashSaleTimer() {
+            let hr = 2; let min = 14; let sec = 45;
+            setInterval(() => {
+                if(sec > 0) sec--;
+                else {
+                    sec = 59;
+                    if(min > 0) min--;
+                    else { min = 59; if(hr > 0) hr--; else { hr = 2; min = 14; sec = 45; } }
+                }
+                document.getElementById('timer-hours').innerText = String(hr).padStart(2, '0');
+                document.getElementById('timer-mins').innerText = String(min).padStart(2, '0');
+                document.getElementById('timer-secs').innerText = String(sec).padStart(2, '0');
+            }, 1000);
         }
     </script>
 </body>
-    </html>
+</html>
