@@ -53,6 +53,9 @@
                         <button id="nav-users" onclick="switchAdminTab('users')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/50 transition">
                             <i data-lucide="users" class="w-4 h-4 text-slate-400"></i> Kelola Hak Akun User
                         </button>
+                        <button id="nav-roles" onclick="switchAdminTab('roles')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/50 transition">
+                            <i data-lucide="shield-check" class="w-4 h-4 text-slate-400"></i> Hak Akses Toko & Pembeli
+                        </button>
                         <button id="nav-products" onclick="switchAdminTab('products')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/50 transition">
                             <i data-lucide="shield-alert" class="w-4 h-4 text-slate-400"></i> Audit Master Produk
                         </button>
@@ -158,6 +161,24 @@
                 </div>
             </section>
 
+            <section id="tab-roles" class="hidden">
+                <div class="bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden">
+                    <div class="p-4 bg-slate-900 font-bold text-xs text-white border-b border-slate-800 uppercase tracking-wider">Manajemen Otoritas Akses Pemilik Toko & Pembeli Terdaftar</div>
+                    <div class="overflow-x-auto text-xs">
+                        <table class="w-full text-left text-slate-400 min-w-[550px]">
+                            <thead class="bg-slate-900 text-slate-300 font-bold">
+                                <tr>
+                                    <th class="p-4">Username Akun</th>
+                                    <th class="p-4">Tipe Otoritas Saat Ini</th>
+                                    <th class="p-4 text-center">Ubah Akses Peran Platform</th>
+                                </tr>
+                            </thead>
+                            <tbody id="global-roles-rows" class="divide-y divide-slate-800"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
             <section id="tab-products" class="hidden">
                 <div class="bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden">
                     <div class="p-4 bg-slate-900 font-bold text-xs text-white border-b border-slate-800">MAINTENANCE SKU / HAPUS PRODUK DARI MALL</div>
@@ -224,12 +245,14 @@
             seedInitialDataIfNeeded(); 
             calculateOverviewMetrics();
             renderUserManagement();
+            renderRoleManagement(); // 🆕 Panggil rendering tab manajemen pemilik toko & pembeli
             renderProductAudit();
             lucide.createIcons();
 
             window.addEventListener('storage', () => {
                 calculateOverviewMetrics();
                 renderUserManagement();
+                renderRoleManagement(); // 🆕 Sinkronisasi storage untuk tab baru
                 renderProductAudit();
             });
         });
@@ -259,6 +282,16 @@
                 ];
                 localStorage.setItem(ORDER_KEY, JSON.stringify(dummyOrders));
             }
+            // 🆕 Seeding data user jika kosong (Dilengkapi peran Pembeli & Pemilik Toko)
+            if (!localStorage.getItem(USER_KEY)) {
+                const dummyUsers = [
+                    { username: "budi", role: "Pembeli" },
+                    { username: "anita_sayur", role: "Pemilik Toko" },
+                    { username: "mitra_buah", role: "Pemilik Toko" },
+                    { username: "admin_segari", role: "Admin" }
+                ];
+                localStorage.setItem(USER_KEY, JSON.stringify(dummyUsers));
+            }
         }
 
         function handleAdminLogout() {
@@ -285,10 +318,11 @@
         function switchAdminTab(target) {
             document.getElementById('tab-overview').classList.add('hidden');
             document.getElementById('tab-users').classList.add('hidden');
+            document.getElementById('tab-roles').classList.add('hidden'); // 🆕 Sembunyikan tab baru
             document.getElementById('tab-products').classList.add('hidden');
             document.getElementById(`tab-${target}`).classList.remove('hidden');
 
-            const tabs = ['overview', 'users', 'products'];
+            const tabs = ['overview', 'users', 'roles', 'products']; // 🆕 Daftarkan 'roles' ke sistem tab navigation
             tabs.forEach(t => {
                 const btn = document.getElementById(`nav-${t}`);
                 if (t === target) {
@@ -298,11 +332,17 @@
                 }
             });
 
+            // Ganti Title Header secara dinamis berdasarkan tab aktif
+            const pageTitle = document.getElementById('admin-page-title');
+            if (target === 'overview') pageTitle.innerHTML = `<i data-lucide="bar-chart-3" class="text-green-500"></i> Platform Operational Overview`;
+            if (target === 'users') pageTitle.innerHTML = `<i data-lucide="users" class="text-indigo-500"></i> Master Akses Operator`;
+            if (target === 'roles') pageTitle.innerHTML = `<i data-lucide="shield-check" class="text-orange-500"></i> Otoritas Pemilik Toko & Pembeli`;
+            if (target === 'products') pageTitle.innerHTML = `<i data-lucide="shield-alert" class="text-red-500"></i> Audit Sistem SKU Produk`;
+
             if (isSidebarOpen) toggleAdminSidebar();
             lucide.createIcons();
         }
 
-        // 🆕 5. ENGINE FILTER & LIVE RENDERING DENGAN INTEGRASI UPDATE-DELETE DATA TABEL ORDER
         function handleOrderFilter() {
             calculateOverviewMetrics();
         }
@@ -323,7 +363,6 @@
             const searchQuery = document.getElementById('order-search').value.toLowerCase();
             const statusFilter = document.getElementById('order-status-filter').value;
 
-            // Saring Data Berdasarkan Query Pencarian dan Opsi Filter Status Logistik
             const filteredOrders = orders.filter(o => {
                 const invoice = (o.id || o.invoice || '').toLowerCase();
                 const username = (o.user || o.username || '').toLowerCase();
@@ -379,7 +418,6 @@
             lucide.createIcons();
         }
 
-        // 🆕 5.a ENGINE EDIT & DATA MODAL HANDLERS
         function openEditOrderModal(invoiceId) {
             const orders = JSON.parse(localStorage.getItem(ORDER_KEY)) || [];
             const targetOrder = orders.find(o => (o.id === invoiceId || o.invoice === invoiceId));
@@ -421,18 +459,15 @@
             }
         }
 
-        // 🆕 5.b ENGINE DELETE LOGIC ORDER Masuk
         function deleteOrder(invoiceId) {
             if (confirm(`Apakah Anda yakin ingin menghapus data invoice ${invoiceId} dari sistem platform? Tindakan ini permanen.`)) {
                 let orders = JSON.parse(localStorage.getItem(ORDER_KEY)) || [];
                 orders = orders.filter(o => !(o.id === invoiceId || o.invoice === invoiceId));
                 localStorage.setItem(ORDER_KEY, JSON.stringify(orders));
-                
                 calculateOverviewMetrics();
             }
         }
 
-        // 6. User Management Mutation
         function renderUserManagement() {
             const users = JSON.parse(localStorage.getItem(USER_KEY)) || [];
             const userTbody = document.getElementById('global-users-rows');
@@ -440,10 +475,10 @@
             if (userTbody) {
                 userTbody.innerHTML = users.map(u => `
                     <tr class="hover:bg-slate-900/40 border-b border-slate-800">
-                        <td class="p-4 font-bold">${u.username}</td>
+                        <td class="p-4 font-bold">@${u.username}</td>
                         <td class="p-4">
                             <span class="px-2 py-0.5 rounded text-[10px] font-bold ${u.role === 'Admin' ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'}">
-                                ${u.role}
+                                ${u.role || 'Pembeli'}
                             </span>
                         </td>
                         <td class="p-4 text-center">
@@ -460,15 +495,68 @@
             const users = JSON.parse(localStorage.getItem(USER_KEY)) || [];
             const updated = users.map(u => {
                 if (u.username === username) {
-                    u.role = u.role === 'Admin' ? 'Konsumen' : 'Admin';
+                    u.role = u.role === 'Admin' ? 'Pembeli' : 'Admin';
                 }
                 return u;
             });
             localStorage.setItem(USER_KEY, JSON.stringify(updated));
             renderUserManagement();
+            renderRoleManagement(); // Sinkronkan perubahan ke tabel peran spesifik
         }
 
-        // 7. Audit Products SKU
+        // 🆕 ENGINE BARU: Render khusus manajemen Pemilik Toko & Pembeli
+        function renderRoleManagement() {
+            const users = JSON.parse(localStorage.getItem(USER_KEY)) || [];
+            const rolesTbody = document.getElementById('global-roles-rows');
+            
+            if (rolesTbody) {
+                rolesTbody.innerHTML = users.map(u => {
+                    // Set standar warna badge berdasarkan peran
+                    let badgeStyles = 'bg-blue-500/10 text-blue-400 border border-blue-500/20';
+                    if (u.role === 'Pemilik Toko') {
+                        badgeStyles = 'bg-amber-500/10 text-amber-400 border border-amber-500/20';
+                    } else if (u.role === 'Admin') {
+                        badgeStyles = 'bg-red-500/10 text-red-400 border border-red-500/20';
+                    }
+
+                    return `
+                        <tr class="hover:bg-slate-900/40 border-b border-slate-800">
+                            <td class="p-4 font-bold text-slate-200">@${u.username}</td>
+                            <td class="p-4">
+                                <span class="px-2 py-0.5 rounded text-[10px] font-bold ${badgeStyles}">
+                                    ${u.role || 'Pembeli'}
+                                </span>
+                            </td>
+                            <td class="p-4 text-center">
+                                <select onchange="updateSpecificRole('${u.username}', this.value)" class="bg-slate-900 border border-slate-800 text-slate-300 text-xs rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-orange-500 font-bold transition">
+                                    <option value="Pembeli" ${u.role === 'Pembeli' ? 'selected' : ''}>Pembeli</option>
+                                    <option value="Pemilik Toko" ${u.role === 'Pemilik Toko' ? 'selected' : ''}>Pemilik Toko</option>
+                                    <option value="Admin" ${u.role === 'Admin' ? 'selected' : ''}>Admin</option>
+                                </select>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+        }
+
+        // 🆕 ENGINE BARU: Update Otoritas Spesifik via Dropdown Select
+        function updateSpecificRole(username, newRole) {
+            let users = JSON.parse(localStorage.getItem(USER_KEY)) || [];
+            users = users.map(u => {
+                if (u.username === username) {
+                    u.role = newRole;
+                }
+                return u;
+            });
+            localStorage.setItem(USER_KEY, JSON.stringify(users));
+            
+            // Re-render seluruh komponen yang terpengaruh
+            renderUserManagement();
+            renderRoleManagement();
+            calculateOverviewMetrics();
+        }
+
         function renderProductAudit() {
             const products = JSON.parse(localStorage.getItem(PRODUCT_KEY)) || [];
             const tbody = document.getElementById('global-products-rows');
