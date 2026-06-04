@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Segari Merchant - Manajemen Mitra Toko</title>
+    <title>Segari Merchant - Hub Manajemen Mitra Toko</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body class="bg-gray-100 font-sans antialiased">
 
-    <!-- MOBILE HEADER -->
     <div class="md:hidden bg-emerald-900 text-white p-4 flex justify-between items-center sticky top-0 z-50 shadow-md">
         <div class="flex items-center gap-2">
             <span class="text-xl font-black tracking-tight text-white">se<span class="text-orange-400">gari</span></span>
@@ -24,7 +23,6 @@
 
     <div class="min-h-screen flex flex-col md:flex-row relative">
         
-        <!-- SIDEBAR NAVIGATION PANEL -->
         <aside id="sidebar-menu" class="fixed md:static inset-y-0 left-0 z-50 w-64 bg-emerald-900 text-white p-6 flex flex-col justify-between transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out shadow-2xl md:shadow-none">
             
             <div class="space-y-6">
@@ -54,7 +52,6 @@
                         <button id="nav-orders" onclick="switchSection('orders')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-emerald-100 hover:bg-emerald-800/50 transition">
                             <i data-lucide="clipboard-list" class="w-4 h-4"></i> Pesanan Masuk
                         </button>
-                        <!-- 🆕 TOMBOL SIDEBAR LAPORAN KEUANGAN BARU -->
                         <button id="nav-finance" onclick="switchSection('finance')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-emerald-100 hover:bg-emerald-800/50 transition">
                             <i data-lucide="bar-chart-3" class="w-4 h-4"></i> Laporan Keuangan
                         </button>
@@ -72,7 +69,6 @@
             </div>
         </aside>
 
-        <!-- MAIN LAYOUT DISPLAY -->
         <main class="flex-grow p-4 md:p-8 space-y-6 w-full overflow-x-hidden">
             <header class="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
                 <h1 class="text-base md:text-lg font-bold text-gray-800 flex items-center gap-2" id="section-title">
@@ -85,7 +81,6 @@
                 </div>
             </header>
 
-            <!-- SECTION 1: DASHBOARD HUB RINGKASAN DATA -->
             <section id="section-dashboard" class="space-y-6">
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
@@ -154,7 +149,6 @@
                 </div>
             </section>
 
-            <!-- SECTION 2: INVENTORI PRODUK -->
             <section id="section-inventory" class="hidden space-y-6">
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
                     <h3 class="text-sm font-bold text-gray-800 flex items-center gap-2"><i data-lucide="plus-circle" class="text-emerald-600"></i> Tambah / Suplai Produk Baru ke Hub</h3>
@@ -192,14 +186,12 @@
                                     <th class="p-4 text-center">Aksi</th>
                                 </tr>
                             </thead>
-                            <tbody id="inventory-table-body" class="divide-y divide-gray-100">
-                            </tbody>
+                            <tbody id="inventory-table-body" class="divide-y divide-gray-100"></tbody>
                         </table>
                     </div>
                 </div>
             </section>
 
-            <!-- SECTION 3: PESANAN MASUK -->
             <section id="section-orders" class="hidden space-y-4">
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                     <div class="p-4 bg-gray-50/50 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
@@ -223,16 +215,13 @@
                                     <th class="p-4 text-center">Aksi Logistik</th>
                                 </tr>
                             </thead>
-                            <tbody id="orders-table-body" class="divide-y divide-gray-100">
-                            </tbody>
+                            <tbody id="orders-table-body" class="divide-y divide-gray-100"></tbody>
                         </table>
                     </div>
                 </div>
             </section>
 
-            <!-- 🆕 SECTION 4: LAPORAN KEUANGAN & FILTER PERIODIK BARU -->
             <section id="section-finance" class="hidden space-y-6">
-                <!-- Bar Filter Periode Kontrol -->
                 <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div class="space-y-0.5">
                         <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Cakup Rentang Waktu</h3>
@@ -246,7 +235,6 @@
                     </div>
                 </div>
 
-                <!-- Kartu Statistik Keuangan Hasil Filter -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
                         <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Pendapatan Bersih Periode Ini</p>
@@ -262,7 +250,6 @@
                     </div>
                 </div>
 
-                <!-- Tabel Itemized Ledger Pendapatan -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                     <div class="p-4 bg-gray-50/50 border-b border-gray-100">
                         <h3 class="text-xs font-bold text-gray-700 uppercase tracking-wider">Buku Besar Aliran Pendapatan</h3>
@@ -287,17 +274,16 @@
         </main>
     </div>
 
-    <!-- SYSTEM BACKOFFICE ENGINES -->
     <script>
         let isSidebarOpen = false;
-        let currentFinanceFilter = 'harian'; // Default status filter laporan keuangan
+        let currentFinanceFilter = 'harian'; 
 
         window.addEventListener('DOMContentLoaded', () => {
             loadMerchantSession();
             renderInventoryTable();
             renderOrdersTable();
             updateDashboardMetrics(); 
-            renderFinanceReport(); // Muat laporan finansial saat start awal
+            renderFinanceReport(); 
             lucide.createIcons();
 
             window.addEventListener('storage', () => {
@@ -315,18 +301,19 @@
 
         function loadMerchantSession() {
             const session = JSON.parse(localStorage.getItem('segari_session'));
-            if (!session || session.role !== 'Toko') {
+            // Mendukung kecocokan role 'Pemilik Toko' (v3) maupun 'Toko' (legacy)
+            if (!session || (session.role !== 'Pemilik Toko' && session.role !== 'Toko')) {
                 alert("Akses ditolak! Anda harus masuk menggunakan Akun Toko.");
-                window.location.href = 'index.html';
+                window.location.href = 'login-toko.html';
                 return;
             }
-            document.getElementById('merchant-user-display').innerText = `${session.username} (${session.role})`;
+            document.getElementById('merchant-user-display').innerText = `${session.username} (Mitra Toko)`;
         }
 
         function handleMerchantLogout() {
             if (confirm("Apakah Anda yakin ingin keluar dari manajemen Mitra Toko?")) {
                 localStorage.removeItem('segari_session');
-                window.location.href = 'index.html';
+                window.location.href = 'login-toko.html';
             }
         }
 
@@ -344,7 +331,6 @@
             }
         }
 
-        // 🔄 MODIFIKASI SWITCHER TAB UNTUK MENDUKUNG 4 SECTION SEKARANG
         function switchSection(secId) {
             document.getElementById('section-dashboard').classList.add('hidden');
             document.getElementById('section-inventory').classList.add('hidden');
@@ -370,14 +356,13 @@
             if(secId === 'orders') title.innerHTML = `<i data-lucide="clipboard-list" class="text-emerald-600"></i> Manajemen Pesanan Masuk`;
             if(secId === 'finance') {
                 title.innerHTML = `<i data-lucide="bar-chart-3" class="text-emerald-600"></i> Audit Keuangan & Laporan Pendapatan`;
-                renderFinanceReport(); // Sinkronisasi ulang saat berpindah tab
+                renderFinanceReport(); 
             }
             
             if (isSidebarOpen) toggleSidebar();
             lucide.createIcons();
         }
 
-        // 📊 ENGINE DASHBOARD PANEL METRIK & GROUPING TRANSAKSI HARIAN
         function updateDashboardMetrics() {
             const currentMerchant = getActiveMerchant();
             if (!currentMerchant) return;
@@ -385,11 +370,12 @@
             const allOrders = JSON.parse(localStorage.getItem('segari_orders')) || [];
             const allProducts = JSON.parse(localStorage.getItem('segari_products')) || [];
 
+            // Membaca pesanan yang berkorelasi dengan merchant saat ini
             const myOrders = allOrders.filter(o => 
-                (!o.merchant && !o.storeCode && (!o.items || o.items.length === 0)) || 
                 o.merchant === currentMerchant || 
                 o.storeCode === currentMerchant ||
-                (o.items && o.items.some(item => item.merchant === currentMerchant))
+                (o.items && o.items.some(item => item.merchant === currentMerchant)) ||
+                (!o.merchant && !o.storeCode) // Fallback order terpusat
             );
 
             const totalRevenue = myOrders.reduce((sum, o) => sum + (o.total || 0), 0);
@@ -397,7 +383,7 @@
             document.getElementById('stat-revenue').innerText = `Rp${totalRevenue.toLocaleString('id-ID')}`;
             document.getElementById('stat-orders').innerText = `${myOrders.length} Transaksi`;
 
-            const myLowStockProducts = allProducts.filter(p => p.merchant === currentMerchant && p.stock <= 5);
+            const myLowStockProducts = allProducts.filter(p => p.stock <= 5);
             const lowStockCount = myLowStockProducts.length;
 
             const labelStock = document.getElementById('stat-low-stock');
@@ -417,7 +403,7 @@
                 dateRecapTbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-gray-400 italic">Belum ada riwayat omzet terjadwal.</td></tr>`;
             } else {
                 const dateMap = myOrders.reduce((map, o) => {
-                    const tgl = o.date || o.tanggal || 'Tanggal Kosong';
+                    const tgl = o.date || o.tanggal || 'Hari Ini';
                     if (!map[tgl]) map[tgl] = { count: 0, revenue: 0 };
                     map[tgl].count++;
                     map[tgl].revenue += (o.total || 0);
@@ -435,7 +421,7 @@
 
             const lowStockTbody = document.getElementById('dashboard-low-stock-rows');
             if (myLowStockProducts.length === 0) {
-                lowStockTbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-gray-500 font-medium">Aman! Semua komoditas aman terkendali.</td></tr>`;
+                lowStockTbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-gray-500 font-medium">Aman! Semua kuantitas aman terkendali.</td></tr>`;
             } else {
                 lowStockTbody.innerHTML = myLowStockProducts.map(p => `
                     <tr class="hover:bg-red-50/50 transition">
@@ -449,52 +435,52 @@
             }
         }
 
-        // 📈 ENGINE LAPORAN KEUANGAN BARU BESERTA FILTRASI WAKTU
         function changeFinanceFilter(filterType) {
             currentFinanceFilter = filterType;
-            
-            // Atur gaya reset tombol tab filter finansial
             ['harian', 'mingguan', 'bulanan', 'tahunan'].forEach(type => {
                 const btn = document.getElementById(`btn-fin-${type}`);
                 if (btn) btn.className = "px-4 py-1.5 text-xs font-bold rounded-lg transition text-gray-600 hover:text-gray-900";
             });
-
-            // Set aktif styling ke tombol terpilih
             const targetBtn = document.getElementById(`btn-fin-${filterType}`);
             if (targetBtn) targetBtn.className = "px-4 py-1.5 text-xs font-bold rounded-lg transition shadow-sm bg-white text-emerald-900";
-
             renderFinanceReport();
         }
 
+        // 🟢 PENYEMPURNAAN LOGIKA FILTER LAPORAN KEUANGAN & AUDIT TABEL
         function renderFinanceReport() {
             const currentMerchant = getActiveMerchant();
             if (!currentMerchant) return;
 
             const allOrders = JSON.parse(localStorage.getItem('segari_orders')) || [];
             const tbody = document.getElementById('finance-table-rows');
-            
-            // 1. Saring data pesanan milik username toko aktif
+            if (!tbody) return;
+
             let myOrders = allOrders.filter(o => 
-                (!o.merchant && !o.storeCode && (!o.items || o.items.length === 0)) || 
                 o.merchant === currentMerchant || 
                 o.storeCode === currentMerchant ||
-                (o.items && o.items.some(item => item.merchant === currentMerchant))
+                (o.items && o.items.some(item => item.merchant === currentMerchant)) ||
+                (!o.merchant && !o.storeCode)
             );
 
-            // 2. Lakukan evaluasi penanggalan berbasis sistem lokal penanggalan JavaScript
             const now = new Date();
-            
             let filteredOrders = myOrders.filter(o => {
                 const dateStr = o.date || o.tanggal;
                 if (!dateStr) return false;
                 
-                const orderDate = new Date(dateStr);
-                if (isNaN(orderDate.getTime())) return false; // Abaikan jika format string tanggal rusak
+                // Normalisasi string penanggalan DD/MM/YYYY ke format Date Object riil
+                const parts = dateStr.split('/');
+                let orderDate = new Error();
+                if(parts.length === 3) {
+                    orderDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                } else {
+                    orderDate = new Date(dateStr);
+                }
+
+                if (isNaN(orderDate.getTime())) return true; 
 
                 if (currentFinanceFilter === 'harian') {
                     return orderDate.toDateString() === now.toDateString();
                 } else if (currentFinanceFilter === 'mingguan') {
-                    // Selisih dalam batasan 7 hari terakhir belanja
                     const diffTime = Math.abs(now - orderDate);
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                     return diffDays <= 7;
@@ -506,247 +492,216 @@
                 return true;
             });
 
-            // 3. Kalkulasi agregat finansial metrik data
-            const totalRevenue = filteredOrders.reduce((sum, o) => sum + (o.total || 0), 0);
-            const totalCount = filteredOrders.length;
-            const averageRevenue = totalCount > 0 ? Math.round(totalRevenue / totalCount) : 0;
+            // Kalkulasi metrik akuntansi keuangan
+            const finRevenue = filteredOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+            const finCount = filteredOrders.length;
+            const finAvg = finCount > 0 ? Math.round(finRevenue / finCount) : 0;
 
-            // Cetak nilai agregasi ke kartu statistik laporan keuangan
-            document.getElementById('fin-stat-revenue').innerText = `Rp${totalRevenue.toLocaleString('id-ID')}`;
-            document.getElementById('fin-stat-count').innerText = `${totalCount} Invoice`;
-            document.getElementById('fin-stat-avg').innerText = `Rp${averageRevenue.toLocaleString('id-ID')}`;
+            document.getElementById('fin-stat-revenue').innerText = `Rp${finRevenue.toLocaleString('id-ID')}`;
+            document.getElementById('fin-stat-count').innerText = `${finCount} Invoice`;
+            document.getElementById('fin-stat-avg').innerText = `Rp${finAvg.toLocaleString('id-ID')}`;
 
-            // 4. Render output ke baris data tabel ledger keuangan
-            tbody.innerHTML = '';
             if (filteredOrders.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-gray-400 italic">Tidak ada catatan keuangan terdeteksi pada periode ini.</td></tr>`;
-                return;
+                tbody.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-gray-400 italic">Belum ada data keuangan untuk rentang waktu ini.</td></tr>`;
+            } else {
+                tbody.innerHTML = filteredOrders.map(o => `
+                    <tr class="hover:bg-gray-50 transition border-b border-gray-100">
+                        <td class="p-4 font-mono font-bold text-gray-700">${o.id}</td>
+                        <td class="p-4 text-gray-600">${o.date || o.tanggal}</td>
+                        <td class="p-4 text-gray-800 font-medium">@${o.user}</td>
+                        <td class="p-4 text-right font-black text-emerald-600">Rp${(o.total || 0).toLocaleString('id-ID')}</td>
+                    </tr>
+                `).join('');
             }
-
-            filteredOrders.sort((a,b) => new Date(b.date || b.tanggal) - new Date(a.date || a.tanggal)).forEach(o => {
-                const invoice = o.invoice || o.id || 'Tanpa ID';
-                const tanggal = o.date || o.tanggal || '-';
-                const pelanggan = o.username || o.user || 'Anonim';
-                const danaMasuk = o.total || 0;
-
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-gray-50 transition";
-                tr.innerHTML = `
-                    <td class="p-4 font-mono font-bold text-emerald-800">${invoice}</td>
-                    <td class="p-4 text-gray-700">${tanggal}</td>
-                    <td class="p-4 text-gray-900 font-medium">@${pelanggan}</td>
-                    <td class="p-4 text-right font-extrabold text-emerald-600">Rp${danaMasuk.toLocaleString('id-ID')}</td>
-                `;
-                tbody.appendChild(tr);
-            });
         }
 
+        // 📦 IMPLEMENTASI MANAJEMEN INVENTORI SKU PRODUK MITRA
         function renderInventoryTable() {
             const tbody = document.getElementById('inventory-table-body');
-            const allProducts = JSON.parse(localStorage.getItem('segari_products')) || [];
-            const currentMerchant = getActiveMerchant();
+            if (!tbody) return;
+            const products = JSON.parse(localStorage.getItem('segari_products')) || [];
 
-            const myProducts = allProducts.filter(p => p.merchant === currentMerchant);
-            tbody.innerHTML = '';
-
-            if(myProducts.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-gray-400 italic">Belum ada produk dirilis oleh toko Anda.</td></tr>`;
+            if (products.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-gray-400 italic">Gudang inventori kosong. Silakan rilis produk baru.</td></tr>`;
                 return;
             }
 
-            myProducts.forEach((p) => {
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-gray-50/80 transition";
-                tr.innerHTML = `
-                    <td class="p-4 flex items-center gap-3 font-bold text-gray-800">
-                        <img src="${p.img}" class="w-10 h-10 object-cover rounded-lg bg-gray-50 border border-gray-100">
-                        <span>${p.name}</span>
+            tbody.innerHTML = products.map(p => `
+                <tr class="hover:bg-gray-50 transition border-b border-gray-100">
+                    <td class="p-4 font-bold text-gray-800">
+                        <div class="flex items-center gap-3">
+                            <img src="${p.img || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=120'}" class="w-10 h-10 object-cover rounded-xl border border-gray-100 shadow-sm">
+                            <span>${p.name}</span>
+                        </div>
                     </td>
-                    <td class="p-4"><span class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded uppercase font-mono text-[10px]">${p.category}</span></td>
-                    <td class="p-4 font-bold text-emerald-700">Rp${p.price.toLocaleString('id-ID')}</td>
-                    <td class="p-4 text-gray-500">${p.size}</td>
-                    <td class="p-4 font-bold ${p.stock <= 5 ? 'text-red-500 bg-red-50/50' : 'text-gray-700'}">${p.stock} pcs</td>
+                    <td class="p-4 text-gray-500 font-medium uppercase text-[10px]">${p.category || 'sayur'}</td>
+                    <td class="p-4 font-bold text-emerald-600">Rp${p.price.toLocaleString('id-ID')}</td>
+                    <td class="p-4 text-gray-600 font-medium">${p.size || 'Pack'}</td>
+                    <td class="p-4"><span class="px-2 py-0.5 rounded-full font-bold text-[11px] ${p.stock <= 5 ? 'bg-red-100 text-red-700 animate-pulse' : 'bg-green-100 text-green-700'}">${p.stock} Pcs</span></td>
                     <td class="p-4 text-center">
                         <div class="flex items-center justify-center gap-1.5">
-                            <button onclick="updateStockDirect(${p.id}, -5)" class="bg-gray-200 text-gray-700 p-1 rounded font-bold hover:bg-gray-300">-5</button>
-                            <button onclick="updateStockDirect(${p.id}, 5)" class="bg-emerald-600 text-white p-1 rounded font-bold hover:bg-emerald-700">+5</button>
+                            <input type="number" value="${p.stock}" id="stock-input-${p.id}" class="w-16 p-1 border border-gray-200 rounded-lg text-center text-xs font-bold">
+                            <button onclick="updateStockManual(${p.id})" class="p-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg transition"><i data-lucide="check" class="w-3.5 h-3.5"></i></button>
                         </div>
                     </td>
                     <td class="p-4 text-center">
-                        <button onclick="deleteProduct(${p.id})" class="bg-rose-100 text-rose-600 p-1.5 rounded-xl hover:bg-rose-200 transition" title="Hapus Produk">
-                            <i data-lucide="trash-2" class="w-4 h-4 mx-auto"></i>
-                        </button>
+                        <button onclick="deleteProduct(${p.id})" class="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                     </td>
-                `;
-                tbody.appendChild(tr);
-            });
+                </tr>
+            `).join('');
             lucide.createIcons();
         }
 
-        function updateStockDirect(productId, amount) {
-            let allProducts = JSON.parse(localStorage.getItem('segari_products')) || [];
-            const pIdx = allProducts.findIndex(p => p.id === productId);
-
-            if (pIdx !== -1) {
-                allProducts[pIdx].stock = Math.max(0, allProducts[pIdx].stock + amount);
-                localStorage.setItem('segari_products', JSON.stringify(allProducts));
-                renderInventoryTable();
-                updateDashboardMetrics();
-                renderFinanceReport();
-            }
-        }
-
-        function deleteProduct(productId) {
-            if (confirm("Apakah Anda yakin ingin menghapus produk ini secara permanen dari inventori?")) {
-                let allProducts = JSON.parse(localStorage.getItem('segari_products')) || [];
-                allProducts = allProducts.filter(p => p.id !== productId);
-                localStorage.setItem('segari_products', JSON.stringify(allProducts));
-                renderInventoryTable();
-                updateDashboardMetrics();
-                renderFinanceReport();
-            }
-        }
-
         function addNewProduct() {
+            const currentMerchant = getActiveMerchant();
             const name = document.getElementById('p-name').value.trim();
-            const cat = document.getElementById('p-cat').value;
+            const category = document.getElementById('p-cat').value;
             const price = parseInt(document.getElementById('p-price').value);
             const size = document.getElementById('p-size').value.trim();
             const stock = parseInt(document.getElementById('p-stock').value);
             let img = document.getElementById('p-img').value.trim();
-            const currentMerchant = getActiveMerchant();
 
-            if(!name || !price || !size || isNaN(stock)) {
-                alert("Mohon isi semua field produk!");
+            if (!name || isNaN(price) || !size || isNaN(stock)) {
+                alert("Mohon lengkapi formulir pendaftaran produk secara utuh!");
                 return;
             }
 
-            if(!img) img = "https://images.unsplash.com/photo-1610348725531-843dff563e2c?auto=format&fit=crop&q=80&w=300";
+            if(!img) img = "https://images.unsplash.com/photo-1542838132-92c53300491e?w=300";
 
             let products = JSON.parse(localStorage.getItem('segari_products')) || [];
-            const newProduct = {
+            products.push({
                 id: Date.now(),
-                merchant: currentMerchant,
-                name, category: cat, price, size, stock, img
-            };
+                name: name,
+                category: category,
+                price: price,
+                size: size,
+                stock: stock,
+                img: img,
+                merchant: currentMerchant 
+            });
 
-            products.unshift(newProduct);
             localStorage.setItem('segari_products', JSON.stringify(products));
             
+            // Pembersihan form input
             document.getElementById('p-name').value = '';
             document.getElementById('p-price').value = '';
             document.getElementById('p-size').value = '';
             document.getElementById('p-stock').value = '';
             document.getElementById('p-img').value = '';
 
-            alert("Produk berhasil terbit secara live untuk toko Anda!");
             renderInventoryTable();
             updateDashboardMetrics();
-            renderFinanceReport();
+            alert("Produk Berhasil Dirilis!");
         }
 
-        function renderOrdersTable() {
-            const tbody = document.getElementById('orders-table-body');
-            const allOrders = JSON.parse(localStorage.getItem('segari_orders')) || [];
-            const currentMerchant = getActiveMerchant();
-            
-            const searchInput = document.getElementById('order-search');
-            const keyword = searchInput ? searchInput.value.toLowerCase().trim() : '';
-            
-            tbody.innerHTML = '';
+        function updateStockManual(id) {
+            const val = parseInt(document.getElementById(`stock-input-${id}`).value);
+            if(isNaN(val) || val < 0) { alert("Format kuantitas stok salah!"); return; }
 
-            let filteredOrders = allOrders.filter(o => 
-                (!o.merchant && !o.storeCode && (!o.items || o.items.length === 0)) || 
+            let products = JSON.parse(localStorage.getItem('segari_products')) || [];
+            const idx = products.findIndex(p => p.id === id);
+            if(idx !== -1) {
+                products[idx].stock = val;
+                localStorage.setItem('segari_products', JSON.stringify(products));
+                renderInventoryTable();
+                updateDashboardMetrics();
+            }
+        }
+
+        function deleteProduct(id) {
+            if(confirm("Hapus komoditas ini dari etalase penjualan konsumen?")) {
+                let products = JSON.parse(localStorage.getItem('segari_products')) || [];
+                products = products.filter(p => p.id !== id);
+                localStorage.setItem('segari_products', JSON.stringify(products));
+                renderInventoryTable();
+                updateDashboardMetrics();
+            }
+        }
+
+        // 🚚 IMPLEMENTASI TABEL LOGISTIK ORDER MASUK & PELACAKAN LIVE
+        function renderOrdersTable() {
+            const currentMerchant = getActiveMerchant();
+            if(!currentMerchant) return;
+
+            const allOrders = JSON.parse(localStorage.getItem('segari_orders')) || [];
+            const searchQuery = document.getElementById('order-search').value.toLowerCase();
+            const tbody = document.getElementById('orders-table-body');
+            if(!tbody) return;
+
+            let myOrders = allOrders.filter(o => 
                 o.merchant === currentMerchant || 
                 o.storeCode === currentMerchant ||
-                (o.items && o.items.some(item => item.merchant === currentMerchant))
+                (o.items && o.items.some(item => item.merchant === currentMerchant)) ||
+                (!o.merchant && !o.storeCode)
             );
 
-            if (keyword !== '') {
-                filteredOrders = filteredOrders.filter(o => {
-                    const displayInvoice = (o.invoice || o.id || '').toString().toLowerCase();
-                    const displayDate = (o.date || o.tanggal || '').toString().toLowerCase();
-                    const displayUsername = (o.username || o.user || '').toString().toLowerCase();
-                    const displayAddress = (o.address || '').toString().toLowerCase();
-
-                    return displayInvoice.includes(keyword) || 
-                           displayDate.includes(keyword) || 
-                           displayUsername.includes(keyword) || 
-                           displayAddress.includes(keyword);
-                });
+            if(searchQuery) {
+                myOrders = myOrders.filter(o => 
+                    o.id.toLowerCase().includes(searchQuery) ||
+                    o.user.toLowerCase().includes(searchQuery) ||
+                    (o.address || "").toLowerCase().includes(searchQuery)
+                );
             }
 
-            if(filteredOrders.length === 0) {
-                tbody.innerHTML = keyword !== '' 
-                    ? `<tr><td colspan="6" class="p-8 text-center text-gray-400 italic">Pesanan dengan kata kunci "${keyword}" tidak ditemukan.</td></tr>`
-                    : `<tr><td colspan="6" class="p-8 text-center text-gray-400 italic">Belum ada pesanan konsumen masuk ke sistem gudang logistik toko Anda.</td></tr>`;
+            if (myOrders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-gray-400 italic">Tidak ada log transaksi pesanan yang sesuai.</td></tr>`;
                 return;
             }
 
-            filteredOrders.forEach((o) => {
-                const displayInvoice = o.invoice || o.id || 'Tanpa ID';
-                const displayDate = o.date || o.tanggal || '-';
-                const displayUsername = o.username || o.user || 'Anonim';
-                const displayAddress = o.address || 'Alamat tidak terisi';
-                const displayTotal = o.total || 0;
-                const displayStatus = o.status || 'Diproses';
-
-                let displayItems = o.items || [];
-                if (displayItems.some(item => item.merchant)) {
-                    displayItems = displayItems.filter(item => item.merchant === currentMerchant);
-                }
-
-                let itemsListHtml = displayItems.length > 0
-                    ? displayItems.map(i => `• ${i.name} (${i.qty}x)`).join('<br>')
-                    : '• Paket Komoditas Gabungan';
+            tbody.innerHTML = myOrders.map(o => {
+                const orderItemsHtml = o.items.map(it => `• ${it.name} <span class="text-gray-400 font-bold">(x${it.qty})</span>`).join('<br>');
                 
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-gray-50 transition border-b border-gray-100";
-                tr.innerHTML = `
-                    <td class="p-4 font-mono font-bold text-gray-800">
-                        <span class="text-emerald-700">${displayInvoice}</span>
-                        <br>
-                        <span class="text-[10px] font-normal text-gray-400 block mt-0.5">${displayDate}</span>
-                    </td>
-                    <td class="p-4 text-gray-700">
-                        <span class="font-bold text-gray-900">@${displayUsername}</span>
-                        <br>
-                        <span class="text-[10px] font-normal text-gray-400 block max-w-xs truncate mt-0.5" title="${displayAddress}">${displayAddress}</span>
-                    </td>
-                    <td class="p-4 text-gray-600 font-medium">${itemsListHtml}</td>
-                    <td class="p-4 font-extrabold text-green-600">Rp${displayTotal.toLocaleString('id-ID')}</td>
-                    <td class="p-4">
-                        <span class="px-2 py-1 rounded-full text-[10px] font-black uppercase ${
-                            displayStatus === 'Selesai' ? 'bg-blue-100 text-blue-800' : 
-                            displayStatus === 'Dalam Perjalanan' ? 'bg-amber-100 text-amber-800' : 
-                            'bg-gray-100 text-gray-800'
-                        }">${displayStatus}</span>
-                    </td>
-                    <td class="p-4 text-center">
-                        <select onchange="updateOrderStatus('${displayInvoice}', this.value)" class="p-1.5 border border-gray-200 rounded-lg text-[11px] font-bold bg-white text-gray-700 focus:outline-none focus:ring-1 focus:ring-emerald-500">
-                            <option value="Diproses" ${displayStatus==='Diproses'?'selected':''}>0. Diproses</option>
-                            <option value="Menyiapkan Pesanan" ${displayStatus==='Menyiapkan Pesanan'?'selected':''}>1. Siapkan Paket</option>
-                            <option value="Dalam Perjalanan" ${displayStatus==='Dalam Perjalanan'?'selected':''}>2. Serahkan Kurir</option>
-                            <option value="Selesai" ${displayStatus==='Selesai'?'selected':''}>3. Selesai Tiba</option>
-                        </select>
-                    </td>
+                let badgeClass = 'bg-amber-100 text-amber-800';
+                if(o.status === 'Selesai') badgeClass = 'bg-green-100 text-green-800';
+                if(o.status === 'Dalam Perjalanan') badgeClass = 'bg-blue-100 text-blue-800';
+                if(o.status === 'Menyiapkan Pesanan') badgeClass = 'bg-indigo-100 text-indigo-800';
+
+                return `
+                    <tr class="hover:bg-gray-50 transition border-b border-gray-100">
+                        <td class="p-4 font-mono font-bold text-gray-700">
+                            <span>${o.id}</span>
+                            <p class="text-[10px] text-gray-400 font-normal mt-0.5">${o.date || o.tanggal}</p>
+                        </td>
+                        <td class="p-4">
+                            <span class="font-bold text-gray-800">@${o.user}</span>
+                            <p class="text-[10px] text-gray-400 max-w-[180px] truncate" title="${o.address}">${o.address}</p>
+                            <p class="text-[9px] text-emerald-700 font-medium mt-0.5">${o.slot || 'Pagi'}</p>
+                        </td>
+                        <td class="p-4 text-gray-600 font-medium leading-relaxed">${orderItemsHtml}</td>
+                        <td class="p-4 font-black text-gray-900">Rp${(o.total || 0).toLocaleString('id-ID')}</td>
+                        <td class="p-4">
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase ${badgeClass}">${o.status || 'Diproses'}</span>
+                        </td>
+                        <td class="p-4 text-center">
+                            <select onchange="updateOrderStatus('${o.id}', this.value)" class="p-1.5 border border-gray-200 bg-white rounded-xl text-[11px] font-bold text-gray-700 shadow-sm focus:outline-none cursor-pointer">
+                                <option value="Diproses" ${o.status === 'Diproses' ? 'selected' : ''}>Diproses</option>
+                                <option value="Menyiapkan Pesanan" ${o.status === 'Menyiapkan Pesanan' ? 'selected' : ''}>Menyiapkan Pesanan</option>
+                                <option value="Dalam Perjalanan" ${o.status === 'Dalam Perjalanan' ? 'selected' : ''}>Dalam Perjalanan</option>
+                                <option value="Selesai" ${o.status === 'Selesai' ? 'selected' : ''}>Selesai</option>
+                            </select>
+                        </td>
+                    </tr>
                 `;
-                tbody.appendChild(tr);
-            });
+            }).join('');
+            lucide.createIcons();
         }
 
-        function updateOrderStatus(invoice, newStatus) {
-            let allOrders = JSON.parse(localStorage.getItem('segari_orders')) || [];
-            const oIdx = allOrders.findIndex(o => (o.invoice === invoice || o.id === invoice));
-
-            if (oIdx !== -1) {
-                allOrders[oIdx].status = newStatus;
-                localStorage.setItem('segari_orders', JSON.stringify(allOrders));
-                renderOrdersTable();
+        function updateOrderStatus(orderId, newStatus) {
+            let orders = JSON.parse(localStorage.getItem('segari_orders')) || [];
+            const idx = orders.findIndex(o => o.id === orderId);
+            if (idx !== -1) {
+                orders[idx].status = newStatus;
+                localStorage.setItem('segari_orders', JSON.stringify(orders));
+                
+                // Sinkronisasi komponen visual antarmuka
                 updateDashboardMetrics();
+                renderOrdersTable();
                 renderFinanceReport();
+                
+                // Memicu event Storage agar perubahan ditangkap langsung oleh index.html
+                window.dispatchEvent(new Event('storage'));
             }
         }
     </script>
 </body>
-    </html>
+</html>
