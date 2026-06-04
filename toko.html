@@ -9,7 +9,6 @@
 </head>
 <body class="bg-gray-100 font-sans antialiased">
 
-    <!-- MOBILE HEADER -->
     <div class="md:hidden bg-emerald-900 text-white p-4 flex justify-between items-center sticky top-0 z-50 shadow-md">
         <div class="flex items-center gap-2">
             <span class="text-xl font-black tracking-tight text-white">se<span class="text-orange-400">gari</span></span>
@@ -24,7 +23,6 @@
 
     <div class="min-h-screen flex flex-col md:flex-row relative">
         
-        <!-- SIDEBAR NAVIGATION PANEL -->
         <aside id="sidebar-menu" class="fixed md:static inset-y-0 left-0 z-50 w-64 bg-emerald-900 text-white p-6 flex flex-col justify-between transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out shadow-2xl md:shadow-none">
             
             <div class="space-y-6">
@@ -57,6 +55,9 @@
                         <button id="nav-finance" onclick="switchSection('finance')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-emerald-100 hover:bg-emerald-800/50 transition">
                             <i data-lucide="bar-chart-3" class="w-4 h-4"></i> Laporan Keuangan
                         </button>
+                        <button id="nav-vouchers" onclick="switchSection('vouchers')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-emerald-100 hover:bg-emerald-800/50 transition">
+                            <i data-lucide="ticket-percent" class="w-4 h-4"></i> Voucher & Diskon
+                        </button>
                         <a href="index.html" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-orange-300 hover:bg-emerald-800/50 transition mt-6">
                             <i data-lucide="arrow-left" class="w-4 h-4"></i> Lihat Sisi Konsumen
                         </a>
@@ -71,7 +72,6 @@
             </div>
         </aside>
 
-        <!-- MAIN LAYOUT DISPLAY -->
         <main class="flex-grow p-4 md:p-8 space-y-6 w-full overflow-x-hidden">
             <header class="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
                 <h1 class="text-base md:text-lg font-bold text-gray-800 flex items-center gap-2" id="section-title">
@@ -84,7 +84,6 @@
                 </div>
             </header>
 
-            <!-- SECTION 1: DASHBOARD HUB RINGKASAN DATA -->
             <section id="section-dashboard" class="space-y-6">
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
@@ -153,7 +152,6 @@
                 </div>
             </section>
 
-            <!-- SECTION 2: INVENTORI PRODUK -->
             <section id="section-inventory" class="hidden space-y-6">
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
                     <h3 class="text-sm font-bold text-gray-800 flex items-center gap-2"><i data-lucide="plus-circle" class="text-emerald-600"></i> Tambah / Suplai Produk Baru ke Hub</h3>
@@ -197,7 +195,6 @@
                 </div>
             </section>
 
-            <!-- SECTION 3: PESANAN MASUK -->
             <section id="section-orders" class="hidden space-y-4">
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                     <div class="p-4 bg-gray-50/50 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
@@ -227,7 +224,6 @@
                 </div>
             </section>
 
-            <!-- SECTION 4: LAPORAN KEUANGAN -->
             <section id="section-finance" class="hidden space-y-6">
                 <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div class="space-y-0.5">
@@ -278,10 +274,66 @@
                     </div>
                 </div>
             </section>
+
+            <section id="section-vouchers" class="hidden space-y-6">
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+                    <h3 class="text-sm font-bold text-gray-800 flex items-center gap-2">
+                        <i data-lucide="badge-plus" class="text-emerald-600"></i> Buat Kode Voucher Promosi Baru
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Kode Voucher</label>
+                            <input type="text" id="v-code" placeholder="Contoh: UNTUNG10K" class="w-full p-2.5 border border-gray-200 text-xs font-mono uppercase tracking-wider rounded-xl text-gray-800">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Tipe Potongan</label>
+                            <select id="v-type" class="w-full p-2.5 border border-gray-200 text-xs rounded-xl text-gray-800">
+                                <option value="nominal">Nominal Langsung (Rp)</option>
+                                <option value="persentase">Persentase (%)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Nilai Diskon</label>
+                            <input type="number" id="v-value" placeholder="10000 atau 10" class="w-full p-2.5 border border-gray-200 text-xs rounded-xl text-gray-800">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Minimal Pembelian (Rp)</label>
+                            <input type="number" id="v-min" placeholder="Minimal belanja (0 jika tidak ada)" class="w-full p-2.5 border border-gray-200 text-xs rounded-xl text-gray-800">
+                        </div>
+                    </div>
+                    <div class="flex justify-end">
+                        <button onclick="addNewVoucher()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2.5 text-xs rounded-xl transition">
+                            Aktifkan Voucher
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="p-4 border-b border-gray-50 bg-gray-50/50">
+                        <h3 class="text-xs font-bold text-gray-700 uppercase tracking-wider">Daftar Voucher Aktif Toko Anda</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-gray-600 min-w-[600px]">
+                            <thead class="bg-gray-100 text-gray-700 font-bold">
+                                <tr>
+                                    <th class="p-4">Kode Voucher</th>
+                                    <th class="p-4">Tipe Potongan</th>
+                                    <th class="p-4">Besar Diskon</th>
+                                    <th class="p-4">Minimal Belanja</th>
+                                    <th class="p-4 text-center">Status</th>
+                                    <th class="p-4 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="vouchers-table-body" class="divide-y divide-gray-100">
+                                <tr><td colspan="6" class="p-8 text-center text-gray-400 italic">Belum ada voucher promosi terdaftar.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
         </main>
     </div>
 
-    <!-- SYSTEM BACKOFFICE ENGINES -->
     <script>
         let isSidebarOpen = false;
         let currentFinanceFilter = 'harian'; 
@@ -292,6 +344,7 @@
             renderOrdersTable();
             updateDashboardMetrics(); 
             renderFinanceReport(); 
+            renderVouchersTable(); // Dipanggil saat inisialisasi dokumen
             lucide.createIcons();
 
             window.addEventListener('storage', () => {
@@ -299,6 +352,7 @@
                 renderOrdersTable();
                 updateDashboardMetrics();
                 renderFinanceReport();
+                renderVouchersTable();
             });
         });
 
@@ -343,14 +397,16 @@
             document.getElementById('section-inventory').classList.add('hidden');
             document.getElementById('section-orders').classList.add('hidden');
             document.getElementById('section-finance').classList.add('hidden');
+            document.getElementById('section-vouchers').classList.add('hidden'); // Sembunyikan section voucher
             document.getElementById(`section-${secId}`).classList.remove('hidden');
             
             const btnDash = document.getElementById('nav-dashboard');
             const btnInv = document.getElementById('nav-inventory');
             const btnOrd = document.getElementById('nav-orders');
             const btnFin = document.getElementById('nav-finance');
+            const btnVouch = document.getElementById('nav-vouchers'); // Button nav voucher baru
             
-            [btnDash, btnInv, btnOrd, btnFin].forEach(btn => {
+            [btnDash, btnInv, btnOrd, btnFin, btnVouch].forEach(btn => {
                 if(btn) btn.className = "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-emerald-100 hover:bg-emerald-800/50 transition";
             });
 
@@ -365,6 +421,10 @@
                 title.innerHTML = `<i data-lucide="bar-chart-3" class="text-emerald-600"></i> Audit Keuangan & Laporan Pendapatan`;
                 renderFinanceReport(); 
             }
+            if(secId === 'vouchers') {
+                title.innerHTML = `<i data-lucide="ticket-percent" class="text-emerald-600"></i> Manajemen Voucher & Diskon Promosi`;
+                renderVouchersTable();
+            }
             
             if (isSidebarOpen) toggleSidebar();
             lucide.createIcons();
@@ -377,7 +437,6 @@
             const allOrders = JSON.parse(localStorage.getItem('segari_orders')) || [];
             const allProducts = JSON.parse(localStorage.getItem('segari_products')) || [];
 
-            // Membaca pesanan yang berkorelasi dengan merchant/username saat ini
             const myOrders = allOrders.filter(o => 
                 o.merchant === currentMerchant || 
                 o.storeCode === currentMerchant ||
@@ -388,7 +447,6 @@
             document.getElementById('stat-revenue').innerText = `Rp${totalRevenue.toLocaleString('id-ID')}`;
             document.getElementById('stat-orders').innerText = `${myOrders.length} Transaksi`;
 
-            // MEMPERBAIKI FILTER STOK KRITIS AGAR HANYA MILIK USERNAME TOKO INI
             const myLowStockProducts = allProducts.filter(p => p.merchant === currentMerchant && p.stock <= 5);
             const lowStockCount = myLowStockProducts.length;
 
@@ -452,7 +510,6 @@
             renderFinanceReport();
         }
 
-        // 🟢 MENYAMBUNG KEMBALI DAN MENYEMPURNAKAN FUNGSI LAPORAN KEUANGAN
         function renderFinanceReport() {
             const currentMerchant = getActiveMerchant();
             if (!currentMerchant) return;
@@ -518,7 +575,6 @@
             }
         }
 
-        // 📦 MEMPERBAIKI MANAJEMEN INVENTORI AGAR HANYA MENAMPILKAN PRODUK MILIK USERNAME TOKO INI
         function renderInventoryTable() {
             const tbody = document.getElementById('inventory-table-body');
             if (!tbody) return;
@@ -527,7 +583,6 @@
             if (!currentMerchant) return;
 
             const allProducts = JSON.parse(localStorage.getItem('segari_products')) || [];
-            // Filter ketat berdasarkan pemilik toko
             const myProducts = allProducts.filter(p => p.merchant === currentMerchant);
 
             if (myProducts.length === 0) {
@@ -706,6 +761,105 @@
                 window.dispatchEvent(new Event('storage'));
             }
         }
+
+        // 🟢 ENGINE LOGIKAL BARU: MANAJEMEN VOUCHER TOKO
+        function renderVouchersTable() {
+            const tbody = document.getElementById('vouchers-table-body');
+            if (!tbody) return;
+
+            const currentMerchant = getActiveMerchant();
+            if (!currentMerchant) return;
+
+            const allVouchers = JSON.parse(localStorage.getItem('segari_vouchers')) || [];
+            // Mengisolasi kode promo hanya untuk toko penciptanya
+            const myVouchers = allVouchers.filter(v => v.merchant === currentMerchant);
+
+            if (myVouchers.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-gray-400 italic">Belum ada voucher promosi terdaftar.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = myVouchers.map(v => {
+                const tipeDisplay = v.type === 'persentase' ? 'Persentase (%)' : 'Nominal Langsung (Rp)';
+                const nilaiDisplay = v.type === 'persentase' ? `${v.value}%` : `Rp${v.value.toLocaleString('id-ID')}`;
+                
+                return `
+                    <tr class="hover:bg-gray-50 transition border-b border-gray-100">
+                        <td class="p-4 font-mono font-bold text-emerald-800 tracking-wider uppercase">${v.code}</td>
+                        <td class="p-4 text-gray-600 font-medium">${tipeDisplay}</td>
+                        <td class="p-4 font-black text-gray-800">${nilaiDisplay}</td>
+                        <td class="p-4 text-gray-600">Rp${v.minPurchase.toLocaleString('id-ID')}</td>
+                        <td class="p-4 text-center">
+                            <span class="px-2 py-0.5 bg-green-100 text-green-800 rounded-full font-bold text-[10px]">AKTIF</span>
+                        </td>
+                        <td class="p-4 text-center">
+                            <button onclick="deleteVoucher(${v.id})" class="p-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl transition">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        function addNewVoucher() {
+            const currentMerchant = getActiveMerchant();
+            if (!currentMerchant) return;
+
+            const code = document.getElementById('v-code').value.trim().toUpperCase();
+            const type = document.getElementById('v-type').value;
+            const value = parseInt(document.getElementById('v-value').value);
+            let minPurchase = parseInt(document.getElementById('v-min').value);
+
+            if (!code || isNaN(value) || value <= 0) {
+                alert("Mohon isi kode voucher dan nilai diskon yang valid!");
+                return;
+            }
+
+            if (isNaN(minPurchase) || minPurchase < 0) minPurchase = 0;
+
+            if (type === 'persentase' && value > 100) {
+                alert("Nilai diskon persentase tidak boleh melebihi 100%!");
+                return;
+            }
+
+            let vouchers = JSON.parse(localStorage.getItem('segari_vouchers')) || [];
+            
+            // Validasi agar kode tidak duplikat global/lokal
+            if (vouchers.some(v => v.code === code && v.merchant === currentMerchant)) {
+                alert("Kode voucher ini sudah Anda gunakan! Silakan ganti kode yang lain.");
+                return;
+            }
+
+            vouchers.push({
+                id: Date.now(),
+                code: code,
+                type: type,
+                value: value,
+                minPurchase: minPurchase,
+                merchant: currentMerchant
+            });
+
+            localStorage.setItem('segari_vouchers', JSON.stringify(vouchers));
+
+            // Reset Form Input
+            document.getElementById('v-code').value = '';
+            document.getElementById('v-value').value = '';
+            document.getElementById('v-min').value = '';
+
+            renderVouchersTable();
+            alert("Voucher Promosi Toko Berhasil Diaktifkan!");
+        }
+
+        function deleteVoucher(id) {
+            if (confirm("Apakah Anda yakin ingin menghapus/menonaktifkan kode voucher ini?")) {
+                let vouchers = JSON.parse(localStorage.getItem('segari_vouchers')) || [];
+                vouchers = vouchers.filter(v => v.id !== id);
+                localStorage.setItem('segari_vouchers', JSON.stringify(vouchers));
+                renderVouchersTable();
+            }
+        }
     </script>
 </body>
-</html>
+    </html>
