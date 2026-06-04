@@ -10,7 +10,6 @@
 <body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex items-center justify-center p-4">
 
     <div class="w-full max-w-md bg-slate-950 border border-slate-800 p-8 rounded-3xl shadow-2xl space-y-6">
-        <!-- Logo Header -->
         <div class="text-center space-y-2">
             <div class="flex items-center justify-center gap-1.5">
                 <span class="text-2xl font-black text-green-500">se<span class="text-orange-500">gari</span></span>
@@ -20,7 +19,6 @@
             <p id="merchant-subtitle" class="text-xs text-slate-400">Sistem manajemen penjualan produk segar langsung ke pembeli</p>
         </div>
 
-        <!-- Tab Toggle -->
         <div class="grid grid-cols-2 bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs font-bold">
             <button onclick="switchMerchantMode('login')" id="btn-m-login" class="py-2.5 rounded-lg bg-slate-800 text-white">Login Toko</button>
             <button onclick="switchMerchantMode('register')" id="btn-m-register" class="py-2.5 rounded-lg text-slate-400 hover:text-slate-200">Buka Toko Baru</button>
@@ -56,7 +54,13 @@
     <script>
         let merchantMode = 'login';
 
-        window.addEventListener('DOMContentLoaded', () => { lucide.createIcons(); });
+        // KOORDINASI VARIABEL KUNCI GLOBAL V3 MASTER
+        const USER_KEY = 'segari_users_v3';
+        const SESSION_KEY = 'segari_session';
+
+        window.addEventListener('DOMContentLoaded', () => { 
+            lucide.createIcons(); 
+        });
 
         function switchMerchantMode(mode) {
             merchantMode = mode;
@@ -84,29 +88,39 @@
             e.preventDefault();
             const userVal = document.getElementById('m-username').value.trim();
             const passVal = document.getElementById('m-password').value;
-            let users = JSON.parse(localStorage.getItem('segari_users')) || [];
+            
+            // Membaca array user master yang sinkron dengan admin v3
+            let users = JSON.parse(localStorage.getItem(USER_KEY)) || [];
 
             if(merchantMode === 'register') {
                 if(users.some(u => u.username.toLowerCase() === userVal.toLowerCase())) {
-                    alert("Nama user toko telah terpakai!");
+                    alert("Nama user toko telah terpakai! Gunakan nama lain.");
                     return;
                 }
-                users.push({ username: userVal, password: passVal, role: 'Toko' });
-                localStorage.setItem('segari_users', JSON.stringify(users));
-                alert("Registrasi Mitra Berhasil! Tunggu verifikasi atau langsung login.");
+                
+                // Menyesuaikan penamaan role ke 'Pemilik Toko' agar terbaca oleh filter admin pusat
+                users.push({ username: userVal, password: passVal, role: 'Pemilik Toko' });
+                localStorage.setItem(USER_KEY, JSON.stringify(users));
+                
+                alert("Registrasi Mitra Berhasil! Anda sekarang terdaftar sebagai Pemilik Toko.");
                 switchMerchantMode('login');
             } else {
                 const checkUser = users.find(u => u.username.toLowerCase() === userVal.toLowerCase() && u.password === passVal);
+                
                 if(!checkUser) {
-                    alert("Kredensial login mitra toko salah!");
+                    alert("Kombinasi Akun Toko & Password salah!");
                     return;
                 }
-                if(checkUser.role !== 'Toko') {
-                    alert(`Hak akses ditolak! Tipe akun ini adalah ${checkUser.role}.`);
+                
+                // Melindungi batasan hak peran otorisasi merchant ('Pemilik Toko')
+                if(checkUser.role !== 'Pemilik Toko') {
+                    alert(`Hak akses ditolak! Akun Anda terdaftar dengan peran otoritas: ${checkUser.role}.`);
                     return;
                 }
-                localStorage.setItem('segari_session', JSON.stringify({ username: checkUser.username, role: checkUser.role }));
-                window.location.href = 'toko.html'; // Dilempar menuju dashboard milik mitra toko
+                
+                // Set sesi aktif toko untuk dibaca halaman dashboard merchant toko.html
+                localStorage.setItem(SESSION_KEY, JSON.stringify({ username: checkUser.username, role: checkUser.role }));
+                window.location.href = 'toko.html'; 
             }
         }
     </script>
