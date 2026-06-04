@@ -90,7 +90,7 @@
             <section id="tab-overview" class="space-y-6">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800">
-                        <div class="flex justify-between items-center text-slate-400 text-xs mb-2"><span>Total Omzet Pendapatan</span><i data-lucide="wallet" class="text-emerald-500 w-4 h-4"></i></div>
+                        <div class="flex justify-between items-center text-slate-400 text-xs mb-2"><span>Total Omzet Platform</span><i data-lucide="wallet" class="text-emerald-500 w-4 h-4"></i></div>
                         <h3 class="text-xl font-black text-white" id="stat-revenue">Rp0</h3>
                     </div>
                     <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800">
@@ -145,14 +145,14 @@
 
             <section id="tab-users" class="hidden">
                 <div class="bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden">
-                    <div class="p-4 bg-slate-900 font-bold text-xs text-white border-b border-slate-800">MUTASI HAK AKSES SISTEM PERAN USER</div>
+                    <div class="p-4 bg-slate-900 font-bold text-xs text-white border-b border-slate-800">MUTASI HAK AKSES SISTEM PERAN MASTER USER</div>
                     <div class="overflow-x-auto text-xs">
                         <table class="w-full text-left text-slate-400 min-w-[500px]">
                             <thead class="bg-slate-900 text-slate-300 font-bold">
                                 <tr>
                                     <th class="p-4">Username Akun</th>
                                     <th class="p-4">Peran Saat Ini (Role)</th>
-                                    <th class="p-4 text-center">Ganti Status Hak Otoritas Peran</th>
+                                    <th class="p-4 text-center">Ganti Status Hak Otoritas Peran Admin</th>
                                 </tr>
                             </thead>
                             <tbody id="global-users-rows" class="divide-y divide-slate-800"></tbody>
@@ -161,39 +161,21 @@
                 </div>
             </section>
 
-            <section id="tab-roles" class="hidden space-y-6">
+            <section id="tab-roles" class="hidden">
                 <div class="bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden">
-                    <div class="p-4 bg-slate-900 font-bold text-xs text-white border-b border-slate-800 uppercase tracking-wider flex items-center gap-2">
-                        <i data-lucide="store" class="w-4 h-4 text-amber-500"></i> Manajemen Otoritas Akses Pemilik Toko
+                    <div class="p-4 bg-slate-900 font-bold text-xs text-white border-b border-slate-800 uppercase tracking-wider">
+                        Manajemen Otoritas Akses Pemilik Toko & Pembeli Terdaftar
                     </div>
                     <div class="overflow-x-auto text-xs">
                         <table class="w-full text-left text-slate-400 min-w-[550px]">
                             <thead class="bg-slate-900 text-slate-300 font-bold">
                                 <tr>
                                     <th class="p-4">Username Akun</th>
-                                    <th class="p-4">Tipe Otoritas Saat Ini</th>
+                                    <th class="p-4">Status Otoritas Saat Ini</th>
                                     <th class="p-4 text-center">Ubah Akses Peran Platform</th>
                                 </tr>
                             </thead>
-                            <tbody id="shop-owners-rows" class="divide-y divide-slate-800"></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden">
-                    <div class="p-4 bg-slate-900 font-bold text-xs text-white border-b border-slate-800 uppercase tracking-wider flex items-center gap-2">
-                        <i data-lucide="shopping-bag" class="w-4 h-4 text-blue-500"></i> Daftar Pembeli Terdaftar
-                    </div>
-                    <div class="overflow-x-auto text-xs">
-                        <table class="w-full text-left text-slate-400 min-w-[550px]">
-                            <thead class="bg-slate-900 text-slate-300 font-bold">
-                                <tr>
-                                    <th class="p-4">Username Akun</th>
-                                    <th class="p-4">Tipe Otoritas Saat Ini</th>
-                                    <th class="p-4 text-center">Ubah Akses Peran Platform</th>
-                                </tr>
-                            </thead>
-                            <tbody id="buyers-rows" class="divide-y divide-slate-800"></tbody>
+                            <tbody id="global-roles-rows" class="divide-y divide-slate-800"></tbody>
                         </table>
                     </div>
                 </div>
@@ -313,6 +295,27 @@
             }
         }
 
+        // 🆕 ENGINE BARU: Mengumpulkan semua username dari sistem transaksi (toko & index) agar tidak ada data yang hilang
+        function getAggregatedUsers() {
+            let users = JSON.parse(localStorage.getItem(USER_KEY)) || [];
+            const orders = JSON.parse(localStorage.getItem(ORDER_KEY)) || [];
+            
+            // Pindai semua invoices / data logistik masuk
+            orders.forEach(o => {
+                const orderUser = o.user || o.username || o.customerName || o.buyer || o.name;
+                if (orderUser && orderUser !== 'Anonim') {
+                    const cleanName = orderUser.trim();
+                    // Jika pembeli dari index.html belum terdaftar di master admin, tarik otomatis
+                    if (!users.some(u => u.username.toLowerCase() === cleanName.toLowerCase())) {
+                        users.push({ username: cleanName, role: 'Pembeli' });
+                    }
+                }
+            });
+
+            localStorage.setItem(USER_KEY, JSON.stringify(users));
+            return users;
+        }
+
         function handleAdminLogout() {
             if (confirm("Apakah Anda yakin ingin menutup sesi keamanan dan keluar dari Backoffice?")) {
                 localStorage.removeItem(SESSION_KEY);
@@ -368,7 +371,7 @@
         function calculateOverviewMetrics() {
             const orders = JSON.parse(localStorage.getItem(ORDER_KEY)) || [];
             const products = JSON.parse(localStorage.getItem(PRODUCT_KEY)) || [];
-            const users = JSON.parse(localStorage.getItem(USER_KEY)) || [];
+            const users = getAggregatedUsers();
 
             const totalRevenue = orders.reduce((sum, o) => sum + (o.total || 0), 0);
             document.getElementById('stat-revenue').innerText = `Rp${totalRevenue.toLocaleString('id-ID')}`;
@@ -383,7 +386,7 @@
 
             const filteredOrders = orders.filter(o => {
                 const invoice = (o.id || o.invoice || '').toLowerCase();
-                const username = (o.user || o.username || '').toLowerCase();
+                const username = (o.user || o.username || o.customerName || o.buyer || o.name || '').toLowerCase();
                 const status = o.status || 'Diproses';
 
                 const matchesSearch = invoice.includes(searchQuery) || username.includes(searchQuery);
@@ -400,7 +403,7 @@
 
             tbody.innerHTML = filteredOrders.map(o => {
                 const displayInvoice = o.id || o.invoice || 'Tanpa ID';
-                const displayUsername = o.user || o.username || 'Anonim';
+                const displayUsername = o.user || o.username || o.customerName || o.buyer || o.name || 'Anonim';
                 const displayAddress = o.address || 'Alamat tidak terisi';
                 const displayTotal = o.total || 0;
                 const displayStatus = o.status || 'Diproses';
@@ -439,7 +442,6 @@
         function openEditOrderModal(invoiceId) {
             const orders = JSON.parse(localStorage.getItem(ORDER_KEY)) || [];
             const targetOrder = orders.find(o => (o.id === invoiceId || o.invoice === invoiceId));
-            
             if (!targetOrder) return;
 
             document.getElementById('edit-order-id').value = invoiceId;
@@ -471,14 +473,13 @@
                 orders[orderIndex].status = newStatus;
                 orders[orderIndex].address = newAddress;
                 localStorage.setItem(ORDER_KEY, JSON.stringify(orders));
-                
                 calculateOverviewMetrics();
                 closeEditOrderModal();
             }
         }
 
         function deleteOrder(invoiceId) {
-            if (confirm(`Apakah Anda yakin ingin menghapus data invoice ${invoiceId} dari sistem platform? Tindakan ini permanen.`)) {
+            if (confirm(`Apakah Anda yakin ingin menghapus data invoice ${invoiceId}?`)) {
                 let orders = JSON.parse(localStorage.getItem(ORDER_KEY)) || [];
                 orders = orders.filter(o => !(o.id === invoiceId || o.invoice === invoiceId));
                 localStorage.setItem(ORDER_KEY, JSON.stringify(orders));
@@ -487,7 +488,7 @@
         }
 
         function renderUserManagement() {
-            const users = JSON.parse(localStorage.getItem(USER_KEY)) || [];
+            const users = getAggregatedUsers();
             const userTbody = document.getElementById('global-users-rows');
             
             if (userTbody) {
@@ -501,7 +502,7 @@
                         </td>
                         <td class="p-4 text-center">
                             <button onclick="toggleUserRole('${u.username}')" class="bg-slate-900 border border-slate-800 hover:bg-slate-800 text-orange-400 px-3 py-1 rounded-xl transition text-[11px] font-bold">
-                                Ubah Otoritas Admin
+                                Batalkan / Set Admin
                             </button>
                         </td>
                     </tr>
@@ -510,7 +511,7 @@
         }
 
         function toggleUserRole(username) {
-            const users = JSON.parse(localStorage.getItem(USER_KEY)) || [];
+            const users = getAggregatedUsers();
             const updated = users.map(u => {
                 if (u.username === username) {
                     u.role = u.role === 'Admin' ? 'Pembeli' : 'Admin';
@@ -522,110 +523,84 @@
             renderRoleManagement(); 
         }
 
-        // 🆕 PERBAIKAN ENGINE: Render Data Spesifik ke Masing-Masing Tabel (Pemilik Toko vs Pembeli)
+        // 🆕 PERBAIKAN UTAMA: Mengatur Dropdown Mutasi Antara Pemilik Toko (toko.html) & Pembeli (index.html) Secara Real-Time
         function renderRoleManagement() {
-            const users = JSON.parse(localStorage.getItem(USER_KEY)) || [];
-            const shopOwnersTbody = document.getElementById('shop-owners-rows');
-            const buyersTbody = document.getElementById('buyers-rows');
+            const users = getAggregatedUsers();
+            const rolesTbody = document.getElementById('global-roles-rows');
             
-            // Filter user berdasarkan kelompok perannya
-            const shopOwners = users.filter(u => u.role === 'Pemilik Toko');
-            const buyers = users.filter(u => u.role === 'Pembeli' || !u.role);
+            if (rolesTbody) {
+                rolesTbody.innerHTML = users.map(u => {
+                    let badgeStyles = 'bg-blue-500/10 text-blue-400 border border-blue-500/20';
+                    if (u.role === 'Pemilik Toko') {
+                        badgeStyles = 'bg-amber-500/10 text-amber-400 border border-amber-500/20';
+                    } else if (u.role === 'Admin') {
+                        badgeStyles = 'bg-red-500/10 text-red-400 border border-red-500/20';
+                    }
 
-            // Render Tabel Pemilik Toko
-            if (shopOwnersTbody) {
-                if (shopOwners.length === 0) {
-                    shopOwnersTbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-slate-500">Tidak ada data pemilik toko.</td></tr>`;
-                } else {
-                    shopOwnersTbody.innerHTML = shopOwners.map(u => `
+                    return `
                         <tr class="hover:bg-slate-900/40 border-b border-slate-800">
-                            <td class="p-4 font-bold text-slate-300">@${u.username}</td>
+                            <td class="p-4 font-bold text-slate-200">@${u.username}</td>
                             <td class="p-4">
-                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">Pemilik Toko</span>
+                                <span class="px-2 py-0.5 rounded text-[10px] font-bold border ${badgeStyles}">
+                                    ${u.role || 'Pembeli'}
+                                </span>
                             </td>
                             <td class="p-4 text-center">
-                                <button onclick="changePlatformRole('${u.username}', 'Pembeli')" class="bg-slate-900 border border-slate-800 hover:bg-slate-800 text-blue-400 px-3 py-1 rounded-xl transition text-[11px] font-bold">
-                                    Turunkan Jadi Pembeli
-                                </button>
+                                <select onchange="updateSpecificRole('${u.username}', this.value)" class="bg-slate-900 border border-slate-800 text-slate-300 text-xs rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-orange-500 font-bold transition cursor-pointer">
+                                    <option value="Pembeli" ${u.role === 'Pembeli' || !u.role ? 'selected' : ''}>Pembeli (Sisi Index)</option>
+                                    <option value="Pemilik Toko" ${u.role === 'Pemilik Toko' ? 'selected' : ''}>Pemilik Toko (Sisi Toko)</option>
+                                    <option value="Admin" ${u.role === 'Admin' ? 'selected' : ''}>Admin (HQ)</option>
+                                </select>
                             </td>
                         </tr>
-                    `).join('');
-                }
+                    `;
+                }).join('');
             }
-
-            // Render Tabel Pembeli Terdaftar
-            if (buyersTbody) {
-                if (buyers.length === 0) {
-                    buyersTbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-slate-500">Tidak ada pembeli terdaftar.</td></tr>`;
-                } else {
-                    buyersTbody.innerHTML = buyers.map(u => `
-                        <tr class="hover:bg-slate-900/40 border-b border-slate-800">
-                            <td class="p-4 font-bold text-slate-300">@${u.username}</td>
-                            <td class="p-4">
-                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">Pembeli</span>
-                            </td>
-                            <td class="p-4 text-center">
-                                <button onclick="changePlatformRole('${u.username}', 'Pemilik Toko')" class="bg-slate-900 border border-slate-800 hover:bg-slate-800 text-amber-400 px-3 py-1 rounded-xl transition text-[11px] font-bold">
-                                    Promosikan Jadi Pemilik Toko
-                                </button>
-                            </td>
-                        </tr>
-                    `).join('');
-                }
-            }
-            lucide.createIcons();
         }
 
-        // Fungsi pembantu untuk mutasi peran antara Pemilik Toko & Pembeli secara dinamis
-        function changePlatformRole(username, newRole) {
-            const users = JSON.parse(localStorage.getItem(USER_KEY)) || [];
-            const updated = users.map(u => {
+        function updateSpecificRole(username, newRole) {
+            let users = getAggregatedUsers();
+            users = users.map(u => {
                 if (u.username === username) {
                     u.role = newRole;
                 }
                 return u;
             });
-            localStorage.setItem(USER_KEY, JSON.stringify(updated));
+            localStorage.setItem(USER_KEY, JSON.stringify(users));
             renderUserManagement();
             renderRoleManagement();
+            calculateOverviewMetrics();
         }
 
-        // 🆕 PERBAIKAN ENGINE: Render Audit Produk & Fitur hapus data SKU dari mall konsumen
         function renderProductAudit() {
             const products = JSON.parse(localStorage.getItem(PRODUCT_KEY)) || [];
-            const productTbody = document.getElementById('global-products-rows');
-            
-            if (productTbody) {
-                if (products.length === 0) {
-                    productTbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">Tidak ada item produk di dalam database.</td></tr>`;
-                    return;
-                }
-                productTbody.innerHTML = products.map(p => `
-                    <tr class="hover:bg-slate-900/40 border-b border-slate-800">
-                        <td class="p-4 font-bold text-slate-200">${p.name}</td>
-                        <td class="p-4 text-slate-400 font-medium">${p.category}</td>
-                        <td class="p-4 text-emerald-400 font-bold">Rp${p.price.toLocaleString('id-ID')}</td>
-                        <td class="p-4 font-mono ${p.stock <= 5 ? 'text-red-400 font-black animate-pulse' : 'text-slate-300'}">${p.stock} pcs</td>
-                        <td class="p-4 text-center">
-                            <button onclick="deleteProduct(${p.id})" class="p-1.5 bg-red-950/20 border border-red-900/20 hover:bg-red-900/40 text-red-400 rounded-xl transition" title="Hapus SKU Permanen">
-                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `).join('');
-            }
-            lucide.createIcons();
+            const tbody = document.getElementById('global-products-rows');
+            if(!tbody) return;
+
+            tbody.innerHTML = products.map(p => `
+                <tr class="hover:bg-slate-900/40 border-b border-slate-800">
+                    <td class="p-4 font-bold text-white">${p.name}</td>
+                    <td class="p-4 font-mono text-[10px] text-slate-400">${p.category || p.cat}</td>
+                    <td class="p-4 font-bold text-emerald-400">Rp${p.price.toLocaleString('id-ID')}</td>
+                    <td class="p-4 font-mono ${p.stock <= 5 ? 'text-red-400 font-bold animate-pulse' : ''}">${p.stock} Unit</td>
+                    <td class="p-4 text-center">
+                        <button onclick="deleteProduct(${p.id})" class="bg-red-950/20 hover:bg-red-900/30 text-red-400 px-3 py-1 rounded-xl border border-red-900/20 text-[11px] font-bold">
+                            Hapus SKU
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
         }
 
         function deleteProduct(id) {
-            if (confirm("Apakah Anda yakin ingin menghapus produk ini secara permanen dari katalog mall? Tindakan ini merubah inventori gudang secara destruktif.")) {
-                let products = JSON.parse(localStorage.getItem(PRODUCT_KEY)) || [];
-                products = products.filter(p => p.id !== id);
-                localStorage.setItem(PRODUCT_KEY, JSON.stringify(products));
-                calculateOverviewMetrics();
+            if (confirm("Apakah Anda yakin ingin menghapus produk ini?")) {
+                const products = JSON.parse(localStorage.getItem(PRODUCT_KEY)) || [];
+                const filtered = products.filter(p => p.id !== id);
+                localStorage.setItem(PRODUCT_KEY, JSON.stringify(filtered));
                 renderProductAudit();
+                calculateOverviewMetrics();
             }
         }
     </script>
 </body>
-</html>
+                    </html>
