@@ -146,7 +146,7 @@
                     <div class="w-12 h-12 bg-white/20 border border-white/10 rounded-full flex items-center justify-center font-black text-lg text-white uppercase" id="user-avatar-char">U</div>
                     <div>
                         <h3 class="text-sm font-black tracking-tight" id="user-profile-name">Nama Pengguna</h3>
-                        <p class="text-[10px] text-green-100 font-bold bg-white/20 px-2 py-0.5 rounded-full inline-block mt-1 uppercase" id="user-profile-role">Konsumen</p>
+                        <p class="text-[10px] text-green-100 font-bold bg-white/20 px-2 py-0.5 rounded-full inline-block mt-1 uppercase" id="user-profile-role">Pembeli</p>
                     </div>
                 </div>
                 <button onclick="handleLogout()" class="w-full bg-rose-50 border border-rose-100 hover:bg-rose-100 text-rose-600 font-bold py-3 rounded-2xl text-xs transition btn-active flex items-center justify-center gap-2 shadow-sm">
@@ -211,11 +211,15 @@
             { id: 1, name: "Wortel Berastagi Segar", category: "sayur", price: 6000, oldPrice: 12000, size: "500 gr", stock: 45, img: "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?auto=format&fit=crop&q=80&w=300" },
             { id: 101, name: "Jeruk Santang Madu", category: "buah", price: 19500, oldPrice: 30000, size: "500 gr", stock: 20, img: "https://images.unsplash.com/photo-1557800636-894a64c1696f?auto=format&fit=crop&q=80&w=300" },
             { id: 2, name: "Bayam Hijau Hidroponik", category: "sayur", price: 4500, size: "250 gr", stock: 30, img: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&q=80&w=300" },
-            { id: 3, name: "Apel Fuji Wangi Premium", category: "buah", price: 28000, size: "1 kg", stock: 15, img: "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&q=80&w=300" },
+            { id: 3, name: "Apel Malang Premium", category: "buah", price: 28000, size: "1 kg", stock: 15, img: "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&q=80&w=300" },
             { id: 4, name: "Daging Sapi Sirloin Lokal", category: "daging", price: 62000, size: "500 gr", stock: 10, img: "https://images.unsplash.com/photo-1603048588665-791ca8aea617?auto=format&fit=crop&q=80&w=300" }
         ];
 
         let products = []; let cart = []; let activeUser = null; let selectedCategory = "semua";
+
+        // SINKRONISASI DATABASE UNTUK STRUKTUR DATABASE BARU (V3 MASTER CORE)
+        const MASTER_USER_KEY = 'segari_users_v3';
+        const MASTER_SESSION_KEY = 'segari_session';
 
         window.addEventListener('DOMContentLoaded', () => {
             initDatabase(); loadSession(); renderProducts(); updateCartCount(); startFlashSaleTimer(); lucide.createIcons();
@@ -225,12 +229,18 @@
         function initDatabase() {
             if (!localStorage.getItem('segari_products')) localStorage.setItem('segari_products', JSON.stringify(defaultProducts));
             if (!localStorage.getItem('segari_orders')) localStorage.setItem('segari_orders', JSON.stringify([]));
-            if (!localStorage.getItem('segari_users')) localStorage.setItem('segari_users', JSON.stringify([{ username: "admin", role: "Admin" }, { username: "toko", role: "Toko" }, { username: "budi", role: "Konsumen" }]));
+            if (!localStorage.getItem(MASTER_USER_KEY)) {
+                localStorage.setItem(MASTER_USER_KEY, JSON.stringify([
+                    { username: "admin_segari", role: "Admin" }, 
+                    { username: "anita_sayur", role: "Pemilik Toko" }, 
+                    { username: "budi", role: "Pembeli" }
+                ]));
+            }
             products = JSON.parse(localStorage.getItem('segari_products'));
         }
 
         function loadSession() {
-            activeUser = JSON.parse(localStorage.getItem('segari_session')) || null;
+            activeUser = JSON.parse(localStorage.getItem(MASTER_SESSION_KEY)) || null;
             const savedAddress = localStorage.getItem('segari_address') || "Rumah Utama, Jl. Ketapang No. 12";
             localStorage.setItem('segari_address', savedAddress);
             document.getElementById('current-address-text').innerText = "Kirim ke: " + savedAddress;
@@ -266,11 +276,12 @@
             const loggedInState = document.getElementById('logged-in-state');
             if (!loggedOutState || !loggedInState) return;
 
-            if (activeUser && activeUser.role === 'Konsumen') {
+            // Mendukung deteksi tipe peran 'Pembeli' hasil mutasi backoffice admin v3
+            if (activeUser && (activeUser.role === 'Pembeli' || activeUser.role === 'Konsumen')) {
                 loggedOutState.classList.add('hidden');
                 loggedInState.classList.remove('hidden');
-                document.getElementById('user-profile-name').innerText = activeUser.username;
-                document.getElementById('user-profile-role').innerText = activeUser.role;
+                document.getElementById('user-profile-name').innerText = "@" + activeUser.username;
+                document.getElementById('user-profile-role').innerText = "Pembeli";
                 document.getElementById('user-avatar-char').innerText = activeUser.username.charAt(0);
             } else {
                 loggedOutState.classList.remove('hidden');
@@ -280,7 +291,7 @@
 
         function handleLogout() {
             if(confirm("Apakah kamu yakin ingin keluar dari akun Segari?")) {
-                localStorage.removeItem('segari_session');
+                localStorage.removeItem(MASTER_SESSION_KEY);
                 activeUser = null;
                 showToast("Kamu berhasil keluar akun.");
                 loadSession();
@@ -367,10 +378,9 @@
             renderCartItems(); updateCartCount();
         }
 
-        /* FIX: SINKRONISASI SEED ALAMAT SAAT PROSES CHECKOUT KONSUMEN */
         function processCheckout() {
-            if (!activeUser || activeUser.role !== 'Konsumen') { 
-                alert("Wajib login akun Konsumen untuk memesan!"); 
+            if (!activeUser || (activeUser.role !== 'Pembeli' && activeUser.role !== 'Konsumen')) { 
+                alert("Wajib login akun Pembeli untuk memesan!"); 
                 redirectToLogin(); 
                 return; 
             }
@@ -395,7 +405,7 @@
                 total: subtotal,
                 slot: chosenSlot,
                 status: "Diproses",
-                address: currentAddress,  // <-- Properti krusial untuk Admin & Lacak
+                address: currentAddress,  
                 date: new Date().toLocaleDateString('id-ID')
             };
 
@@ -410,7 +420,6 @@
             switchTab('tracking');
         }
 
-        /* 🆕 SELESAI: MENAMPILKAN LOG ORDER LOGISTIK DI SISI KONSUMEN */
         function renderTrackingView() {
             const noOrder = document.getElementById('no-order-state');
             const activeOrder = document.getElementById('active-order-state');
@@ -433,50 +442,119 @@
             noOrder.classList.add('hidden');
             activeOrder.classList.remove('hidden');
             
-            activeOrder.innerHTML = userOrders.map(o => `
-                <div class="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm space-y-3">
-                    <div class="flex justify-between items-center border-b border-gray-50 pb-2">
-                        <div>
-                            <span class="text-[11px] font-mono text-gray-900 font-black">${o.id}</span>
-                            <p class="text-[10px] text-gray-400 font-bold">${o.date} • Slot: ${o.slot}</p>
+            activeOrder.innerHTML = userOrders.map(o => {
+                // Skema pewarnaan dinamis mengikuti mutasi status platform admin backoffice
+                let badgeClass = 'bg-amber-50 text-amber-600 border border-amber-200/50';
+                if(o.status === 'Selesai') badgeClass = 'bg-green-50 text-green-600 border border-green-200/50';
+                if(o.status === 'Dalam Perjalanan') badgeClass = 'bg-blue-50 text-blue-600 border border-blue-200/50';
+
+                return `
+                    <div class="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm space-y-3">
+                        <div class="flex justify-between items-center border-b border-gray-50 pb-2">
+                            <div>
+                                <span class="text-[11px] font-mono text-gray-900 font-black">${o.id}</span>
+                                <p class="text-[10px] text-gray-400 font-bold">${o.date} • Slot: ${o.slot}</p>
+                            </div>
+                            <span class="${badgeClass} px-2.5 py-0.5 rounded-lg text-[10px] font-extrabold uppercase">${o.status}</span>
                         </div>
-                        <span class="bg-amber-50 text-amber-600 px-2.5 py-0.5 rounded-lg text-[10px] font-extrabold border border-amber-200/50 uppercase">${o.status}</span>
-                    </div>
-                    <div class="space-y-1 text-xs text-gray-600">
-                        ${o.items.map(it => `<div class="flex justify-between"><span>${it.name} <b class="text-gray-400">x${it.qty}</b></span><span>Rp${(it.price * it.qty).toLocaleString('id-ID')}</span></div>`).join('')}
-                    </div>
-                    <div class="border-t border-gray-100 pt-2 flex justify-between items-end text-xs">
-                        <div>
-                            <p class="text-[9px] text-gray-400 font-bold uppercase">Alamat Pengiriman:</p>
-                            <p class="font-bold text-gray-700 truncate max-w-[200px]" title="${o.address}">${o.address}</p>
+                        <div class="space-y-1 text-xs text-gray-600">
+                            ${o.items.map(it => `<div class="flex justify-between"><span>${it.name} <b class="text-gray-400">x${it.qty}</b></span><span>Rp${(it.price * it.qty).toLocaleString('id-ID')}</span></div>`).join('')}
                         </div>
-                        <div class="text-right">
-                            <p class="text-[9px] text-gray-400 font-bold uppercase">Total Belanja</p>
-                            <p class="font-black text-green-600 text-sm">Rp${o.total.toLocaleString('id-ID')}</p>
+                        <div class="border-t border-gray-100 pt-2 flex justify-between items-end text-xs">
+                            <div>
+                                <p class="text-[9px] text-gray-400 font-bold uppercase">Alamat Pengiriman:</p>
+                                <p class="font-bold text-gray-700 truncate max-w-[200px]" title="${o.address}">${o.address}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[9px] text-gray-400 font-bold uppercase">Total Belanja</p>
+                                <p class="font-black text-green-600 text-sm">Rp${o.total.toLocaleString('id-ID')}</p>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
             lucide.createIcons();
         }
 
-        function openLocationModal() { document.getElementById('location-modal').classList.remove('hidden'); document.getElementById('location-modal').classList.remove('opacity-0'); }
-        function closeLocationModal() { document.getElementById('location-modal').classList.add('hidden'); }
+        // 🆕 KELANJUTAN PERBAIKAN SCRIPT MODAL LOKASI, TOAST & AI KOKI
+        function openLocationModal() { 
+            const m = document.getElementById('location-modal');
+            m.classList.remove('hidden'); 
+            setTimeout(() => m.classList.remove('opacity-0'), 10); 
+        }
+
+        function closeLocationModal() { 
+            const m = document.getElementById('location-modal');
+            m.classList.add('opacity-0'); 
+            setTimeout(() => m.classList.add('hidden'), 300); 
+        }
+
         function saveLocation() {
-            const txt = document.getElementById('address-input').value.trim();
-            if(txt) {
-                localStorage.setItem('segari_address', txt);
-                loadSession(); closeLocationModal(); showToast("Alamat pengiriman diubah!");
+            const val = document.getElementById('address-input').value.trim();
+            if(val !== "") {
+                localStorage.setItem('segari_address', val);
+                document.getElementById('current-address-text').innerText = "Kirim ke: " + val;
+                showToast("Alamat pengiriman diperbarui!");
+                closeLocationModal();
+                if(activeUser) renderTrackingView();
             }
         }
-        function openAiModal() { document.getElementById('ai-modal').classList.remove('hidden'); document.getElementById('ai-modal').classList.remove('opacity-0'); }
-        function closeAiModal() { document.getElementById('ai-modal').classList.add('hidden'); }
-        function showToast(m) {
-            const t = document.createElement('div'); t.className = "toast-msg"; t.innerText = m;
-            document.getElementById('toast-container').appendChild(t); setTimeout(() => t.remove(), 2500);
+
+        function showToast(msg) {
+            const box = document.getElementById('toast-container');
+            const el = document.createElement('div');
+            el.className = "toast-msg";
+            el.innerText = msg;
+            box.appendChild(el);
+            setTimeout(() => { el.remove(); }, 2500);
         }
-        function startFlashSaleTimer() {}
-        function askAiChef() {}
+
+        function startFlashSaleTimer() {
+            let h = 2, m = 14, s = 45;
+            setInterval(() => {
+                s--;
+                if(s < 0) { s = 59; m--; }
+                if(m < 0) { m = 59; h--; }
+                if(h < 0) { h = 2; m = 14; s = 45; }
+                document.getElementById('timer-hours').innerText = String(h).padStart(2, '0');
+                document.getElementById('timer-mins').innerText = String(m).padStart(2, '0');
+                document.getElementById('timer-secs').innerText = String(s).padStart(2, '0');
+            }, 1000);
+        }
+
+        function openAiModal() {
+            const m = document.getElementById('ai-modal');
+            m.classList.remove('hidden');
+            setTimeout(() => m.classList.remove('opacity-0'), 10);
+            lucide.createIcons();
+        }
+
+        function closeAiModal() {
+            const m = document.getElementById('ai-modal');
+            m.classList.add('opacity-0');
+            setTimeout(() => m.classList.add('hidden'), 300);
+        }
+
+        function askAiChef() {
+            const inp = document.getElementById('ai-input');
+            const txt = inp.value.trim();
+            if(!txt) return;
+            
+            const hist = document.getElementById('ai-chat-history');
+            const uBox = document.createElement('div');
+            uBox.className = "bg-green-600 text-white p-3 rounded-xl ml-auto max-w-[85%] font-medium text-right";
+            uBox.innerText = txt;
+            hist.appendChild(uBox);
+            inp.value = '';
+
+            setTimeout(() => {
+                const aBox = document.createElement('div');
+                aBox.className = "bg-gray-50 border border-gray-100 text-gray-700 p-3 rounded-xl mr-auto max-w-[85%]";
+                aBox.innerText = `Bahan dapur "${txt}" sangat cocok diolah dengan bumbu dapur dasar sayur segar Segari. Tumis menggunakan bawang putih, bawang merah harian, serta tambahkan sedikit garam secukupnya!`;
+                hist.appendChild(aBox);
+                hist.parentElement.scrollTop = hist.parentElement.scrollHeight;
+            }, 800);
+        }
     </script>
 </body>
-</html>
+    </html>
