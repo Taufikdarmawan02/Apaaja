@@ -142,14 +142,15 @@
 
             <section id="tab-users" class="hidden">
                 <div class="bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden">
-                    <div class="p-4 bg-slate-900 font-bold text-xs text-white border-b border-slate-800">MUTASI HAK AKSES SISTEM PERAN USER</div>
+                    <div class="p-4 bg-slate-900 font-bold text-xs text-white border-b border-slate-800">MUTASI HAK AKSES SISTEM PERAN USER (KONSUMEN / PEMILIK TOKO / ADMIN)</div>
                     <div class="overflow-x-auto text-xs">
-                        <table class="w-full text-left text-slate-400 min-w-[500px]">
+                        <table class="w-full text-left text-slate-400 min-w-[600px]">
                             <thead class="bg-slate-900 text-slate-300 font-bold">
                                 <tr>
                                     <th class="p-4">Username Akun</th>
+                                    <th class="p-4">Email Terdaftar</th>
                                     <th class="p-4">Peran Saat Ini (Role)</th>
-                                    <th class="p-4 text-center">Ganti Status Hak Otoritas Peran</th>
+                                    <th class="p-4 text-center">Otorisasi & Perubahan Peran Hak Akses</th>
                                 </tr>
                             </thead>
                             <tbody id="global-users-rows" class="divide-y divide-slate-800"></tbody>
@@ -255,9 +256,20 @@
             }
             if (!localStorage.getItem(ORDER_KEY)) {
                 const dummyOrders = [
-                    { id: "SGR-7712", user: "budi", total: 28500, status: "Diproses", address: "Jl. Sudirman No. 45, Jakarta", slot: "Pagi (06:00 - 09:00)", date: "2026-06-02" }
+                    { id: "SGR-7712", user: "budi_susanto", total: 28500, status: "Diproses", address: "Jl. Sudirman No. 45, Jakarta", slot: "Pagi (06:00 - 09:00)", date: "2026-06-02" }
                 ];
                 localStorage.setItem(ORDER_KEY, JSON.stringify(dummyOrders));
+            }
+            // Penambahan seeding data user untuk mendukung pembagian hak akses Konsumen & Pemilik Toko
+            if (!localStorage.getItem(USER_KEY)) {
+                const dummyUsers = [
+                    { username: "admin_hq", role: "Admin", email: "admin@segari.hq" },
+                    { username: "budi_susanto", role: "Konsumen", email: "budi.susanto@gmail.com" },
+                    { username: "toko_hijau_organik", role: "Pemilik Toko", email: "partnership@tokohijau.id" },
+                    { username: "siti_freshmarket", role: "Pemilik Toko", email: "siti.fresh@mart.com" },
+                    { username: "dewi_lestari", role: "Konsumen", email: "dewi.les@yahoo.com" }
+                ];
+                localStorage.setItem(USER_KEY, JSON.stringify(dummyUsers));
             }
         }
 
@@ -302,7 +314,6 @@
             lucide.createIcons();
         }
 
-        // 🆕 5. ENGINE FILTER & LIVE RENDERING DENGAN INTEGRASI UPDATE-DELETE DATA TABEL ORDER
         function handleOrderFilter() {
             calculateOverviewMetrics();
         }
@@ -323,7 +334,6 @@
             const searchQuery = document.getElementById('order-search').value.toLowerCase();
             const statusFilter = document.getElementById('order-status-filter').value;
 
-            // Saring Data Berdasarkan Query Pencarian dan Opsi Filter Status Logistik
             const filteredOrders = orders.filter(o => {
                 const invoice = (o.id || o.invoice || '').toLowerCase();
                 const username = (o.user || o.username || '').toLowerCase();
@@ -379,7 +389,6 @@
             lucide.createIcons();
         }
 
-        // 🆕 5.a ENGINE EDIT & DATA MODAL HANDLERS
         function openEditOrderModal(invoiceId) {
             const orders = JSON.parse(localStorage.getItem(ORDER_KEY)) || [];
             const targetOrder = orders.find(o => (o.id === invoiceId || o.invoice === invoiceId));
@@ -421,7 +430,6 @@
             }
         }
 
-        // 🆕 5.b ENGINE DELETE LOGIC ORDER Masuk
         function deleteOrder(invoiceId) {
             if (confirm(`Apakah Anda yakin ingin menghapus data invoice ${invoiceId} dari sistem platform? Tindakan ini permanen.`)) {
                 let orders = JSON.parse(localStorage.getItem(ORDER_KEY)) || [];
@@ -432,46 +440,72 @@
             }
         }
 
-        // 6. User Management Mutation
+        // Pembaruan Fungsi Pengelolaan Hak Akses User (Dukungan penuh untuk Konsumen, Pemilik Toko, dan Admin)
         function renderUserManagement() {
             const users = JSON.parse(localStorage.getItem(USER_KEY)) || [];
             const userTbody = document.getElementById('global-users-rows');
             
             if (userTbody) {
-                userTbody.innerHTML = users.map(u => `
-                    <tr class="hover:bg-slate-900/40 border-b border-slate-800">
-                        <td class="p-4 font-bold">${u.username}</td>
-                        <td class="p-4">
-                            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${u.role === 'Admin' ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'}">
-                                ${u.role}
-                            </span>
-                        </td>
-                        <td class="p-4 text-center">
-                            <button onclick="toggleUserRole('${u.username}')" class="bg-slate-900 border border-slate-800 hover:bg-slate-800 text-orange-400 px-3 py-1 rounded-xl transition text-[11px] font-bold">
-                                Ubah Otoritas
-                            </button>
-                        </td>
-                    </tr>
-                `).join('');
+                if (users.length === 0) {
+                    userTbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-500">Tidak ada data user terdaftar.</td></tr>`;
+                    return;
+                }
+
+                userTbody.innerHTML = users.map(u => {
+                    // Penentuan warna badge berdasarkan role secara dinamis
+                    let roleBadgeClass = 'bg-blue-500/10 text-blue-400 border-blue-500/20';
+                    if (u.role === 'Admin') {
+                        roleBadgeClass = 'bg-red-500/10 text-red-400 border-red-500/20';
+                    } else if (u.role === 'Pemilik Toko') {
+                        roleBadgeClass = 'bg-orange-500/10 text-orange-400 border-orange-500/20';
+                    }
+
+                    return `
+                        <tr class="hover:bg-slate-900/40 border-b border-slate-800">
+                            <td class="p-4 font-bold text-slate-200">@${u.username}</td>
+                            <td class="p-4 text-slate-400 font-mono">${u.email || '-'}</td>
+                            <td class="p-4">
+                                <span class="px-2 py-0.5 rounded text-[10px] font-bold border ${roleBadgeClass}">
+                                    ${u.role}
+                                </span>
+                            </td>
+                            <td class="p-4 text-center">
+                                <select onchange="changeUserRole('${u.username}', this.value)" class="bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-200 text-[11px] font-bold px-3 py-1.5 rounded-xl focus:outline-none focus:border-green-500 transition cursor-pointer">
+                                    <option value="Konsumen" ${u.role === 'Konsumen' ? 'selected' : ''}>Konsumen</option>
+                                    <option value="Pemilik Toko" ${u.role === 'Pemilik Toko' ? 'selected' : ''}>Pemilik Toko (Mitra)</option>
+                                    <option value="Admin" ${u.role === 'Admin' ? 'selected' : ''}>Admin (HQ)</option>
+                                </select>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
             }
         }
 
-        function toggleUserRole(username) {
+        // Mengubah role user dan memperbarui status aplikasi secara langsung di localStorage
+        function changeUserRole(username, newRole) {
             const users = JSON.parse(localStorage.getItem(USER_KEY)) || [];
             const updated = users.map(u => {
                 if (u.username === username) {
-                    u.role = u.role === 'Admin' ? 'Konsumen' : 'Admin';
+                    u.role = newRole;
                 }
                 return u;
             });
             localStorage.setItem(USER_KEY, JSON.stringify(updated));
             renderUserManagement();
+            calculateOverviewMetrics();
         }
 
-        // 7. Audit Products SKU
         function renderProductAudit() {
             const products = JSON.parse(localStorage.getItem(PRODUCT_KEY)) || [];
             const tbody = document.getElementById('global-products-rows');
+
+            if (!tbody) return;
+
+            if (products.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">Tidak ada data produk di database.</td></tr>`;
+                return;
+            }
 
             tbody.innerHTML = products.map(p => `
                 <tr class="hover:bg-slate-900/40 border-b border-slate-800">
@@ -480,7 +514,7 @@
                     <td class="p-4 font-bold text-emerald-400">Rp${p.price.toLocaleString('id-ID')}</td>
                     <td class="p-4 font-mono ${p.stock <= 5 ? 'text-red-400 font-bold' : ''}">${p.stock} Unit</td>
                     <td class="p-4 text-center">
-                        <button onclick="deleteProduct(${p.id})" class="bg-red-950/20 hover:bg-red-900/30 text-red-400 px-3 py-1 rounded-xl border border-red-900/20 text-[11px] font-bold">
+                        <button onclick="deleteProduct(${p.id})" class="bg-red-950/20 hover:bg-red-900/30 text-red-400 px-3 py-1 rounded-xl border border-red-900/20 text-[11px] font-bold transition">
                             Hapus SKU
                         </button>
                     </td>
