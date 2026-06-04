@@ -25,7 +25,7 @@
 
     <div class="min-h-screen flex flex-col md:flex-row relative">
         
-        <aside id="sidebar-menu" class="fixed inset-y-0 left-0 z-50 w-64 bg-emerald-900 text-white p-6 flex flex-col justify-between transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out shadow-2xl md:shadow-none">
+        <aside id="sidebar-menu" class="fixed md:static inset-y-0 left-0 z-50 w-64 bg-emerald-900 text-white p-6 flex flex-col justify-between transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out shadow-2xl md:shadow-none">
             
             <div class="space-y-6">
                 <div class="hidden md:flex justify-between items-center">
@@ -261,7 +261,7 @@
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
                         <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Pendapatan Bersih Periode Ini</p>
                         <h3 id="fin-stat-revenue" class="text-xl font-black text-emerald-700">Rp0</h3>
                     </div>
@@ -333,7 +333,7 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             loadMerchantSession();
-            initSubscription(); 
+            initSubscription(); // Validasi status free trial/berlangganan
             renderInventoryTable();
             renderOrdersTable();
             updateDashboardMetrics(); 
@@ -363,6 +363,7 @@
             document.getElementById('merchant-user-display').innerText = `${session.username} (${session.role})`;
         }
 
+        // 🛡️ ENGINE VALIDASI SUBSCRIPTION & DETEKSI EXPIRED TRIAL 7 HARI
         function initSubscription() {
             const currentMerchant = getActiveMerchant();
             if (!currentMerchant) return;
@@ -496,7 +497,7 @@
         }
 
         // ==========================================
-        //         MANAJEMEN INVENTORI PRODUK
+        //  ENGINE UTAMA: MANAJEMEN INVENTORI PRODUK
         // ==========================================
         function renderInventoryTable() {
             const products = JSON.parse(localStorage.getItem('segari_products')) || [];
@@ -589,7 +590,7 @@
         }
 
         // ==========================================
-        //          MANAJEMEN LOG PESANAN
+        //    ENGINE UTAMA: MANAJEMEN LOG PESANAN
         // ==========================================
         function renderOrdersTable() {
             const orders = JSON.parse(localStorage.getItem('segari_orders')) || [];
@@ -598,6 +599,7 @@
             if(!body) return;
             body.innerHTML = '';
 
+            // 🌟 DETEKSI MULTI-PROPERTY UNTUK MENANGGULANGI MASALAH ANONIM SAAT PENCARIAN
             const filtered = orders.filter(o => {
                 const buyerName = (o.customerName || o.username || o.user || o.buyer || o.name || 'Anonim').toLowerCase();
                 return o.id.toLowerCase().includes(search) || (o.date && o.date.includes(search)) || buyerName.includes(search);
@@ -610,6 +612,8 @@
 
             filtered.forEach(o => {
                 let itemsList = o.items ? o.items.map(i => `<span class="inline-block bg-gray-50 border border-gray-100 rounded px-1.5 py-0.5 text-[11px] font-medium mb-1">${i.name} (${i.qty}x)</span>`).join(' ') : '-';
+                
+                // 🌟 FIX UTAMA NAMA ANONIM: Fallback dinamis mendeteksi semua variasi key data konsumen
                 const finalBuyerName = o.customerName || o.username || o.user || o.buyer || o.name || 'Anonim';
 
                 body.innerHTML += `
@@ -628,9 +632,6 @@
                     </td>
                     <td class="p-4 text-center">
                         <div class="flex items-center justify-center gap-1">
-                            <button onclick="printThermalReceipt('${o.id || o.invoice}')" class="p-2 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-xl transition" title="Caretak Struk Thermal POS">
-                                <i data-lucide="printer" class="w-4 h-4"></i>
-                            </button>
                             <button onclick="printInvoicePDF('${o.id || o.invoice}')" class="p-2 bg-gray-100 hover:bg-rose-50 hover:text-rose-600 rounded-xl text-gray-600 transition" title="Cetak PDF Struk">
                                 <i data-lucide="file-text" class="w-4 h-4"></i>
                             </button>
@@ -664,115 +665,17 @@
         }
 
         // ==========================================
-        //      ENGINE EKSPOR DOKUMEN & STRUK
+        //      ENGINE EKSPOR DOKUMEN PREMIUM
         // ==========================================
-        function printThermalReceipt(orderId) {
-            if(!checkFeatureAccess()) return;
-            
-            const orders = JSON.parse(localStorage.getItem('segari_orders')) || [];
-            const order = orders.find(o => (o.id === orderId || o.invoice === orderId));
-            if(!order) {
-                alert("Data transaksi tidak ditemukan!");
-                return;
-            }
-
-            const session = JSON.parse(localStorage.getItem('segari_session')) || { username: 'Segari Merchant Hub' };
-            const finalBuyerName = order.customerName || order.username || order.user || order.buyer || order.name || 'Anonim';
-            
-            const printWindow = window.open('', '_blank', 'width=450,height=600');
-            
-            let itemsHtml = '';
-            if(order.items && order.items.length > 0) {
-                order.items.forEach(i => {
-                    const subtotal = (i.price || (order.total / order.items.length)) * i.qty;
-                    itemsHtml += `
-                    <div style="margin-bottom: 5px;">
-                        <div style="font-size: 13px;">${i.name}</div>
-                        <div style="display: flex; justify-content: space-between; font-size: 12px; color: #333; padding-left: 5px;">
-                            <span>${i.qty} x Rp${Number(i.price || 0).toLocaleString('id-ID')}</span>
-                            <span>Rp${subtotal.toLocaleString('id-ID')}</span>
-                        </div>
-                    </div>`;
-                });
-            } else {
-                itemsHtml = `
-                <div style="display: flex; justify-content: space-between; font-size: 13px;">
-                    <span>Komoditas Produk Gabungan (1x)</span>
-                    <span>Rp${(order.total || 0).toLocaleString('id-ID')}</span>
-                </div>`;
-            }
-
-            printWindow.document.write(`
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>Struk Pembelian - ${order.id || order.invoice}</title>
-                    <style>
-                        @page { margin: 0; }
-                        body {
-                            font-family: 'Courier New', Courier, monospace;
-                            width: 72mm;
-                            margin: 0 auto;
-                            padding: 6mm 3mm;
-                            color: #000;
-                            background: #fff;
-                            line-height: 1.3;
-                        }
-                        .text-center { text-align: center; }
-                        .dashed-line { border-top: 1px dashed #000; margin: 8px 0; }
-                        .bold { font-weight: bold; }
-                        .brand-title { font-size: 16px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
-                        .meta-text { font-size: 11px; margin-bottom: 2px; }
-                        .total-section { display: flex; justify-content: space-between; font-size: 14px; font-weight: bold; margin-top: 5px; }
-                    </style>
-                </head>
-                <body>
-                    <div class="text-center brand-title">${session.username}</div>
-                    <div class="text-center meta-text">Hub Resmi Mitra Distribusi Segari</div>
-                    <div class="text-center meta-text">Pasar Segar & Logistik Sembako</div>
-                    <div class="dashed-line"></div>
-                    
-                    <div class="meta-text"><span class="bold">NOTA :</span> ${order.id || order.invoice}</div>
-                    <div class="meta-text"><span class="bold">TGL  :</span> ${order.date || order.tanggal || new Date().toLocaleDateString('id-ID')}</div>
-                    <div class="meta-text"><span class="bold">KONS :</span> @${finalBuyerName}</div>
-                    <div class="meta-text" style="word-break: break-all;"><span class="bold">ALMT :</span> ${order.address || '-'}</div>
-                    <div class="dashed-line"></div>
-                    
-                    <div class="bold" style="font-size: 12px; margin-bottom: 6px;">RINCIAN PRODUK:</div>
-                    ${itemsHtml}
-                    
-                    <div class="dashed-line"></div>
-                    <div class="total-section">
-                        <span>TOTAL NETT:</span>
-                        <span>Rp${(order.total || 0).toLocaleString('id-ID')}</span>
-                    </div>
-                    <div class="dashed-line"></div>
-                    
-                    <div class="text-center" style="font-size: 11px; margin-top: 12px; font-style: italic;">
-                        Terima kasih atas orderannya!<br>
-                        Produk Segar Langsung Sampai Rumah.<br>
-                        Layanan CS Segari Mitra Hub
-                    </div>
-                    
-                    <script>
-                        window.onload = function() {
-                            window.print();
-                            setTimeout(function() { window.close(); }, 300);
-                        };
-                    <\/script>
-                </body>
-                </html>
-            `);
-            printWindow.document.close();
-        }
-
         function printInvoicePDF(orderId) {
             if(!checkFeatureAccess()) return;
             const orders = JSON.parse(localStorage.getItem('segari_orders')) || [];
             const order = orders.find(o => (o.id === orderId || o.invoice === orderId));
             if(!order) return;
 
+            // 🌟 FIX NAMA ANONIM PADA STRUK PDF
             const finalBuyerName = order.customerName || order.username || order.user || order.buyer || order.name || 'Anonim';
+
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF({ orientation: "p", unit: "mm", format: "a4" });
             
@@ -828,7 +731,9 @@
             const order = orders.find(o => (o.id === orderId || o.invoice === orderId));
             if(!order) return;
 
+            // 🌟 FIX NAMA ANONIM PADA LAPORAN EXCEL
             const finalBuyerName = order.customerName || order.username || order.user || order.buyer || order.name || 'Anonim';
+
             const spreadsheetData = [
                 ["SEGARI OFFICIAL LOGISTIK HUB STRUK"],
                 ["ID Invoice", order.id || order.invoice],
@@ -857,7 +762,7 @@
         }
 
         // ==========================================
-        //          METRIK RINGKASAN DASHBOARD
+        //    ENGINE OPERASIONAL UTAMA METRIK HUB
         // ==========================================
         function updateDashboardMetrics() {
             const orders = JSON.parse(localStorage.getItem('segari_orders')) || [];
@@ -881,6 +786,7 @@
                 lowStockIconBg.className = "p-3 bg-gray-50 rounded-xl text-gray-400";
             }
 
+            // Render Tanggal Omzet
             const recapBody = document.getElementById('dashboard-date-recap-rows');
             if(recapBody) {
                 recapBody.innerHTML = '';
@@ -907,6 +813,7 @@
                 }
             }
 
+            // Render Alert SKU
             const lowStockRows = document.getElementById('dashboard-low-stock-rows');
             if(lowStockRows) {
                 lowStockRows.innerHTML = '';
@@ -926,7 +833,7 @@
         }
 
         // ==========================================
-        //         BUKU BESAR LAPORAN KEUANGAN
+        //       ENGINE UTAMA: BUKU BESAR FINANCE
         // ==========================================
         function renderFinanceReport() {
             const orders = JSON.parse(localStorage.getItem('segari_orders')) || [];
@@ -938,6 +845,7 @@
             let totalCount = 0;
 
             orders.forEach(o => {
+                // 🌟 FIX NAMA ANONIM PADA BUKU BESAR LAPORAN KEUANGAN
                 const finalBuyerName = o.customerName || o.username || o.user || o.buyer || o.name || 'Anonim';
                 totalSum += (o.total || 0);
                 totalCount++;
@@ -975,4 +883,4 @@
         }
     </script>
 </body>
-                                        </html>
+    </html>
