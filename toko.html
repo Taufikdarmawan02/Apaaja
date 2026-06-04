@@ -9,6 +9,7 @@
 </head>
 <body class="bg-gray-100 font-sans antialiased">
 
+    <!-- MOBILE HEADER -->
     <div class="md:hidden bg-emerald-900 text-white p-4 flex justify-between items-center sticky top-0 z-50 shadow-md">
         <div class="flex items-center gap-2">
             <span class="text-xl font-black tracking-tight text-white">se<span class="text-orange-400">gari</span></span>
@@ -23,6 +24,7 @@
 
     <div class="min-h-screen flex flex-col md:flex-row relative">
         
+        <!-- SIDEBAR NAVIGATION PANEL -->
         <aside id="sidebar-menu" class="fixed md:static inset-y-0 left-0 z-50 w-64 bg-emerald-900 text-white p-6 flex flex-col justify-between transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out shadow-2xl md:shadow-none">
             
             <div class="space-y-6">
@@ -69,6 +71,7 @@
             </div>
         </aside>
 
+        <!-- MAIN LAYOUT DISPLAY -->
         <main class="flex-grow p-4 md:p-8 space-y-6 w-full overflow-x-hidden">
             <header class="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
                 <h1 class="text-base md:text-lg font-bold text-gray-800 flex items-center gap-2" id="section-title">
@@ -81,6 +84,7 @@
                 </div>
             </header>
 
+            <!-- SECTION 1: DASHBOARD HUB RINGKASAN DATA -->
             <section id="section-dashboard" class="space-y-6">
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
@@ -149,6 +153,7 @@
                 </div>
             </section>
 
+            <!-- SECTION 2: INVENTORI PRODUK -->
             <section id="section-inventory" class="hidden space-y-6">
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
                     <h3 class="text-sm font-bold text-gray-800 flex items-center gap-2"><i data-lucide="plus-circle" class="text-emerald-600"></i> Tambah / Suplai Produk Baru ke Hub</h3>
@@ -192,6 +197,7 @@
                 </div>
             </section>
 
+            <!-- SECTION 3: PESANAN MASUK -->
             <section id="section-orders" class="hidden space-y-4">
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                     <div class="p-4 bg-gray-50/50 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
@@ -221,6 +227,7 @@
                 </div>
             </section>
 
+            <!-- SECTION 4: LAPORAN KEUANGAN -->
             <section id="section-finance" class="hidden space-y-6">
                 <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div class="space-y-0.5">
@@ -274,6 +281,7 @@
         </main>
     </div>
 
+    <!-- SYSTEM BACKOFFICE ENGINES -->
     <script>
         let isSidebarOpen = false;
         let currentFinanceFilter = 'harian'; 
@@ -301,7 +309,6 @@
 
         function loadMerchantSession() {
             const session = JSON.parse(localStorage.getItem('segari_session'));
-            // Mendukung kecocokan role 'Pemilik Toko' (v3) maupun 'Toko' (legacy)
             if (!session || (session.role !== 'Pemilik Toko' && session.role !== 'Toko')) {
                 alert("Akses ditolak! Anda harus masuk menggunakan Akun Toko.");
                 window.location.href = 'login-toko.html';
@@ -370,20 +377,19 @@
             const allOrders = JSON.parse(localStorage.getItem('segari_orders')) || [];
             const allProducts = JSON.parse(localStorage.getItem('segari_products')) || [];
 
-            // Membaca pesanan yang berkorelasi dengan merchant saat ini
+            // Membaca pesanan yang berkorelasi dengan merchant/username saat ini
             const myOrders = allOrders.filter(o => 
                 o.merchant === currentMerchant || 
                 o.storeCode === currentMerchant ||
-                (o.items && o.items.some(item => item.merchant === currentMerchant)) ||
-                (!o.merchant && !o.storeCode) // Fallback order terpusat
+                (o.items && o.items.some(item => item.merchant === currentMerchant))
             );
 
             const totalRevenue = myOrders.reduce((sum, o) => sum + (o.total || 0), 0);
-            
             document.getElementById('stat-revenue').innerText = `Rp${totalRevenue.toLocaleString('id-ID')}`;
             document.getElementById('stat-orders').innerText = `${myOrders.length} Transaksi`;
 
-            const myLowStockProducts = allProducts.filter(p => p.stock <= 5);
+            // MEMPERBAIKI FILTER STOK KRITIS AGAR HANYA MILIK USERNAME TOKO INI
+            const myLowStockProducts = allProducts.filter(p => p.merchant === currentMerchant && p.stock <= 5);
             const lowStockCount = myLowStockProducts.length;
 
             const labelStock = document.getElementById('stat-low-stock');
@@ -446,7 +452,7 @@
             renderFinanceReport();
         }
 
-        // 🟢 PENYEMPURNAAN LOGIKA FILTER LAPORAN KEUANGAN & AUDIT TABEL
+        // 🟢 MENYAMBUNG KEMBALI DAN MENYEMPURNAKAN FUNGSI LAPORAN KEUANGAN
         function renderFinanceReport() {
             const currentMerchant = getActiveMerchant();
             if (!currentMerchant) return;
@@ -458,8 +464,7 @@
             let myOrders = allOrders.filter(o => 
                 o.merchant === currentMerchant || 
                 o.storeCode === currentMerchant ||
-                (o.items && o.items.some(item => item.merchant === currentMerchant)) ||
-                (!o.merchant && !o.storeCode)
+                (o.items && o.items.some(item => item.merchant === currentMerchant))
             );
 
             const now = new Date();
@@ -467,9 +472,8 @@
                 const dateStr = o.date || o.tanggal;
                 if (!dateStr) return false;
                 
-                // Normalisasi string penanggalan DD/MM/YYYY ke format Date Object riil
                 const parts = dateStr.split('/');
-                let orderDate = new Error();
+                let orderDate;
                 if(parts.length === 3) {
                     orderDate = new Date(parts[2], parts[1] - 1, parts[0]);
                 } else {
@@ -492,7 +496,6 @@
                 return true;
             });
 
-            // Kalkulasi metrik akuntansi keuangan
             const finRevenue = filteredOrders.reduce((sum, o) => sum + (o.total || 0), 0);
             const finCount = filteredOrders.length;
             const finAvg = finCount > 0 ? Math.round(finRevenue / finCount) : 0;
@@ -515,18 +518,24 @@
             }
         }
 
-        // 📦 IMPLEMENTASI MANAJEMEN INVENTORI SKU PRODUK MITRA
+        // 📦 MEMPERBAIKI MANAJEMEN INVENTORI AGAR HANYA MENAMPILKAN PRODUK MILIK USERNAME TOKO INI
         function renderInventoryTable() {
             const tbody = document.getElementById('inventory-table-body');
             if (!tbody) return;
-            const products = JSON.parse(localStorage.getItem('segari_products')) || [];
+            
+            const currentMerchant = getActiveMerchant();
+            if (!currentMerchant) return;
 
-            if (products.length === 0) {
+            const allProducts = JSON.parse(localStorage.getItem('segari_products')) || [];
+            // Filter ketat berdasarkan pemilik toko
+            const myProducts = allProducts.filter(p => p.merchant === currentMerchant);
+
+            if (myProducts.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-gray-400 italic">Gudang inventori kosong. Silakan rilis produk baru.</td></tr>`;
                 return;
             }
 
-            tbody.innerHTML = products.map(p => `
+            tbody.innerHTML = myProducts.map(p => `
                 <tr class="hover:bg-gray-50 transition border-b border-gray-100">
                     <td class="p-4 font-bold text-gray-800">
                         <div class="flex items-center gap-3">
@@ -582,7 +591,6 @@
 
             localStorage.setItem('segari_products', JSON.stringify(products));
             
-            // Pembersihan form input
             document.getElementById('p-name').value = '';
             document.getElementById('p-price').value = '';
             document.getElementById('p-size').value = '';
@@ -618,7 +626,6 @@
             }
         }
 
-        // 🚚 IMPLEMENTASI TABEL LOGISTIK ORDER MASUK & PELACAKAN LIVE
         function renderOrdersTable() {
             const currentMerchant = getActiveMerchant();
             if(!currentMerchant) return;
@@ -631,8 +638,7 @@
             let myOrders = allOrders.filter(o => 
                 o.merchant === currentMerchant || 
                 o.storeCode === currentMerchant ||
-                (o.items && o.items.some(item => item.merchant === currentMerchant)) ||
-                (!o.merchant && !o.storeCode)
+                (o.items && o.items.some(item => item.merchant === currentMerchant))
             );
 
             if(searchQuery) {
@@ -693,12 +699,10 @@
                 orders[idx].status = newStatus;
                 localStorage.setItem('segari_orders', JSON.stringify(orders));
                 
-                // Sinkronisasi komponen visual antarmuka
                 updateDashboardMetrics();
                 renderOrdersTable();
                 renderFinanceReport();
                 
-                // Memicu event Storage agar perubahan ditangkap langsung oleh index.html
                 window.dispatchEvent(new Event('storage'));
             }
         }
