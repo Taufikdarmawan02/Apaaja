@@ -58,6 +58,9 @@
                         <button id="nav-vouchers" onclick="switchSection('vouchers')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-emerald-100 hover:bg-emerald-800/50 transition">
                             <i data-lucide="ticket-percent" class="w-4 h-4"></i> Voucher & Diskon
                         </button>
+                        <button id="nav-chats" onclick="switchSection('chats')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-emerald-100 hover:bg-emerald-800/50 transition">
+                            <i data-lucide="message-square-text" class="w-4 h-4"></i> Chat Pembeli
+                        </button>
                         <a href="index.html" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-orange-300 hover:bg-emerald-800/50 transition mt-6">
                             <i data-lucide="arrow-left" class="w-4 h-4"></i> Lihat Sisi Konsumen
                         </a>
@@ -331,12 +334,48 @@
                     </div>
                 </div>
             </section>
+
+            <section id="section-chats" class="hidden">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden grid grid-cols-1 md:grid-cols-3 min-h-[500px]">
+                    
+                    <div class="border-r border-gray-100 flex flex-col bg-gray-50/30">
+                        <div class="p-4 bg-gray-50 border-b border-gray-100 text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-2">
+                            <i data-lucide="users" class="w-4 h-4 text-emerald-600"></i> Saluran Obrolan Konsumen
+                        </div>
+                        <div id="chat-channels-list" class="flex-grow overflow-y-auto max-h-[450px]">
+                            </div>
+                    </div>
+
+                    <div class="md:col-span-2 flex flex-col justify-between h-[500px] bg-white">
+                        <div class="p-4 bg-gray-50 border-b border-gray-100 flex items-center justify-between shadow-sm">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                                <h4 id="chat-window-title" class="text-xs font-black text-gray-800">Pilih Pembeli...</h4>
+                            </div>
+                            <span class="text-[10px] text-gray-400 font-bold bg-gray-100 px-2 py-0.5 rounded-lg">Merchant Support</span>
+                        </div>
+
+                        <div id="chat-messages-container" class="flex-grow p-4 overflow-y-auto space-y-3 bg-slate-50/50 max-h-[380px]">
+                            <div class="text-center text-gray-400 italic text-xs py-12">Silakan pilih salah satu konsumen di panel kiri untuk memulai membalas pesan.</div>
+                        </div>
+
+                        <div class="p-3 border-t border-gray-100 bg-gray-50 flex items-center gap-2">
+                            <input type="text" id="chat-input-field" onkeydown="if(event.key === 'Enter') sendMerchantMessage()" placeholder="Tulis balasan pesan resmi merchant Anda ke konsumen di sini..." class="w-full px-4 py-2.5 bg-white border border-gray-200 text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-gray-800 placeholder-gray-400 transition shadow-sm">
+                            <button onclick="sendMerchantMessage()" class="p-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition shadow-sm shrink-0">
+                                <i data-lucide="send" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
         </main>
     </div>
 
     <script>
         let isSidebarOpen = false;
         let currentFinanceFilter = 'harian'; 
+        let activeChatUser = null; // Menahan record username konsumen yang sedang dibuka chat-nya
 
         window.addEventListener('DOMContentLoaded', () => {
             loadMerchantSession();
@@ -344,7 +383,8 @@
             renderOrdersTable();
             updateDashboardMetrics(); 
             renderFinanceReport(); 
-            renderVouchersTable(); // Dipanggil saat inisialisasi dokumen
+            renderVouchersTable(); 
+            renderChatsPanel(); 
             lucide.createIcons();
 
             window.addEventListener('storage', () => {
@@ -353,6 +393,7 @@
                 updateDashboardMetrics();
                 renderFinanceReport();
                 renderVouchersTable();
+                renderChatsPanel();
             });
         });
 
@@ -397,16 +438,18 @@
             document.getElementById('section-inventory').classList.add('hidden');
             document.getElementById('section-orders').classList.add('hidden');
             document.getElementById('section-finance').classList.add('hidden');
-            document.getElementById('section-vouchers').classList.add('hidden'); // Sembunyikan section voucher
+            document.getElementById('section-vouchers').classList.add('hidden'); 
+            document.getElementById('section-chats').classList.add('hidden'); // Sembunyikan panel chat
             document.getElementById(`section-${secId}`).classList.remove('hidden');
             
             const btnDash = document.getElementById('nav-dashboard');
             const btnInv = document.getElementById('nav-inventory');
             const btnOrd = document.getElementById('nav-orders');
             const btnFin = document.getElementById('nav-finance');
-            const btnVouch = document.getElementById('nav-vouchers'); // Button nav voucher baru
+            const btnVouch = document.getElementById('nav-vouchers'); 
+            const btnChat = document.getElementById('nav-chats'); // Button nav chat baru
             
-            [btnDash, btnInv, btnOrd, btnFin, btnVouch].forEach(btn => {
+            [btnDash, btnInv, btnOrd, btnFin, btnVouch, btnChat].forEach(btn => {
                 if(btn) btn.className = "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-emerald-100 hover:bg-emerald-800/50 transition";
             });
 
@@ -425,11 +468,16 @@
                 title.innerHTML = `<i data-lucide="ticket-percent" class="text-emerald-600"></i> Manajemen Voucher & Diskon Promosi`;
                 renderVouchersTable();
             }
+            if(secId === 'chats') {
+                title.innerHTML = `<i data-lucide="message-square-text" class="text-emerald-600"></i> Hub Pusat Kontak Chat Pembeli`;
+                renderChatsPanel();
+            }
             
             if (isSidebarOpen) toggleSidebar();
             lucide.createIcons();
         }
 
+        // 📊 SAMBUNGAN LOGIKA METRIK OPERASIONAL UTUH
         function updateDashboardMetrics() {
             const currentMerchant = getActiveMerchant();
             if (!currentMerchant) return;
@@ -510,6 +558,7 @@
             renderFinanceReport();
         }
 
+        // 📊 SAMBUNGAN LOGIKA LAPORAN KEUANGAN AKUNTANSI UTUH
         function renderFinanceReport() {
             const currentMerchant = getActiveMerchant();
             if (!currentMerchant) return;
@@ -762,7 +811,6 @@
             }
         }
 
-        // 🟢 ENGINE LOGIKAL BARU: MANAJEMEN VOUCHER TOKO
         function renderVouchersTable() {
             const tbody = document.getElementById('vouchers-table-body');
             if (!tbody) return;
@@ -771,7 +819,6 @@
             if (!currentMerchant) return;
 
             const allVouchers = JSON.parse(localStorage.getItem('segari_vouchers')) || [];
-            // Mengisolasi kode promo hanya untuk toko penciptanya
             const myVouchers = allVouchers.filter(v => v.merchant === currentMerchant);
 
             if (myVouchers.length === 0) {
@@ -826,7 +873,6 @@
 
             let vouchers = JSON.parse(localStorage.getItem('segari_vouchers')) || [];
             
-            // Validasi agar kode tidak duplikat global/lokal
             if (vouchers.some(v => v.code === code && v.merchant === currentMerchant)) {
                 alert("Kode voucher ini sudah Anda gunakan! Silakan ganti kode yang lain.");
                 return;
@@ -843,7 +889,6 @@
 
             localStorage.setItem('segari_vouchers', JSON.stringify(vouchers));
 
-            // Reset Form Input
             document.getElementById('v-code').value = '';
             document.getElementById('v-value').value = '';
             document.getElementById('v-min').value = '';
@@ -860,6 +905,110 @@
                 renderVouchersTable();
             }
         }
+
+        // 🆕 Saluran Logika Pengoperasian Live Chat System Baru
+        function renderChatsPanel() {
+            const currentMerchant = getActiveMerchant();
+            if (!currentMerchant) return;
+
+            // Membaca riwayat order pembeli untuk di-mapping menjadi user chat channel otomatis
+            const allOrders = JSON.parse(localStorage.getItem('segari_orders')) || [];
+            const myOrders = allOrders.filter(o => o.merchant === currentMerchant || o.storeCode === currentMerchant || (o.items && o.items.some(it => it.merchant === currentMerchant)));
+            
+            let uniqueUsers = [...new Set(myOrders.map(o => o.user))];
+            
+            // Jaminan fallback apabila belum ada data order ritel yang masuk ke toko ini
+            if(uniqueUsers.length === 0) {
+                uniqueUsers = ['budi_segar', 'siti_fresh'];
+            }
+
+            const channelList = document.getElementById('chat-channels-list');
+            if (!channelList) return;
+
+            channelList.innerHTML = uniqueUsers.map(username => {
+                const isActive = activeChatUser === username ? 'bg-emerald-50 border-l-4 border-emerald-600 text-emerald-950 font-bold' : 'hover:bg-gray-50 text-gray-700';
+                return `
+                    <div onclick="selectChatUser('${username}')" class="p-3 border-b border-gray-100 cursor-pointer transition text-xs flex items-center gap-2 ${isActive}">
+                        <div class="w-7 h-7 rounded-full bg-emerald-800 text-white flex items-center justify-center uppercase font-black text-[10px]">
+                            ${username.charAt(0)}
+                        </div>
+                        <div class="flex-grow truncate">
+                            <p class="text-gray-900 font-bold">@${username}</p>
+                            <p class="text-[9px] text-gray-400 truncate">Klik untuk membuka obrolan</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            if(activeChatUser) {
+                renderChatHistory();
+            }
+        }
+
+        function selectChatUser(username) {
+            activeChatUser = username;
+            document.getElementById('chat-window-title').innerText = `@${username}`;
+            renderChatsPanel();
+        }
+
+        function renderChatHistory() {
+            if(!activeChatUser) return;
+            const currentMerchant = getActiveMerchant();
+            const allChats = JSON.parse(localStorage.getItem('segari_chats')) || [];
+            
+            // Menyaring pesan yang valid antara merchant ini dan pembeli terpilih
+            const activeMessages = allChats.filter(c => c.merchant === currentMerchant && c.user === activeChatUser);
+            const msgContainer = document.getElementById('chat-messages-container');
+            if(!msgContainer) return;
+
+            if(activeMessages.length === 0) {
+                msgContainer.innerHTML = `<div class="text-center text-gray-400 italic text-[11px] py-12">Belum ada riwayat pesan. Kirim pesan pertama untuk menyapa pembeli!</div>`;
+                return;
+            }
+
+            msgContainer.innerHTML = activeMessages.map(m => {
+                const isMerchant = m.sender === 'merchant';
+                const alignClass = isMerchant ? 'justify-end text-right' : 'justify-start text-left';
+                const bubbleClass = isMerchant ? 'bg-emerald-600 text-white rounded-br-none' : 'bg-gray-100 text-gray-800 rounded-bl-none';
+                return `
+                    <div class="flex ${alignClass} mb-2">
+                        <div class="max-w-[80%] p-2.5 rounded-2xl shadow-sm text-[11px] font-medium ${bubbleClass}">
+                            <p class="leading-relaxed text-left">${m.text}</p>
+                            <span class="block text-[8px] opacity-70 mt-1 font-mono text-right">${m.time || 'Baru'}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            msgContainer.scrollTop = msgContainer.scrollHeight; // Auto gulung ke obrolan terbawah
+        }
+
+        function sendMerchantMessage() {
+            const input = document.getElementById('chat-input-field');
+            const text = input.value.trim();
+            if(!text || !activeChatUser) return;
+
+            const currentMerchant = getActiveMerchant();
+            let allChats = JSON.parse(localStorage.getItem('segari_chats')) || [];
+
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
+            allChats.push({
+                id: Date.now(),
+                merchant: currentMerchant,
+                user: activeChatUser,
+                sender: 'merchant',
+                text: text,
+                time: timeStr
+            });
+
+            localStorage.setItem('segari_chats', JSON.stringify(allChats));
+            input.value = '';
+            
+            renderChatHistory();
+            window.dispatchEvent(new Event('storage')); // trigger intertab sinkronisasi data pembeli
+        }
     </script>
 </body>
-    </html>
+</html>
