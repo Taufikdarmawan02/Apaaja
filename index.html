@@ -178,6 +178,26 @@
             <i data-lucide="sparkles" class="w-4 h-4"></i> Tanya AI Koki
         </button>
 
+        <div id="ai-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end justify-center hidden opacity-0 transition-opacity duration-300">
+            <div class="bg-white w-full max-w-[480px] rounded-t-3xl p-6 animate-slide-up space-y-4 max-h-[80vh] flex flex-col">
+                <div class="flex justify-between items-center border-b border-gray-100 pb-3 shrink-0">
+                    <div class="flex items-center gap-2">
+                        <div class="p-1.5 bg-gradient-to-r from-teal-500 to-emerald-600 text-white rounded-lg"><i data-lucide="sparkles" class="w-4 h-4"></i></div>
+                        <h3 class="text-sm font-bold text-gray-800">Asisten Koki AI Segari</h3>
+                    </div>
+                    <button onclick="closeAiModal()" class="text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+                </div>
+                <div class="flex-grow overflow-y-auto space-y-3 py-2 text-xs no-scrollbar flex flex-col">
+                    <div class="bg-gray-50 border border-gray-100 rounded-xl p-3 text-gray-700 self-start mr-12">"Halo! Mau masak apa hari ini? Beritahu saya bahan dapur yang kamu punya!"</div>
+                    <div id="ai-chat-history" class="space-y-3 flex flex-col"></div>
+                </div>
+                <div class="flex gap-2 pt-2 border-t border-gray-100 shrink-0">
+                    <input type="text" id="ai-input" placeholder="Misal: bayam, telur..." class="flex-grow px-3 py-2 bg-gray-50 text-xs rounded-xl border-none text-gray-800">
+                    <button onclick="askAiChef()" class="bg-green-600 text-white p-2 rounded-xl btn-active"><i data-lucide="send" class="w-4 h-4"></i></button>
+                </div>
+            </div>
+        </div>
+
         <nav class="fixed bottom-0 w-full max-w-[480px] h-16 bg-white border-t border-gray-100 grid grid-cols-6 items-center text-center text-gray-400 z-40 shadow-[0_-4px_12px_rgba(0,0,0,0.08)]">
             <button id="nav-home" onclick="switchTab('home')" class="nav-btn text-green-600 flex flex-col items-center gap-0.5">
                 <i data-lucide="home" class="w-4 h-4"></i><span class="text-[9px] font-bold">Belanja</span>
@@ -209,26 +229,6 @@
                 <div class="space-y-2">
                     <input type="text" id="address-input" placeholder="Masukkan alamat lengkap baru..." class="w-full px-3 py-2.5 bg-gray-50 border border-gray-100 text-sm rounded-xl focus:outline-none text-gray-800">
                     <button onclick="saveLocation()" class="w-full bg-green-600 text-white font-bold py-2.5 rounded-xl text-xs btn-active">Simpan Alamat</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="ai-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end justify-center hidden opacity-0 transition-opacity duration-300">
-            <div class="bg-white w-full max-w-[480px] rounded-t-3xl p-6 animate-slide-up space-y-4 max-h-[80vh] flex flex-col">
-                <div class="flex justify-between items-center border-b border-gray-100 pb-3 shrink-0">
-                    <div class="flex items-center gap-2">
-                        <div class="p-1.5 bg-gradient-to-r from-teal-500 to-emerald-600 text-white rounded-lg"><i data-lucide="sparkles" class="w-4 h-4"></i></div>
-                        <h3 class="text-sm font-bold text-gray-800">Asisten Koki AI Segari</h3>
-                    </div>
-                    <button onclick="closeAiModal()" class="text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-5 h-5"></i></button>
-                </div>
-                <div class="flex-grow overflow-y-auto space-y-3 py-2 text-xs no-scrollbar flex flex-col">
-                    <div class="bg-gray-50 border border-gray-100 rounded-xl p-3 text-gray-700 self-start mr-12">"Halo! Mau masak apa hari ini? Beritahu saya bahan dapur yang kamu punya!"</div>
-                    <div id="ai-chat-history" class="space-y-3 flex flex-col"></div>
-                </div>
-                <div class="flex gap-2 pt-2 border-t border-gray-100 shrink-0">
-                    <input type="text" id="ai-input" placeholder="Misal: bayam, telur..." class="flex-grow px-3 py-2 bg-gray-50 text-xs rounded-xl border-none text-gray-800">
-                    <button onclick="askAiChef()" class="bg-green-600 text-white p-2 rounded-xl btn-active"><i data-lucide="send" class="w-4 h-4"></i></button>
                 </div>
             </div>
         </div>
@@ -338,18 +338,33 @@
             
             list.forEach(p => {
                 const isOut = p.stock <= 0;
+                
+                // SISTEM DETEKSI DAN TAMPILAN DISKON
+                let discountBadge = '';
+                let oldPriceHtml = '';
+                
+                if (p.oldPrice && p.oldPrice > p.price) {
+                    const discountPercent = Math.round(((p.oldPrice - p.price) / p.oldPrice) * 100);
+                    discountBadge = `<span class="absolute top-2 left-2 bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-md shadow-sm z-10">${discountPercent}% OFF</span>`;
+                    oldPriceHtml = `<span class="text-[10px] text-gray-400 line-through ml-1.5">Rp${p.oldPrice.toLocaleString('id-ID')}</span>`;
+                }
+
                 const card = document.createElement('div');
-                card.className = "bg-white border border-gray-100 rounded-2xl p-3 flex flex-col justify-between shadow-sm";
+                card.className = "bg-white border border-gray-100 rounded-2xl p-3 flex flex-col justify-between shadow-sm relative";
                 card.innerHTML = `
                     <div>
                         <div class="relative mb-2 bg-gray-50 rounded-xl overflow-hidden aspect-square">
+                            ${discountBadge}
                             <img src="${p.img}" class="w-full h-full object-cover ${isOut ? 'grayscale opacity-50':''}">
                         </div>
                         <h4 class="text-xs font-bold text-gray-800 line-clamp-2">${p.name}</h4>
                         <p class="text-[10px] text-gray-400 mt-0.5">${p.size} | Stok: ${p.stock}</p>
                     </div>
                     <div class="mt-2">
-                        <span class="text-xs font-extrabold text-green-600">Rp${p.price.toLocaleString('id-ID')}</span>
+                        <div class="flex items-center flex-wrap">
+                            <span class="text-xs font-extrabold text-green-600">Rp${p.price.toLocaleString('id-ID')}</span>
+                            ${oldPriceHtml}
+                        </div>
                         <button onclick="handleAddToCart(${p.id})" ${isOut ? 'disabled class="w-full mt-1 bg-gray-200 text-gray-400 py-1.5 rounded-xl text-[11px] font-bold cursor-not-allowed"':'class="w-full mt-1 bg-green-500 hover:bg-green-600 text-white py-1.5 rounded-xl text-[11px] font-bold btn-active transition"'}>Beli</button>
                     </div>
                 `;
@@ -444,206 +459,146 @@
                 items: [...cart], 
                 total: subtotal,
                 slot: chosenSlot,
+                address: currentAddress,
                 status: "Diproses",
-                address: currentAddress,  
                 date: new Date().toLocaleDateString('id-ID')
             };
-
+            
             currentOrders.push(newOrder);
             localStorage.setItem('segari_orders', JSON.stringify(currentOrders));
-
+            
             cart = [];
             updateCartCount();
-            showToast("Pesanan sukses dikirim!");
-            products = masterProducts;
-            renderProducts();
+            showToast("Pesanan berhasil diproses!");
             switchTab('tracking');
         }
 
-        // 🔗 KELANJUTAN AMAN DAN PENYEMPURNAAN DI SISI TRACKING VIEW
-        function renderTrackingView() {
-            const noOrder = document.getElementById('no-order-state');
-            const activeOrder = document.getElementById('active-order-state');
-            if (!noOrder || !activeOrder) return;
-
-            if (!activeUser) {
-                noOrder.classList.remove('hidden'); activeOrder.classList.add('hidden');
-                return;
-            }
-
-            const currentOrders = JSON.parse(localStorage.getItem('segari_orders')) || [];
-            const userOrders = currentOrders.filter(o => o.user === activeUser.username);
-
-            if (userOrders.length === 0) {
-                noOrder.classList.remove('hidden'); activeOrder.classList.add('hidden');
-                activeOrder.innerHTML = '';
-                return;
-            }
-
-            noOrder.classList.add('hidden');
-            activeOrder.classList.remove('hidden');
-            
-            activeOrder.innerHTML = userOrders.map(o => {
-                let badgeClass = 'bg-amber-50 text-amber-600 border border-amber-200/50';
-                if(o.status === 'Selesai') badgeClass = 'bg-green-50 text-green-600 border border-green-200/50';
-                if(o.status === 'Dalam Perjalanan') badgeClass = 'bg-blue-50 text-blue-600 border border-blue-200/50';
-
-                return `
-                    <div class="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm space-y-3">
-                        <div class="flex justify-between items-center border-b border-gray-50 pb-2">
-                            <div>
-                                <span class="text-[11px] font-mono text-gray-900 font-black">${o.id}</span>
-                                <p class="text-[10px] text-gray-400 font-bold">${o.date} • Slot: ${o.slot}</p>
-                            </div>
-                            <span class="${badgeClass} px-2.5 py-0.5 rounded-lg text-[10px] font-extrabold uppercase">${o.status}</span>
-                        </div>
-                        <div class="space-y-1 text-xs text-gray-600">
-                            ${o.items.map(it => `
-                                <div class="flex justify-between">
-                                    <span>${it.name} <b class="text-gray-400">x${it.qty}</b></span>
-                                    <span>Rp${(it.price * it.qty).toLocaleString('id-ID')}</span>
-                                </div>
-                            `).join('')}
-                        </div>
-                        <div class="border-t border-gray-100 pt-2 flex justify-between font-black text-xs text-gray-800">
-                            <span>Total Pembayaran</span>
-                            <span class="text-green-600">Rp${o.total.toLocaleString('id-ID')}</span>
-                        </div>
-                    </div>`;
-            }).join('');
-        }
-
-        // 💬 LOGIKA DI SISI CHAT PENJUAL
-        function renderChatView() {
-            const loggedOut = document.getElementById('chat-logged-out');
-            const loggedIn = document.getElementById('chat-logged-in');
-            if(!loggedOut || !loggedIn) return;
-
-            if (!activeUser || (activeUser.role !== 'Pembeli' && activeUser.role !== 'Konsumen')) {
-                loggedOut.classList.remove('hidden'); loggedIn.classList.add('hidden');
-                return;
-            }
-
-            loggedOut.classList.add('hidden'); loggedIn.classList.remove('hidden');
-
-            const chatBox = document.getElementById('chat-box');
-            const allChats = JSON.parse(localStorage.getItem('segari_chats')) || [];
-            const userChats = allChats.filter(c => c.user === activeUser.username && c.merchant === 'anita_sayur');
-
-            if(userChats.length === 0) {
-                chatBox.innerHTML = `<div class="text-center my-auto text-gray-400 text-[11px] py-12">Belum ada obrolan. Tulis pesan di bawah untuk menghubungi merchant!</div>`;
-                return;
-            }
-
-            chatBox.innerHTML = userChats.map(c => {
-                const isUser = c.sender === 'user';
-                return `
-                    <div class="${isUser ? 'bg-green-500 text-white self-end rounded-br-none' : 'bg-white text-gray-800 border border-gray-100 self-start rounded-bl-none'} rounded-2xl p-2.5 max-w-[80%] space-y-1 shadow-sm mb-2">
-                        <p class="leading-relaxed break-words text-xs">${c.text}</p>
-                        <p class="text-[8px] ${isUser ? 'text-green-100' : 'text-gray-400'} text-right font-mono">${c.time}</p>
-                    </div>`;
-            }).join('');
-            
-            setTimeout(() => { chatBox.scrollTop = chatBox.scrollHeight; }, 50);
-        }
-
-        function sendChatToMerchant() {
-            const input = document.getElementById('chat-text-input');
-            const text = input.value.trim();
-            if(!text || !activeUser) return;
-
-            let allChats = JSON.parse(localStorage.getItem('segari_chats')) || [];
-            const now = new Date();
-            const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-
-            allChats.push({
-                id: Date.now(),
-                merchant: 'anita_sayur', 
-                user: activeUser.username,
-                sender: 'user',
-                text: text,
-                time: timeStr
-            });
-
-            localStorage.setItem('segari_chats', JSON.stringify(allChats));
-            input.value = '';
-            renderChatView();
-        }
-
-        // TIMER UTILITY ENGINE
+        // FUNGSI PENDUKUNG YANG SEBELUMNYA TERPOTONG:
         function startFlashSaleTimer() {
+            let hours = 2, minutes = 14, seconds = 45;
             setInterval(() => {
-                let h = document.getElementById('timer-hours');
-                let m = document.getElementById('timer-mins');
-                let s = document.getElementById('timer-secs');
-                if(!h || !m || !s) return;
-                let hours = parseInt(h.innerText);
-                let mins = parseInt(m.innerText);
-                let secs = parseInt(s.innerText);
-                
-                if(secs > 0) { secs--; }
-                else {
-                    secs = 59;
-                    if(mins > 0) { mins--; }
-                    else {
-                        mins = 59;
-                        if(hours > 0) { hours--; }
-                        else { hours = 2; mins = 14; secs = 45; }
-                    }
-                }
-                h.innerText = String(hours).padStart(2, '0');
-                m.innerText = String(mins).padStart(2, '0');
-                s.innerText = String(secs).padStart(2, '0');
+                seconds--;
+                if (seconds < 0) { seconds = 59; minutes--; }
+                if (minutes < 0) { minutes = 59; hours--; }
+                if (hours < 0) { hours = 0; minutes = 0; seconds = 0; }
+                document.getElementById('timer-hours').innerText = String(hours).padStart(2, '0');
+                document.getElementById('timer-mins').innerText = String(minutes).padStart(2, '0');
+                document.getElementById('timer-secs').innerText = String(seconds).padStart(2, '0');
             }, 1000);
         }
 
-        // MODAL MANAGEMENT CONTROLLERS
+        function showToast(msg) {
+            const container = document.getElementById('toast-container'); if (!container) return;
+            const toast = document.createElement('div'); toast.className = "toast-msg";
+            toast.innerText = msg; container.appendChild(toast);
+            setTimeout(() => { toast.remove(); }, 2000);
+        }
+
         function openLocationModal() {
-            const m = document.getElementById('location-modal');
-            m.classList.remove('hidden'); setTimeout(() => m.classList.remove('opacity-0'), 10);
+            const modal = document.getElementById('location-modal'); modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.remove('opacity-0'), 10);
         }
+
         function closeLocationModal() {
-            const m = document.getElementById('location-modal');
-            m.classList.add('opacity-0'); setTimeout(() => m.classList.add('hidden'), 300);
+            const modal = document.getElementById('location-modal'); modal.classList.add('opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 300);
         }
+
         function saveLocation() {
-            const input = document.getElementById('address-input').value;
-            if(input.trim()) {
-                localStorage.setItem('segari_address', input);
-                document.getElementById('current-address-text').innerText = "Kirim ke: " + input;
-                showToast("Alamat kirim berhasil diubah!"); closeLocationModal();
-            }
+            const input = document.getElementById('address-input').value; if (!input.trim()) return;
+            localStorage.setItem('segari_address', input);
+            document.getElementById('current-address-text').innerText = "Kirim ke: " + input;
+            closeLocationModal(); showToast("Alamat pengiriman diubah!");
         }
 
         function openAiModal() {
-            const m = document.getElementById('ai-modal');
-            m.classList.remove('hidden'); setTimeout(() => m.classList.remove('opacity-0'), 10);
-        }
-        function closeAiModal() {
-            const m = document.getElementById('ai-modal');
-            m.classList.add('opacity-0'); setTimeout(() => m.classList.add('hidden'), 300);
-        }
-        function askAiChef() {
-            const input = document.getElementById('ai-input'); const hist = document.getElementById('ai-chat-history');
-            if(!input.value.trim()) return;
-            
-            const userBox = document.createElement('div');
-            userBox.className = "bg-green-600 text-white rounded-xl p-3 text-xs self-end ml-12 mb-2 animate-slide-up";
-            userBox.innerText = input.value; hist.appendChild(userBox);
-            
-            const botBox = document.createElement('div');
-            botBox.className = "bg-gray-50 border border-gray-100 rounded-xl p-3 text-gray-700 self-start mr-12 mb-2 text-xs";
-            botBox.innerText = `Bahan "${input.value}" mantap sekali! Sangat cocok ditumis mentega atau dijadikan sup bening segar pagi hari.`;
-            
-            setTimeout(() => { hist.appendChild(botBox); hist.scrollTop = hist.scrollHeight; }, 500);
-            input.value = '';
+            const modal = document.getElementById('ai-modal'); modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.remove('opacity-0'), 10);
         }
 
-        function showToast(msg) {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div'); toast.className = "toast-msg"; toast.innerText = msg;
-            container.appendChild(toast); setTimeout(() => { toast.remove(); }, 2500);
+        function closeAiModal() {
+            const modal = document.getElementById('ai-modal'); modal.classList.add('opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        function askAiChef() {
+            const input = document.getElementById('ai-input'); const query = input.value.trim(); if (!query) return;
+            const history = document.getElementById('ai-chat-history');
+            
+            const userDiv = document.createElement('div');
+            userDiv.className = "bg-green-600 text-white rounded-xl p-3 text-xs self-end ml-12 my-1 max-w-[85%]";
+            userDiv.innerText = query; history.appendChild(userDiv); input.value = '';
+            
+            setTimeout(() => {
+                const aiDiv = document.createElement('div');
+                aiDiv.className = "bg-gray-50 border border-gray-100 rounded-xl p-3 text-xs text-gray-700 self-start mr-12 my-1 max-w-[85%]";
+                aiDiv.innerText = `Bahan masakan "${query}" sangat cocok dibuat sup bening koki atau tumisan sayur segar Segari!`;
+                history.appendChild(aiDiv); history.scrollTop = history.scrollHeight;
+            }, 1000);
+        }
+
+        function renderChatView() {
+            const loggedOut = document.getElementById('chat-logged-out'); const loggedIn = document.getElementById('chat-logged-in');
+            if (!loggedOut || !loggedIn) return;
+            if (!activeUser) { loggedOut.classList.remove('hidden'); loggedIn.classList.add('hidden'); return; }
+            loggedOut.classList.add('hidden'); loggedIn.classList.remove('hidden');
+
+            const chatBox = document.getElementById('chat-box'); chatBox.innerHTML = '';
+            const chats = JSON.parse(localStorage.getItem('segari_chats')) || [];
+            const userChats = chats.filter(c => c.user === activeUser.username);
+            
+            if(userChats.length === 0) {
+                chatBox.innerHTML = `<p class="text-[11px] text-gray-400 text-center my-auto">Belum ada pesan. Kirim pesan ke penjual...</p>`;
+                return;
+            }
+            userChats.forEach(c => {
+                const div = document.createElement('div');
+                div.className = c.sender === 'user' ? "bg-green-500 text-white rounded-xl p-2.5 text-xs self-end max-w-[80%] my-0.5" : "bg-white border border-gray-100 rounded-xl p-2.5 text-xs self-start max-w-[80%] text-gray-800 shadow-sm my-0.5";
+                div.innerText = c.text; chatBox.appendChild(div);
+            });
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function sendChatToMerchant() {
+            const input = document.getElementById('chat-text-input'); const text = input.value.trim(); if (!text || !activeUser) return;
+            const chats = JSON.parse(localStorage.getItem('segari_chats')) || [];
+            chats.push({ user: activeUser.username, sender: 'user', text: text });
+            localStorage.setItem('segari_chats', JSON.stringify(chats)); input.value = ''; renderChatView();
+            
+            setTimeout(() => {
+                const updatedChats = JSON.parse(localStorage.getItem('segari_chats')) || [];
+                updatedChats.push({ user: activeUser.username, sender: 'merchant', text: "Halo! Toko kami sedang menyiapkan produk pesanan Anda." });
+                localStorage.setItem('segari_chats', JSON.stringify(updatedChats)); renderChatView();
+            }, 1500);
+        }
+
+        function renderTrackingView() {
+            const noOrder = document.getElementById('no-order-state'); const activeOrder = document.getElementById('active-order-state');
+            if (!noOrder || !activeOrder) return;
+            if (!activeUser) { noOrder.classList.remove('hidden'); activeOrder.classList.add('hidden'); return; }
+
+            const orders = JSON.parse(localStorage.getItem('segari_orders')) || [];
+            const userOrders = orders.filter(o => o.user === activeUser.username);
+            if (userOrders.length === 0) { noOrder.classList.remove('hidden'); activeOrder.classList.add('hidden'); return; }
+
+            noOrder.classList.add('hidden'); activeOrder.classList.remove('hidden'); activeOrder.innerHTML = '';
+            userOrders.reverse().forEach(o => {
+                const div = document.createElement('div'); div.className = "bg-white border border-gray-100 rounded-2xl p-4 space-y-2 shadow-sm mb-2";
+                let itemNames = o.items.map(i => `${i.name} (x${i.qty})`).join(', ');
+                div.innerHTML = `
+                    <div class="flex justify-between items-center border-b border-gray-50 pb-1.5">
+                        <div><span class="text-xs font-black text-gray-800">${o.id}</span><p class="text-[9px] text-gray-400">${o.slot}</p></div>
+                        <span class="bg-blue-50 text-blue-600 text-[10px] font-bold px-2 py-0.5 rounded-full">${o.status}</span>
+                    </div>
+                    <p class="text-[11px] text-gray-600 truncate"><b>Item:</b> ${itemNames}</p>
+                    <div class="flex justify-between items-center text-xs pt-1">
+                        <span class="text-gray-400">Total Belanja</span>
+                        <span class="font-black text-green-600">Rp${o.total.toLocaleString('id-ID')}</span>
+                    </div>
+                `;
+                activeOrder.appendChild(div);
+            });
         }
     </script>
 </body>
-    </html>
+                                </html>
