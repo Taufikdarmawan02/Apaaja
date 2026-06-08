@@ -91,7 +91,7 @@
                 <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4 space-y-2">
                     <h4 class="text-xs font-black text-gray-700 flex items-center gap-1.5"><i data-lucide="ticket" class="w-3.5 h-3.5 text-orange-500"></i> Punya Kode Voucher Toko?</h4>
                     <div class="flex gap-2">
-                        <input type="text" id="voucher-input" placeholder="Masukkan kode (Contoh: MEMBERBARU)" class="flex-grow px-3 py-2 bg-white border border-gray-200 text-xs rounded-xl focus:outline-none text-gray-800 font-bold uppercase tracking-wide">
+                        <input type="text" id="voucher-input" placeholder="Masukkan kode voucher" class="flex-grow px-3 py-2 bg-white border border-gray-200 text-xs rounded-xl focus:outline-none text-gray-800 font-bold uppercase tracking-wide">
                         <button onclick="applyVoucherCode()" class="bg-orange-500 hover:bg-orange-600 text-white font-bold px-4 py-2 rounded-xl text-xs transition btn-active">Terapkan</button>
                     </div>
                     <p id="voucher-message" class="text-[10px] font-bold hidden"></p>
@@ -125,14 +125,8 @@
 
         <div id="promo-page" class="hidden p-4 space-y-4">
             <h2 class="text-base font-black text-gray-800 flex items-center gap-2"><i data-lucide="ticket" class="text-orange-500 w-5 h-5"></i> Voucher & Promo Spesial</h2>
-            <div class="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl p-4 text-white flex justify-between items-center shadow-sm">
-                <div>
-                    <h4 class="text-xs font-black uppercase tracking-wide bg-black/20 px-2 py-0.5 rounded inline-block">MEMBERBARU</h4>
-                    <p class="text-sm font-bold mt-1">Potongan Flat Rp10.000</p>
-                    <p class="text-[9px] text-emerald-100">Minimal transaksi belanja Rp50.000</p>
+            <div id="promo-list-container" class="space-y-3">
                 </div>
-                <button onclick="claimVoucherFromPromo('MEMBERBARU')" class="bg-white text-emerald-700 font-extrabold text-[10px] px-3 py-1.5 rounded-xl shadow-sm transition btn-active">Gunakan</button>
-            </div>
         </div>
 
         <div id="chat-page" class="hidden p-4 space-y-4">
@@ -260,7 +254,7 @@
 
         let products = []; let cart = []; let activeUser = null; let selectedCategory = "semua";
         
-        // VARIABEL STATE VOUCHER
+        // VARIABEL STATE VOUCHER AKTIF
         let activeVoucherCode = null;
         let voucherDiscountAmount = 0;
 
@@ -269,13 +263,21 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             initDatabase(); loadSession(); renderProducts(); updateCartCount(); startFlashSaleTimer(); lucide.createIcons();
-            window.addEventListener('storage', () => { initDatabase(); loadSession(); renderProducts(); updateCartCount(); renderChatView(); });
+            window.addEventListener('storage', () => { initDatabase(); loadSession(); renderProducts(); updateCartCount(); renderChatView(); renderPromoPage(); });
         });
 
         function initDatabase() {
             if (!localStorage.getItem('segari_products')) localStorage.setItem('segari_products', JSON.stringify(defaultProducts));
             if (!localStorage.getItem('segari_orders')) localStorage.setItem('segari_orders', JSON.stringify([]));
             if (!localStorage.getItem('segari_chats')) localStorage.setItem('segari_chats', JSON.stringify([]));
+            
+            // INISIALISASI DATABASE VOUCHER DINAMIS
+            if (!localStorage.getItem('segari_vouchers')) {
+                localStorage.setItem('segari_vouchers', JSON.stringify([
+                    { code: "MEMBERBARU", discount: 10000, minPrice: 50000, status: "Aktif" }
+                ]));
+            }
+
             if (!localStorage.getItem(MASTER_USER_KEY)) {
                 localStorage.setItem(MASTER_USER_KEY, JSON.stringify([
                     { username: "admin_segari", role: "Admin" }, 
@@ -291,7 +293,7 @@
             const savedAddress = localStorage.getItem('segari_address') || "Rumah Utama, Jl. Ketapang No. 12";
             localStorage.setItem('segari_address', savedAddress);
             document.getElementById('current-address-text').innerText = "Kirim ke: " + savedAddress;
-            renderTrackingView(); renderAkunView(); renderChatView();
+            renderTrackingView(); renderAkunView(); renderChatView(); renderPromoPage();
         }
 
         function redirectToLogin() { window.location.href = "login-consumer.html"; }
@@ -313,6 +315,7 @@
             
             if (tabId === 'home') renderProducts();
             if (tabId === 'cart') renderCartItems();
+            if (tabId === 'promo') renderPromoPage();
             if (tabId === 'tracking') renderTrackingView();
             if (tabId === 'akun') renderAkunView();
             if (tabId === 'chat') renderChatView();
@@ -355,9 +358,7 @@
             
             list.forEach(p => {
                 const isOut = p.stock <= 0;
-                
-                let discountBadge = '';
-                let oldPriceHtml = '';
+                let discountBadge = ''; let oldPriceHtml = '';
                 
                 if (p.oldPrice && p.oldPrice > p.price) {
                     const discountPercent = Math.round(((p.oldPrice - p.price) / p.oldPrice) * 100);
@@ -441,10 +442,13 @@
                 container.appendChild(div);
             });
 
-            // VALIDASI ULANG LOGIK VOUCHER SAAT JUMLAH ITEM BERUBAH
-            if (activeVoucherCode === 'MEMBERBARU') {
-                if (sub >= 50000) {
-                    voucherDiscountAmount = 10000;
+            // VALIDASI ULANG VOUCHER SECARA LIVE SAAT JUMLAH ITEM BERUBAH
+            if (activeVoucherCode) {
+                const dbVouchers = JSON.parse(localStorage.getItem('segari_vouchers')) || [];
+                const currentVoucher = dbVouchers.find(v => v.code === activeVoucherCode && v.status === "Aktif");
+                
+                if (currentVoucher && sub >= currentVoucher.minPrice) {
+                    voucherDiscountAmount = currentVoucher.discount;
                     document.getElementById('discount-row').classList.remove('hidden');
                     document.getElementById('price-discount').innerText = `-Rp${voucherDiscountAmount.toLocaleString('id-ID')}`;
                 } else {
@@ -452,7 +456,9 @@
                     voucherDiscountAmount = 0;
                     document.getElementById('discount-row').classList.add('hidden');
                     document.getElementById('voucher-message').classList.add('hidden');
-                    showToast("Voucher hangus! Min. belanja kurang dari Rp50.000");
+                    if (currentVoucher) {
+                        showToast(`Voucher dilepas! Min. belanja kurang dari Rp${currentVoucher.minPrice.toLocaleString('id-ID')}`);
+                    }
                 }
             } else {
                 document.getElementById('discount-row').classList.add('hidden');
@@ -468,7 +474,7 @@
             renderCartItems(); updateCartCount();
         }
 
-        // FUNGSI LOGIKA MEMASUKKAN KODE VOUCHER
+        // FUNGSI PENGECEKAN KODE VOUCHER SECARA DINAMIS
         function applyVoucherCode() {
             const input = document.getElementById('voucher-input').value.trim().toUpperCase();
             const messageBox = document.getElementById('voucher-message');
@@ -480,16 +486,20 @@
 
             let subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
 
-            if (input === 'MEMBERBARU') {
-                if (subtotal >= 50000) {
-                    activeVoucherCode = 'MEMBERBARU';
-                    voucherDiscountAmount = 10000;
-                    messageBox.innerText = "✓ Berhasil! Diskon Rp10.000 telah diterapkan.";
+            // AMBIL DATA KODE VOUCHER DARI LOCALSTORAGE
+            const databaseVoucher = JSON.parse(localStorage.getItem('segari_vouchers')) || [];
+            const voucherCocok = databaseVoucher.find(v => v.code === input && v.status === "Aktif");
+
+            if (voucherCocok) {
+                if (subtotal >= voucherCocok.minPrice) {
+                    activeVoucherCode = voucherCocok.code;
+                    voucherDiscountAmount = voucherCocok.discount;
+                    messageBox.innerText = `✓ Berhasil! Diskon Rp${voucherDiscountAmount.toLocaleString('id-ID')} telah diterapkan.`;
                     messageBox.className = "text-[10px] font-bold text-green-600 block";
                     showToast("Voucher berhasil digunakan!");
                     renderCartItems();
                 } else {
-                    messageBox.innerText = "✕ Gagal: Minimal belanja Rp50.000 diperlukan.";
+                    messageBox.innerText = `✕ Gagal: Minimal belanja Rp${voucherCocok.minPrice.toLocaleString('id-ID')} diperlukan.`;
                     messageBox.className = "text-[10px] font-bold text-red-500 block";
                     showToast("Belanjaan belum mencukupi!");
                 }
@@ -500,7 +510,33 @@
             }
         }
 
-        // FITUR KLAIM LANGSUNG DARI HALAMAN PROMO
+        // RENDER DATA PROMO SECARA DINAMIS DARI LOCALSTORAGE
+        function renderPromoPage() {
+            const container = document.getElementById('promo-list-container'); if(!container) return;
+            const databaseVoucher = JSON.parse(localStorage.getItem('segari_vouchers')) || [];
+            const voucherAktif = databaseVoucher.filter(v => v.status === "Aktif");
+            
+            if(voucherAktif.length === 0) {
+                container.innerHTML = `<p class="text-xs font-bold text-gray-400 text-center py-8">Belum ada promo voucher aktif dari toko.</p>`;
+                return;
+            }
+
+            container.innerHTML = '';
+            voucherAktif.forEach(v => {
+                const div = document.createElement('div');
+                div.className = "bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl p-4 text-white flex justify-between items-center shadow-sm";
+                div.innerHTML = `
+                    <div>
+                        <h4 class="text-xs font-black uppercase tracking-wide bg-black/20 px-2 py-0.5 rounded inline-block">${v.code}</h4>
+                        <p class="text-sm font-bold mt-1">Potongan Flat Rp${v.discount.toLocaleString('id-ID')}</p>
+                        <p class="text-[9px] text-emerald-100">Minimal transaksi belanja Rp${v.minPrice.toLocaleString('id-ID')}</p>
+                    </div>
+                    <button onclick="claimVoucherFromPromo('${v.code}')" class="bg-white text-emerald-700 font-extrabold text-[10px] px-3 py-1.5 rounded-xl shadow-sm transition btn-active">Gunakan</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
         function claimVoucherFromPromo(code) {
             switchTab('cart');
             const inputField = document.getElementById('voucher-input');
@@ -512,9 +548,7 @@
 
         function processCheckout() {
             if (!activeUser || (activeUser.role !== 'Pembeli' && activeUser.role !== 'Konsumen')) { 
-                alert("Wajib login akun Pembeli untuk memesan!"); 
-                redirectToLogin(); 
-                return; 
+                alert("Wajib login akun Pembeli untuk memesan!"); redirectToLogin(); return; 
             }
             if (cart.length === 0) return;
             
@@ -549,16 +583,12 @@
             currentOrders.push(newOrder);
             localStorage.setItem('segari_orders', JSON.stringify(currentOrders));
             
-            // RESET SETELAH ORDER BERHASIL
-            cart = [];
-            activeVoucherCode = null;
-            voucherDiscountAmount = 0;
+            // RESET SETELAH ORDER
+            cart = []; activeVoucherCode = null; voucherDiscountAmount = 0;
             if(document.getElementById('voucher-input')) document.getElementById('voucher-input').value = '';
             if(document.getElementById('voucher-message')) document.getElementById('voucher-message').classList.add('hidden');
             
-            updateCartCount();
-            showToast("Pesanan berhasil diproses!");
-            switchTab('tracking');
+            updateCartCount(); showToast("Pesanan berhasil diproses!"); switchTab('tracking');
         }
 
         function startFlashSaleTimer() {
