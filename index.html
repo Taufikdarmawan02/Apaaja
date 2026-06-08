@@ -84,8 +84,19 @@
                 <p class="text-xs font-bold text-gray-400">Keranjang belanja kosong nih, yuk isi dulu!</p>
                 <button onclick="switchTab('home')" class="bg-green-500 text-white text-xs px-4 py-1.5 rounded-xl font-bold">Mulai Belanja</button>
             </div>
+            
             <div id="cart-active-state" class="space-y-4">
                 <div id="cart-items-list" class="space-y-3"></div>
+                
+                <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4 space-y-2">
+                    <h4 class="text-xs font-black text-gray-700 flex items-center gap-1.5"><i data-lucide="ticket" class="w-3.5 h-3.5 text-orange-500"></i> Punya Kode Voucher Toko?</h4>
+                    <div class="flex gap-2">
+                        <input type="text" id="voucher-input" placeholder="Masukkan kode (Contoh: MEMBERBARU)" class="flex-grow px-3 py-2 bg-white border border-gray-200 text-xs rounded-xl focus:outline-none text-gray-800 font-bold uppercase tracking-wide">
+                        <button onclick="applyVoucherCode()" class="bg-orange-500 hover:bg-orange-600 text-white font-bold px-4 py-2 rounded-xl text-xs transition btn-active">Terapkan</button>
+                    </div>
+                    <p id="voucher-message" class="text-[10px] font-bold hidden"></p>
+                </div>
+
                 <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4 space-y-2">
                     <h4 class="text-xs font-black text-gray-700 flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5 text-orange-500"></i> Pilih Slot Waktu Tiba Besok</h4>
                     <div class="grid grid-cols-2 gap-2 text-[11px] font-bold">
@@ -97,8 +108,10 @@
                         </label>
                     </div>
                 </div>
+
                 <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4 space-y-1.5 text-xs">
                     <div class="flex justify-between text-gray-400"><span>Subtotal Item</span><span id="price-subtotal">Rp0</span></div>
+                    <div id="discount-row" class="flex justify-between text-red-500 font-bold hidden"><span>Potongan Voucher</span><span id="price-discount">-Rp0</span></div>
                     <div class="flex justify-between text-gray-400"><span>Ongkos Kirim Flat</span><span>Rp0 (Promo)</span></div>
                     <div class="border-t border-dashed border-gray-200 my-2 pt-2 flex justify-between font-black text-gray-800 text-sm">
                         <span>Total Pembayaran</span><span class="text-green-600" id="price-total">Rp0</span>
@@ -118,7 +131,7 @@
                     <p class="text-sm font-bold mt-1">Potongan Flat Rp10.000</p>
                     <p class="text-[9px] text-emerald-100">Minimal transaksi belanja Rp50.000</p>
                 </div>
-                <button onclick="showToast('Voucher berhasil diklaim!')" class="bg-white text-emerald-700 font-extrabold text-[10px] px-3 py-1.5 rounded-xl shadow-sm">Klaim</button>
+                <button onclick="claimVoucherFromPromo('MEMBERBARU')" class="bg-white text-emerald-700 font-extrabold text-[10px] px-3 py-1.5 rounded-xl shadow-sm transition btn-active">Gunakan</button>
             </div>
         </div>
 
@@ -246,6 +259,10 @@
         ];
 
         let products = []; let cart = []; let activeUser = null; let selectedCategory = "semua";
+        
+        // VARIABEL STATE VOUCHER
+        let activeVoucherCode = null;
+        let voucherDiscountAmount = 0;
 
         const MASTER_USER_KEY = 'segari_users_v3';
         const MASTER_SESSION_KEY = 'segari_session';
@@ -339,7 +356,6 @@
             list.forEach(p => {
                 const isOut = p.stock <= 0;
                 
-                // SISTEM DETEKSI DAN TAMPILAN DISKON
                 let discountBadge = '';
                 let oldPriceHtml = '';
                 
@@ -424,13 +440,74 @@
                 `;
                 container.appendChild(div);
             });
+
+            // VALIDASI ULANG LOGIK VOUCHER SAAT JUMLAH ITEM BERUBAH
+            if (activeVoucherCode === 'MEMBERBARU') {
+                if (sub >= 50000) {
+                    voucherDiscountAmount = 10000;
+                    document.getElementById('discount-row').classList.remove('hidden');
+                    document.getElementById('price-discount').innerText = `-Rp${voucherDiscountAmount.toLocaleString('id-ID')}`;
+                } else {
+                    activeVoucherCode = null;
+                    voucherDiscountAmount = 0;
+                    document.getElementById('discount-row').classList.add('hidden');
+                    document.getElementById('voucher-message').classList.add('hidden');
+                    showToast("Voucher hangus! Min. belanja kurang dari Rp50.000");
+                }
+            } else {
+                document.getElementById('discount-row').classList.add('hidden');
+            }
+
+            let finalTotal = Math.max(0, sub - voucherDiscountAmount);
             document.getElementById('price-subtotal').innerText = `Rp${sub.toLocaleString('id-ID')}`;
-            document.getElementById('price-total').innerText = `Rp${sub.toLocaleString('id-ID')}`;
+            document.getElementById('price-total').innerText = `Rp${finalTotal.toLocaleString('id-ID')}`;
         }
 
         function changeQty(index, amt) {
             cart[index].qty += amt; if (cart[index].qty <= 0) cart.splice(index, 1);
             renderCartItems(); updateCartCount();
+        }
+
+        // FUNGSI LOGIKA MEMASUKKAN KODE VOUCHER
+        function applyVoucherCode() {
+            const input = document.getElementById('voucher-input').value.trim().toUpperCase();
+            const messageBox = document.getElementById('voucher-message');
+            
+            if (!input) {
+                showToast("Masukkan kode voucher terlebih dahulu!");
+                return;
+            }
+
+            let subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
+
+            if (input === 'MEMBERBARU') {
+                if (subtotal >= 50000) {
+                    activeVoucherCode = 'MEMBERBARU';
+                    voucherDiscountAmount = 10000;
+                    messageBox.innerText = "✓ Berhasil! Diskon Rp10.000 telah diterapkan.";
+                    messageBox.className = "text-[10px] font-bold text-green-600 block";
+                    showToast("Voucher berhasil digunakan!");
+                    renderCartItems();
+                } else {
+                    messageBox.innerText = "✕ Gagal: Minimal belanja Rp50.000 diperlukan.";
+                    messageBox.className = "text-[10px] font-bold text-red-500 block";
+                    showToast("Belanjaan belum mencukupi!");
+                }
+            } else {
+                messageBox.innerText = "✕ Kode voucher tidak valid atau kedaluwarsa.";
+                messageBox.className = "text-[10px] font-bold text-red-500 block";
+                showToast("Kode voucher salah!");
+            }
+        }
+
+        // FITUR KLAIM LANGSUNG DARI HALAMAN PROMO
+        function claimVoucherFromPromo(code) {
+            switchTab('cart');
+            const inputField = document.getElementById('voucher-input');
+            if (inputField) {
+                inputField.value = code;
+                applyVoucherCode();
+            }
         }
 
         function processCheckout() {
@@ -453,11 +530,16 @@
             const chosenSlot = document.querySelector('input[name="shipping-slot"]:checked')?.value || "Pagi (06:00 - 09:00)";
             const currentAddress = localStorage.getItem('segari_address') || "Rumah Utama";
             
+            let finalPayment = Math.max(0, subtotal - voucherDiscountAmount);
+
             const newOrder = {
                 id: "SGR-" + Math.floor(1000 + Math.random() * 9000),
                 user: activeUser.username,
                 items: [...cart], 
-                total: subtotal,
+                subtotal: subtotal,
+                discount: voucherDiscountAmount,
+                voucherUsed: activeVoucherCode,
+                total: finalPayment,
                 slot: chosenSlot,
                 address: currentAddress,
                 status: "Diproses",
@@ -467,13 +549,18 @@
             currentOrders.push(newOrder);
             localStorage.setItem('segari_orders', JSON.stringify(currentOrders));
             
+            // RESET SETELAH ORDER BERHASIL
             cart = [];
+            activeVoucherCode = null;
+            voucherDiscountAmount = 0;
+            if(document.getElementById('voucher-input')) document.getElementById('voucher-input').value = '';
+            if(document.getElementById('voucher-message')) document.getElementById('voucher-message').classList.add('hidden');
+            
             updateCartCount();
             showToast("Pesanan berhasil diproses!");
             switchTab('tracking');
         }
 
-        // FUNGSI PENDUKUNG YANG SEBELUMNYA TERPOTONG:
         function startFlashSaleTimer() {
             let hours = 2, minutes = 14, seconds = 45;
             setInterval(() => {
@@ -601,4 +688,4 @@
         }
     </script>
 </body>
-                                </html>
+    </html>
