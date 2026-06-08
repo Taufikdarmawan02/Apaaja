@@ -122,6 +122,25 @@
             </div>
         </div>
 
+        <div id="chat-page" class="hidden p-4 space-y-4">
+            <h2 class="text-base font-black text-gray-800 flex items-center gap-2"><i data-lucide="message-square-text" class="text-green-600 w-5 h-5"></i> Chat Penjual</h2>
+            <div id="chat-logged-out" class="bg-gray-50 border border-gray-100 rounded-3xl p-6 text-center space-y-4 hidden">
+                <div class="w-16 h-16 bg-gray-200 text-gray-400 rounded-full flex items-center justify-center mx-auto"><i data-lucide="message-square-text" class="w-8 h-8"></i></div>
+                <div>
+                    <h3 class="text-sm font-bold text-gray-800">Kamu Belum Masuk Akun</h3>
+                    <p class="text-xs text-gray-400 mt-1">Silakan masuk akun terlebih dahulu untuk chat dengan penjual.</p>
+                </div>
+                <button onclick="redirectToLogin()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2.5 rounded-xl text-xs transition btn-active">Masuk / Daftar Akun</button>
+            </div>
+            <div id="chat-logged-in" class="space-y-4 hidden flex flex-col">
+                <div id="chat-box" class="space-y-3 max-h-[50vh] overflow-y-auto no-scrollbar border border-gray-50 rounded-2xl bg-gray-50 p-3 min-h-[320px] flex flex-col"></div>
+                <div class="flex gap-2 pt-2 border-t border-gray-100">
+                    <input type="text" id="chat-text-input" onkeydown="if(event.key === 'Enter') sendChatToMerchant()" placeholder="Tulis pesan ke penjual..." class="flex-grow px-3 py-2 bg-gray-50 text-xs rounded-xl border-none text-gray-800 focus:outline-none focus:ring-1 focus:ring-green-500">
+                    <button onclick="sendChatToMerchant()" class="bg-green-600 text-white p-2 rounded-xl btn-active flex items-center justify-center"><i data-lucide="send" class="w-4 h-4"></i></button>
+                </div>
+            </div>
+        </div>
+
         <div id="tracking-page" class="hidden p-4 space-y-4">
             <h2 class="text-base font-black text-gray-800 flex items-center gap-2"><i data-lucide="truck" class="text-blue-500 w-5 h-5"></i> Status Pengiriman Live</h2>
             <div id="no-order-state" class="text-center py-12 text-gray-400 space-y-2 hidden">
@@ -159,16 +178,19 @@
             <i data-lucide="sparkles" class="w-4 h-4"></i> Tanya AI Koki
         </button>
 
-        <nav class="absolute bottom-0 inset-x-0 h-16 bg-white border-t border-gray-100 grid grid-cols-5 items-center text-center text-gray-400 z-40 shadow-[0_-4px_12px_rgba(0,0,0,0.03)]">
+        <nav class="fixed bottom-0 w-full max-w-[480px] h-16 bg-white border-t border-gray-100 grid grid-cols-6 items-center text-center text-gray-400 z-40 shadow-[0_-4px_12px_rgba(0,0,0,0.08)]">
             <button id="nav-home" onclick="switchTab('home')" class="nav-btn text-green-600 flex flex-col items-center gap-0.5">
                 <i data-lucide="home" class="w-4 h-4"></i><span class="text-[9px] font-bold">Belanja</span>
             </button>
             <button id="nav-cart" onclick="handleCartTabClick()" class="nav-btn flex flex-col items-center gap-0.5 relative">
                 <i data-lucide="shopping-cart" class="w-4 h-4"></i><span class="text-[9px] font-bold">Keranjang</span>
-                <span id="cart-badge" class="absolute top-1 right-5 bg-red-500 text-white text-[8px] font-black w-4 h-4 rounded-full items-center justify-center hidden flex">0</span>
+                <span id="cart-badge" class="absolute top-1 right-3 bg-red-500 text-white text-[8px] font-black w-4 h-4 rounded-full items-center justify-center hidden flex">0</span>
             </button>
             <button id="nav-promo" onclick="switchTab('promo')" class="nav-btn flex flex-col items-center gap-0.5">
                 <i data-lucide="ticket" class="w-4 h-4"></i><span class="text-[9px] font-bold">Promo</span>
+            </button>
+            <button id="nav-chat" onclick="switchTab('chat')" class="nav-btn flex flex-col items-center gap-0.5">
+                <i data-lucide="message-square-text" class="w-4 h-4"></i><span class="text-[9px] font-bold">Chat</span>
             </button>
             <button id="nav-tracking" onclick="switchTab('tracking')" class="nav-btn flex flex-col items-center gap-0.5">
                 <i data-lucide="truck" class="w-4 h-4"></i><span class="text-[9px] font-bold">Lacak</span>
@@ -230,12 +252,13 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             initDatabase(); loadSession(); renderProducts(); updateCartCount(); startFlashSaleTimer(); lucide.createIcons();
-            window.addEventListener('storage', () => { initDatabase(); loadSession(); renderProducts(); updateCartCount(); });
+            window.addEventListener('storage', () => { initDatabase(); loadSession(); renderProducts(); updateCartCount(); renderChatView(); });
         });
 
         function initDatabase() {
             if (!localStorage.getItem('segari_products')) localStorage.setItem('segari_products', JSON.stringify(defaultProducts));
             if (!localStorage.getItem('segari_orders')) localStorage.setItem('segari_orders', JSON.stringify([]));
+            if (!localStorage.getItem('segari_chats')) localStorage.setItem('segari_chats', JSON.stringify([]));
             if (!localStorage.getItem(MASTER_USER_KEY)) {
                 localStorage.setItem(MASTER_USER_KEY, JSON.stringify([
                     { username: "admin_segari", role: "Admin" }, 
@@ -251,23 +274,20 @@
             const savedAddress = localStorage.getItem('segari_address') || "Rumah Utama, Jl. Ketapang No. 12";
             localStorage.setItem('segari_address', savedAddress);
             document.getElementById('current-address-text').innerText = "Kirim ke: " + savedAddress;
-            renderTrackingView(); renderAkunView();
+            renderTrackingView(); renderAkunView(); renderChatView();
         }
 
         function redirectToLogin() { window.location.href = "login-consumer.html"; }
 
-        // PERBAIKAN UTAMA: Switch tab highlight logic
         function switchTab(tabId) {
-            const pages = ['home-page', 'cart-page', 'promo-page', 'tracking-page', 'akun-page'];
+            const pages = ['home-page', 'cart-page', 'promo-page', 'chat-page', 'tracking-page', 'akun-page'];
             pages.forEach(p => document.getElementById(p)?.classList.add('hidden'));
             document.getElementById(`${tabId}-page`)?.classList.remove('hidden');
 
-            // Reset warna semua tombol navigasi ke default (abu-abu)
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 btn.classList.remove('text-green-600'); btn.classList.add('text-gray-400');
             });
             
-            // Highlight tombol yang aktif secara presisi menggunakan ID target
             const activeNavButton = document.getElementById(`nav-${tabId}`);
             if (activeNavButton) {
                 activeNavButton.classList.remove('text-gray-400');
@@ -278,6 +298,7 @@
             if (tabId === 'cart') renderCartItems();
             if (tabId === 'tracking') renderTrackingView();
             if (tabId === 'akun') renderAkunView();
+            if (tabId === 'chat') renderChatView();
             lucide.createIcons();
         }
 
@@ -439,7 +460,7 @@
             switchTab('tracking');
         }
 
-        // KELANJUTAN DAN PENYEMPURNAAN KODE HALAMAN LACAK YANG TERPOTONG
+        // 🔗 KELANJUTAN AMAN DAN PENYEMPURNAAN DI SISI TRACKING VIEW
         function renderTrackingView() {
             const noOrder = document.getElementById('no-order-state');
             const activeOrder = document.getElementById('active-order-state');
@@ -492,7 +513,64 @@
             }).join('');
         }
 
-        // BANNER TIMER UTILITY
+        // 💬 LOGIKA DI SISI CHAT PENJUAL
+        function renderChatView() {
+            const loggedOut = document.getElementById('chat-logged-out');
+            const loggedIn = document.getElementById('chat-logged-in');
+            if(!loggedOut || !loggedIn) return;
+
+            if (!activeUser || (activeUser.role !== 'Pembeli' && activeUser.role !== 'Konsumen')) {
+                loggedOut.classList.remove('hidden'); loggedIn.classList.add('hidden');
+                return;
+            }
+
+            loggedOut.classList.add('hidden'); loggedIn.classList.remove('hidden');
+
+            const chatBox = document.getElementById('chat-box');
+            const allChats = JSON.parse(localStorage.getItem('segari_chats')) || [];
+            const userChats = allChats.filter(c => c.user === activeUser.username && c.merchant === 'anita_sayur');
+
+            if(userChats.length === 0) {
+                chatBox.innerHTML = `<div class="text-center my-auto text-gray-400 text-[11px] py-12">Belum ada obrolan. Tulis pesan di bawah untuk menghubungi merchant!</div>`;
+                return;
+            }
+
+            chatBox.innerHTML = userChats.map(c => {
+                const isUser = c.sender === 'user';
+                return `
+                    <div class="${isUser ? 'bg-green-500 text-white self-end rounded-br-none' : 'bg-white text-gray-800 border border-gray-100 self-start rounded-bl-none'} rounded-2xl p-2.5 max-w-[80%] space-y-1 shadow-sm mb-2">
+                        <p class="leading-relaxed break-words text-xs">${c.text}</p>
+                        <p class="text-[8px] ${isUser ? 'text-green-100' : 'text-gray-400'} text-right font-mono">${c.time}</p>
+                    </div>`;
+            }).join('');
+            
+            setTimeout(() => { chatBox.scrollTop = chatBox.scrollHeight; }, 50);
+        }
+
+        function sendChatToMerchant() {
+            const input = document.getElementById('chat-text-input');
+            const text = input.value.trim();
+            if(!text || !activeUser) return;
+
+            let allChats = JSON.parse(localStorage.getItem('segari_chats')) || [];
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
+            allChats.push({
+                id: Date.now(),
+                merchant: 'anita_sayur', 
+                user: activeUser.username,
+                sender: 'user',
+                text: text,
+                time: timeStr
+            });
+
+            localStorage.setItem('segari_chats', JSON.stringify(allChats));
+            input.value = '';
+            renderChatView();
+        }
+
+        // TIMER UTILITY ENGINE
         function startFlashSaleTimer() {
             setInterval(() => {
                 let h = document.getElementById('timer-hours');
@@ -510,7 +588,7 @@
                     else {
                         mins = 59;
                         if(hours > 0) { hours--; }
-                        else { hours = 2; mins = 14; secs = 45; } // looping mock reset
+                        else { hours = 2; mins = 14; secs = 45; }
                     }
                 }
                 h.innerText = String(hours).padStart(2, '0');
@@ -519,69 +597,53 @@
             }, 1000);
         }
 
-        // LOCATION MODAL CONTROL
+        // MODAL MANAGEMENT CONTROLLERS
         function openLocationModal() {
             const m = document.getElementById('location-modal');
-            m.classList.remove('hidden');
-            setTimeout(() => m.classList.remove('opacity-0'), 10);
+            m.classList.remove('hidden'); setTimeout(() => m.classList.remove('opacity-0'), 10);
         }
         function closeLocationModal() {
             const m = document.getElementById('location-modal');
-            m.classList.add('opacity-0');
-            setTimeout(() => m.classList.add('hidden'), 300);
+            m.classList.add('opacity-0'); setTimeout(() => m.classList.add('hidden'), 300);
         }
         function saveLocation() {
             const input = document.getElementById('address-input').value;
             if(input.trim()) {
                 localStorage.setItem('segari_address', input);
                 document.getElementById('current-address-text').innerText = "Kirim ke: " + input;
-                showToast("Alamat pengiriman diperbarui!");
-                closeLocationModal();
+                showToast("Alamat kirim berhasil diubah!"); closeLocationModal();
             }
         }
 
-        // AI ASSISTANT MODAL CONTROL
         function openAiModal() {
             const m = document.getElementById('ai-modal');
-            m.classList.remove('hidden');
-            setTimeout(() => m.classList.remove('opacity-0'), 10);
+            m.classList.remove('hidden'); setTimeout(() => m.classList.remove('opacity-0'), 10);
         }
         function closeAiModal() {
             const m = document.getElementById('ai-modal');
-            m.classList.add('opacity-0');
-            setTimeout(() => m.classList.add('hidden'), 300);
+            m.classList.add('opacity-0'); setTimeout(() => m.classList.add('hidden'), 300);
         }
         function askAiChef() {
-            const input = document.getElementById('ai-input');
-            const hist = document.getElementById('ai-chat-history');
+            const input = document.getElementById('ai-input'); const hist = document.getElementById('ai-chat-history');
             if(!input.value.trim()) return;
             
             const userBox = document.createElement('div');
             userBox.className = "bg-green-600 text-white rounded-xl p-3 text-xs self-end ml-12 mb-2 animate-slide-up";
-            userBox.innerText = input.value;
-            hist.appendChild(userBox);
+            userBox.innerText = input.value; hist.appendChild(userBox);
             
             const botBox = document.createElement('div');
             botBox.className = "bg-gray-50 border border-gray-100 rounded-xl p-3 text-gray-700 self-start mr-12 mb-2 text-xs";
-            botBox.innerText = `Bahan "${input.value}" mantap sekali! Kamu bisa menumisnya dengan bawang merah, bawang putih, dan sedikit cabai agar rasanya lebih segar alami. Semua bahannya ada di Segari lho!`;
+            botBox.innerText = `Bahan "${input.value}" mantap sekali! Sangat cocok ditumis mentega atau dijadikan sup bening segar pagi hari.`;
             
-            setTimeout(() => {
-                hist.appendChild(botBox);
-                hist.scrollTop = hist.scrollHeight;
-            }, 600);
-            
+            setTimeout(() => { hist.appendChild(botBox); hist.scrollTop = hist.scrollHeight; }, 500);
             input.value = '';
         }
 
-        // TOAST ENGINE CONTROL
         function showToast(msg) {
             const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = "toast-msg";
-            toast.innerText = msg;
-            container.appendChild(toast);
-            setTimeout(() => { toast.remove(); }, 2500);
+            const toast = document.createElement('div'); toast.className = "toast-msg"; toast.innerText = msg;
+            container.appendChild(toast); setTimeout(() => { toast.remove(); }, 2500);
         }
     </script>
 </body>
-                  </html>
+    </html>
