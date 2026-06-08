@@ -1,619 +1,466 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Segari - Sayur & Buah Segar Instan</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        .animate-slide-up { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        .toast-msg { animation: slideUp 0.2s ease-out; position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #1f2937; color: white; padding: 8px 16px; border-radius: 9999px; font-size: 11px; font-weight: bold; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .btn-active:active { transform: scale(0.96); }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Segari - Sayur & Buah Segar Instan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .animate-slide-up { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .toast-msg { animation: slideUp 0.2s ease-out; position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #1f2937; color: white; padding: 8px 16px; border-radius: 9999px; font-size: 11px; font-weight: bold; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .btn-active:active { transform: scale(0.96); }
+    </style>
 </head>
 <body class="bg-gray-50 font-sans antialiased flex justify-center text-gray-800">
 
-    <div class="w-full max-w-[480px] min-h-screen bg-white shadow-2xl relative flex flex-col pb-24 border-x border-gray-100">
-        
-        <div id="home-page" class="space-y-4">
-            <header class="bg-white sticky top-0 z-30 p-4 border-b border-gray-50 shadow-sm space-y-3">
-                <div class="flex justify-between items-center">
-                    <span class="text-2xl font-black tracking-tight text-green-600">se<span class="text-orange-500">gari</span></span>
-                    <div onclick="openLocationModal()" class="flex items-center gap-1 bg-gray-50 border border-gray-100 px-3 py-1.5 rounded-full cursor-pointer transition btn-active">
-                        <i data-lucide="map-pin" class="w-3.5 h-3.5 text-orange-500"></i>
-                        <span id="current-address-text" class="text-[11px] font-bold text-gray-600 truncate max-w-[120px]">Kirim ke: Rumah Utama</span>
-                        <i data-lucide="chevron-down" class="w-3 h-3 text-gray-400"></i>
-                    </div>
-                </div>
-                <div class="relative flex items-center">
-                    <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3"></i>
-                    <input type="text" id="search-input" oninput="searchProducts()" placeholder="Cari bayam, apel fuji, daging sapi..." class="w-full pl-9 pr-4 py-2 bg-gray-100 border-none text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500/20 text-gray-800 placeholder-gray-400">
-                </div>
-            </header>
+    <div class="w-full max-w-[480px] min-h-screen bg-white shadow-2xl relative flex flex-col pb-24 border-x border-gray-100">
+        
+        <div id="home-page" class="space-y-4">
+            <header class="bg-white sticky top-0 z-30 p-4 border-b border-gray-50 shadow-sm space-y-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-2xl font-black tracking-tight text-green-600">se<span class="text-orange-500">gari</span></span>
+                    <div onclick="openLocationModal()" class="flex items-center gap-1 bg-gray-50 border border-gray-100 px-3 py-1.5 rounded-full cursor-pointer transition btn-active">
+                        <i data-lucide="map-pin" class="w-3.5 h-3.5 text-orange-500"></i>
+                        <span id="current-address-text" class="text-[11px] font-bold text-gray-600 truncate max-w-[120px]">Kirim ke: Rumah Utama</span>
+                        <i data-lucide="chevron-down" class="w-3 h-3 text-gray-400"></i>
+                    </div>
+                </div>
+                <div class="relative flex items-center">
+                    <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3"></i>
+                    <input type="text" id="search-input" oninput="searchProducts()" placeholder="Cari bayam, apel fuji, daging sapi..." class="w-full pl-9 pr-4 py-2 bg-gray-100 border-none text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500/20 text-gray-800 placeholder-gray-400">
+                </div>
+            </header>
 
-            <div class="px-4">
-                <div class="bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl p-4 text-white relative overflow-hidden shadow-md">
-                    <div class="relative z-10 space-y-1">
-                        <span class="bg-white/20 text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-md tracking-wider">Flash Sale Hari Ini</span>
-                        <h2 class="text-base font-black tracking-tight leading-tight">Diskon Bahan Dapur<br>Hingga 50%</h2>
-                        <div class="flex items-center gap-1 pt-1 font-mono text-[10px] font-bold">
-                            <span class="bg-black/20 px-1.5 py-0.5 rounded" id="timer-hours">02</span>:
-                            <span class="bg-black/20 px-1.5 py-0.5 rounded" id="timer-mins">14</span>:
-                            <span class="bg-black/20 px-1.5 py-0.5 rounded" id="timer-secs">45</span>
-                        </div>
-                    </div>
-                    <i data-lucide="shopping-bag" class="w-24 h-24 text-white/10 absolute -right-4 -bottom-4 rotate-12"></i>
-                </div>
-            </div>
+            <div class="px-4">
+                <div class="bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl p-4 text-white relative overflow-hidden shadow-md">
+                    <div class="relative z-10 space-y-1">
+                        <span class="bg-white/20 text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-md tracking-wider">Flash Sale Hari Ini</span>
+                        <h2 class="text-base font-black tracking-tight leading-tight">Diskon Bahan Dapur<br>Hingga 50%</h2>
+                        <div class="flex items-center gap-1 pt-1 font-mono text-[10px] font-bold">
+                            <span class="bg-black/20 px-1.5 py-0.5 rounded" id="timer-hours">02</span>:
+                            <span class="bg-black/20 px-1.5 py-0.5 rounded" id="timer-mins">14</span>:
+                            <span class="bg-black/20 px-1.5 py-0.5 rounded" id="timer-secs">45</span>
+                        </div>
+                    </div>
+                    <i data-lucide="shopping-bag" class="w-24 h-24 text-white/10 absolute -right-4 -bottom-4 rotate-12"></i>
+                </div>
+            </div>
 
-            <div class="px-4 space-y-2">
-                <h3 class="text-xs font-black uppercase text-gray-400 tracking-wider">Kategori Belanja</h3>
-                <div class="flex gap-2 overflow-x-auto no-scrollbar py-1">
-                    <button onclick="filterCategory('semua')" class="category-btn flex flex-col items-center gap-1 bg-green-50 p-2 rounded-xl border border-green-100 transition btn-active font-bold text-green-700">
-                        <span class="text-xs px-2 whitespace-nowrap">Semua</span>
-                    </button>
-                    <button onclick="filterCategory('sayur')" class="category-btn flex flex-col items-center gap-1 bg-gray-50 p-2 rounded-xl border border-transparent transition btn-active text-gray-600">
-                        <span class="text-xs px-2 whitespace-nowrap">🥦 Sayuran</span>
-                    </button>
-                    <button onclick="filterCategory('buah')" class="category-btn flex flex-col items-center gap-1 bg-gray-50 p-2 rounded-xl border border-transparent transition btn-active text-gray-600">
-                        <span class="text-xs px-2 whitespace-nowrap">🍎 Buahan</span>
-                    </button>
-                    <button onclick="filterCategory('daging')" class="category-btn flex flex-col items-center gap-1 bg-gray-50 p-2 rounded-xl border border-transparent transition btn-active text-gray-600">
-                        <span class="text-xs px-2 whitespace-nowrap">🥩 Daging & Ikan</span>
-                    </button>
-                </div>
-            </div>
+            <div class="px-4 space-y-2">
+                <h3 class="text-xs font-black uppercase text-gray-400 tracking-wider">Kategori Belanja</h3>
+                <div class="flex gap-2 overflow-x-auto no-scrollbar py-1">
+                    <button onclick="filterCategory('semua')" class="category-btn flex flex-col items-center gap-1 bg-green-50 p-2 rounded-xl border border-green-100 transition btn-active font-bold text-green-700">
+                        <span class="text-xs px-2 whitespace-nowrap">Semua</span>
+                    </button>
+                    <button onclick="filterCategory('sayur')" class="category-btn flex flex-col items-center gap-1 bg-gray-50 p-2 rounded-xl border border-transparent transition btn-active text-gray-600">
+                        <span class="text-xs px-2 whitespace-nowrap">🥦 Sayuran</span>
+                    </button>
+                    <button onclick="filterCategory('buah')" class="category-btn flex flex-col items-center gap-1 bg-gray-50 p-2 rounded-xl border border-transparent transition btn-active text-gray-600">
+                        <span class="text-xs px-2 whitespace-nowrap">🍎 Buahan</span>
+                    </button>
+                    <button onclick="filterCategory('daging')" class="category-btn flex flex-col items-center gap-1 bg-gray-50 p-2 rounded-xl border border-transparent transition btn-active text-gray-600">
+                        <span class="text-xs px-2 whitespace-nowrap">🥩 Daging & Ikan</span>
+                    </button>
+                </div>
+            </div>
 
-            <div class="px-4 space-y-3">
-                <div class="flex justify-between items-center">
-                    <h3 class="text-sm font-black text-gray-800" id="product-section-title">Semua Produk Segar</h3>
-                    <span class="text-[10px] text-green-600 font-bold bg-green-50 px-2 py-0.5 rounded-full">Garansi Segar 100%</span>
-                </div>
-                <div class="grid grid-cols-2 gap-3" id="product-grid"></div>
-            </div>
-        </div>
+            <div class="px-4 space-y-3">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-sm font-black text-gray-800" id="product-section-title">Semua Produk Segar</h3>
+                    <span class="text-[10px] text-green-600 font-bold bg-green-50 px-2 py-0.5 rounded-full">Garansi Segar 100%</span>
+                </div>
+                <div class="grid grid-cols-2 gap-3" id="product-grid"></div>
+            </div>
+        </div>
 
-        <div id="cart-page" class="hidden p-4 space-y-4">
-            <h2 class="text-base font-black text-gray-800 border-b border-gray-100 pb-2 flex items-center gap-2"><i data-lucide="shopping-cart" class="text-green-600 w-5 h-5"></i> Keranjang Belanja Anda</h2>
-            <div id="empty-cart-state" class="text-center py-12 space-y-2 hidden">
-                <i data-lucide="shopping-cart" class="w-12 h-12 text-gray-300 mx-auto"></i>
-                <p class="text-xs font-bold text-gray-400">Keranjang belanja kosong nih, yuk isi dulu!</p>
-                <button onclick="switchTab('home')" class="bg-green-500 text-white text-xs px-4 py-1.5 rounded-xl font-bold">Mulai Belanja</button>
-            </div>
-            <div id="cart-active-state" class="space-y-4">
-                <div id="cart-items-list" class="space-y-3"></div>
-                <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4 space-y-2">
-                    <h4 class="text-xs font-black text-gray-700 flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5 text-orange-500"></i> Pilih Slot Waktu Tiba Besok</h4>
-                    <div class="grid grid-cols-2 gap-2 text-[11px] font-bold">
-                        <label class="border border-green-500 bg-green-50/50 p-2.5 rounded-xl flex items-center gap-2 cursor-pointer text-green-900">
-                            <input type="radio" name="shipping-slot" value="Pagi (06:00 - 09:00)" checked class="accent-green-600"> Pagi (06:00 - 09:00)
-                        </label>
-                        <label class="border border-gray-200 bg-white p-2.5 rounded-xl flex items-center gap-2 cursor-pointer text-gray-600">
-                            <input type="radio" name="shipping-slot" value="Siang (11:00 - 14:00)" class="accent-green-600"> Siang (11:00 - 14:00)
-                        </label>
-                    </div>
-                </div>
-                <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4 space-y-1.5 text-xs">
-                    <div class="flex justify-between text-gray-400"><span>Subtotal Item</span><span id="price-subtotal">Rp0</span></div>
-                    <div class="flex justify-between text-gray-400"><span>Ongkos Kirim Flat</span><span>Rp0 (Promo)</span></div>
-                    <div class="border-t border-dashed border-gray-200 my-2 pt-2 flex justify-between font-black text-gray-800 text-sm">
-                        <span>Total Pembayaran</span><span class="text-green-600" id="price-total">Rp0</span>
-                    </div>
-                </div>
-                <button onclick="processCheckout()" class="w-full bg-green-600 text-white font-bold py-3 rounded-2xl text-xs transition btn-active shadow-lg shadow-green-100 flex items-center justify-center gap-2">
-                    <i data-lucide="credit-card" class="w-4 h-4"></i> Konfirmasi Pesanan & Bayar
-                </button>
-            </div>
-        </div>
+        <div id="cart-page" class="hidden p-4 space-y-4">
+            <h2 class="text-base font-black text-gray-800 border-b border-gray-100 pb-2 flex items-center gap-2"><i data-lucide="shopping-cart" class="text-green-600 w-5 h-5"></i> Keranjang Belanja Anda</h2>
+            <div id="empty-cart-state" class="text-center py-12 space-y-2 hidden">
+                <i data-lucide="shopping-cart" class="w-12 h-12 text-gray-300 mx-auto"></i>
+                <p class="text-xs font-bold text-gray-400">Keranjang belanja kosong nih, yuk isi dulu!</p>
+                <button onclick="switchTab('home')" class="bg-green-500 text-white text-xs px-4 py-1.5 rounded-xl font-bold">Mulai Belanja</button>
+            </div>
+            <div id="cart-active-state" class="space-y-4">
+                <div id="cart-items-list" class="space-y-3"></div>
+                <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4 space-y-2">
+                    <h4 class="text-xs font-black text-gray-700 flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5 text-orange-500"></i> Pilih Slot Waktu Tiba Besok</h4>
+                    <div class="grid grid-cols-2 gap-2 text-[11px] font-bold">
+                        <label class="border border-green-500 bg-green-50/50 p-2.5 rounded-xl flex items-center gap-2 cursor-pointer text-green-900">
+                            <input type="radio" name="shipping-slot" value="Pagi (06:00 - 09:00)" checked class="accent-green-600"> Pagi (06:00 - 09:00)
+                        </label>
+                        <label class="border border-gray-200 bg-white p-2.5 rounded-xl flex items-center gap-2 cursor-pointer text-gray-600">
+                            <input type="radio" name="shipping-slot" value="Siang (11:00 - 14:00)" class="accent-green-600"> Siang (11:00 - 14:00)
+                        </label>
+                    </div>
+                </div>
+                <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4 space-y-1.5 text-xs">
+                    <div class="flex justify-between text-gray-400"><span>Subtotal Item</span><span id="price-subtotal">Rp0</span></div>
+                    <div class="flex justify-between text-gray-400"><span>Ongkos Kirim Flat</span><span>Rp0 (Promo)</span></div>
+                    <div class="border-t border-dashed border-gray-200 my-2 pt-2 flex justify-between font-black text-gray-800 text-sm">
+                        <span>Total Pembayaran</span><span class="text-green-600" id="price-total">Rp0</span>
+                    </div>
+                </div>
+                <button onclick="processCheckout()" class="w-full bg-green-600 text-white font-bold py-3 rounded-2xl text-xs transition btn-active shadow-lg shadow-green-100 flex items-center justify-center gap-2">
+                    <i data-lucide="credit-card" class="w-4 h-4"></i> Konfirmasi Pesanan & Bayar
+                </button>
+            </div>
+        </div>
 
-        <div id="promo-page" class="hidden p-4 space-y-4">
-            <h2 class="text-base font-black text-gray-800 flex items-center gap-2"><i data-lucide="ticket" class="text-orange-500 w-5 h-5"></i> Voucher & Promo Spesial</h2>
-            <div class="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl p-4 text-white flex justify-between items-center shadow-sm">
-                <div>
-                    <h4 class="text-xs font-black uppercase tracking-wide bg-black/20 px-2 py-0.5 rounded inline-block">MEMBERBARU</h4>
-                    <p class="text-sm font-bold mt-1">Potongan Flat Rp10.000</p>
-                    <p class="text-[9px] text-emerald-100">Minimal transaksi belanja Rp50.000</p>
-                </div>
-                <button onclick="showToast('Voucher berhasil diklaim!')" class="bg-white text-emerald-700 font-extrabold text-[10px] px-3 py-1.5 rounded-xl shadow-sm">Klaim</button>
-            </div>
-        </div>
+        <div id="promo-page" class="hidden p-4 space-y-4">
+            <h2 class="text-base font-black text-gray-800 flex items-center gap-2"><i data-lucide="ticket" class="text-orange-500 w-5 h-5"></i> Voucher & Promo Spesial</h2>
+            <div class="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl p-4 text-white flex justify-between items-center shadow-sm">
+                <div>
+                    <h4 class="text-xs font-black uppercase tracking-wide bg-black/20 px-2 py-0.5 rounded inline-block">MEMBERBARU</h4>
+                    <p class="text-sm font-bold mt-1">Potongan Flat Rp10.000</p>
+                    <p class="text-[9px] text-emerald-100">Minimal transaksi belanja Rp50.000</p>
+                </div>
+                <button onclick="showToast('Voucher berhasil diklaim!')" class="bg-white text-emerald-700 font-extrabold text-[10px] px-3 py-1.5 rounded-xl shadow-sm">Klaim</button>
+            </div>
+        </div>
 
-        <div id="chat-page" class="hidden p-4 space-y-4">
-            <h2 class="text-base font-black text-gray-800 flex items-center gap-2"><i data-lucide="message-square-text" class="text-green-600 w-5 h-5"></i> Chat Penjual</h2>
-            <div id="chat-logged-out" class="bg-gray-50 border border-gray-100 rounded-3xl p-6 text-center space-y-4 hidden">
-                <div class="w-16 h-16 bg-gray-200 text-gray-400 rounded-full flex items-center justify-center mx-auto"><i data-lucide="message-square-text" class="w-8 h-8"></i></div>
-                <div>
-                    <h3 class="text-sm font-bold text-gray-800">Kamu Belum Masuk Akun</h3>
-                    <p class="text-xs text-gray-400 mt-1">Silakan masuk akun terlebih dahulu untuk chat dengan penjual.</p>
-                </div>
-                <button onclick="redirectToLogin()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2.5 rounded-xl text-xs transition btn-active">Masuk / Daftar Akun</button>
-            </div>
-            <div id="chat-logged-in" class="space-y-4 hidden flex flex-col">
-                <div id="chat-box" class="space-y-3 max-h-[52vh] overflow-y-auto no-scrollbar p-1 flex flex-col border border-gray-50 rounded-2xl bg-gray-50 p-3 min-h-[300px]"></div>
-                <div class="flex gap-2 pt-2 border-t border-gray-100">
-                    <input type="text" id="chat-text-input" placeholder="Tulis pesan ke penjual..." class="flex-grow px-3 py-2 bg-gray-50 text-xs rounded-xl border-none text-gray-800 focus:outline-none focus:ring-1 focus:ring-green-500">
-                    <button onclick="sendChatToMerchant()" class="bg-green-600 text-white p-2 rounded-xl btn-active flex items-center justify-center"><i data-lucide="send" class="w-4 h-4"></i></button>
-                </div>
-            </div>
-        </div>
+        <div id="tracking-page" class="hidden p-4 space-y-4">
+            <h2 class="text-base font-black text-gray-800 flex items-center gap-2"><i data-lucide="truck" class="text-blue-500 w-5 h-5"></i> Status Pengiriman Live</h2>
+            <div id="no-order-state" class="text-center py-12 text-gray-400 space-y-2 hidden">
+                <i data-lucide="package-open" class="w-10 h-10 mx-auto text-gray-300"></i>
+                <p class="text-xs">Kamu belum memiliki transaksi order aktif saat ini.</p>
+            </div>
+            <div id="active-order-state" class="space-y-4 max-h-[70vh] overflow-y-auto no-scrollbar pb-6"></div>
+        </div>
 
-        <div id="tracking-page" class="hidden p-4 space-y-4">
-            <h2 class="text-base font-black text-gray-800 flex items-center gap-2"><i data-lucide="truck" class="text-blue-500 w-5 h-5"></i> Status Pengiriman Live</h2>
-            <div id="no-order-state" class="text-center py-12 text-gray-400 space-y-2 hidden">
-                <i data-lucide="package-open" class="w-10 h-10 mx-auto text-gray-300"></i>
-                <p class="text-xs">Kamu belum memiliki transaksi order aktif saat ini.</p>
-            </div>
-            <div id="active-order-state" class="space-y-4 max-h-[70vh] overflow-y-auto no-scrollbar pb-6"></div>
-        </div>
+        <div id="akun-page" class="hidden p-4 space-y-4">
+            <h2 class="text-base font-black text-gray-800 flex items-center gap-2"><i data-lucide="user" class="text-green-600 w-5 h-5"></i> Profil Akun Saya</h2>
+            <div id="logged-out-state" class="bg-gray-50 border border-gray-100 rounded-3xl p-6 text-center space-y-4">
+                <div class="w-16 h-16 bg-gray-200 text-gray-400 rounded-full flex items-center justify-center mx-auto"><i data-lucide="user" class="w-8 h-8"></i></div>
+                <div>
+                    <h3 class="text-sm font-bold text-gray-800">Kamu Belum Masuk Akun</h3>
+                    <p class="text-xs text-gray-400 mt-1">Silakan masuk atau daftar terlebih dahulu untuk mengakses riwayat pesanan.</p>
+                </div>
+                <button onclick="redirectToLogin()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2.5 rounded-xl text-xs transition btn-active">Masuk / Daftar Akun</button>
+            </div>
+            <div id="logged-in-state" class="space-y-4 hidden">
+                <div class="bg-gradient-to-r from-green-600 to-emerald-700 rounded-2xl p-4 text-white flex items-center gap-4 shadow-sm">
+                    <div class="w-12 h-12 bg-white/20 border border-white/10 rounded-full flex items-center justify-center font-black text-lg text-white uppercase" id="user-avatar-char">U</div>
+                    <div>
+                        <h3 class="text-sm font-black tracking-tight" id="user-profile-name">Nama Pengguna</h3>
+                        <p class="text-[10px] text-green-100 font-bold bg-white/20 px-2 py-0.5 rounded-full inline-block mt-1 uppercase" id="user-profile-role">Pembeli</p>
+                    </div>
+                </div>
+                <button onclick="handleLogout()" class="w-full bg-rose-50 border border-rose-100 hover:bg-rose-100 text-rose-600 font-bold py-3 rounded-2xl text-xs transition btn-active flex items-center justify-center gap-2 shadow-sm">
+                    <i data-lucide="log-out" class="w-4 h-4"></i> Keluar dari Akun (Logout)
+                </button>
+            </div>
+        </div>
 
-        <div id="akun-page" class="hidden p-4 space-y-4">
-            <h2 class="text-base font-black text-gray-800 flex items-center gap-2"><i data-lucide="user" class="text-green-600 w-5 h-5"></i> Profil Akun Saya</h2>
-            <div id="logged-out-state" class="bg-gray-50 border border-gray-100 rounded-3xl p-6 text-center space-y-4">
-                <div class="w-16 h-16 bg-gray-200 text-gray-400 rounded-full flex items-center justify-center mx-auto"><i data-lucide="user" class="w-8 h-8"></i></div>
-                <div>
-                    <h3 class="text-sm font-bold text-gray-800">Kamu Belum Masuk Akun</h3>
-                    <p class="text-xs text-gray-400 mt-1">Silakan masuk atau daftar terlebih dahulu untuk mengakses riwayat pesanan.</p>
-                </div>
-                <button onclick="redirectToLogin()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2.5 rounded-xl text-xs transition btn-active">Masuk / Daftar Akun</button>
-            </div>
-            <div id="logged-in-state" class="space-y-4 hidden">
-                <div class="bg-gradient-to-r from-green-600 to-emerald-700 rounded-2xl p-4 text-white flex items-center gap-4 shadow-sm">
-                    <div class="w-12 h-12 bg-white/20 border border-white/10 rounded-full flex items-center justify-center font-black text-lg text-white uppercase" id="user-avatar-char">U</div>
-                    <div>
-                        <h3 class="text-sm font-black tracking-tight" id="user-profile-name">Nama Pengguna</h3>
-                        <p class="text-[10px] text-green-100 font-bold bg-white/20 px-2 py-0.5 rounded-full inline-block mt-1 uppercase" id="user-profile-role">Pembeli</p>
-                    </div>
-                </div>
-                <button onclick="handleLogout()" class="w-full bg-rose-50 border border-rose-100 hover:bg-rose-100 text-rose-600 font-bold py-3 rounded-2xl text-xs transition btn-active flex items-center justify-center gap-2 shadow-sm">
-                    <i data-lucide="log-out" class="w-4 h-4"></i> Keluar dari Akun (Logout)
-                </button>
-            </div>
-        </div>
+        <button onclick="openAiModal()" class="fixed bottom-20 right-[calc(50%-220px)] sm:right-auto bg-gradient-to-r from-teal-500 to-emerald-600 text-white p-3 rounded-full shadow-xl btn-active z-40 flex items-center gap-1.5 text-xs font-bold ring-4 ring-white">
+            <i data-lucide="sparkles" class="w-4 h-4"></i> Tanya AI Koki
+        </button>
 
-        <button onclick="openAiModal()" class="fixed bottom-20 right-[calc(50%-220px)] sm:right-auto bg-gradient-to-r from-teal-500 to-emerald-600 text-white p-3 rounded-full shadow-xl btn-active z-40 flex items-center gap-1.5 text-xs font-bold ring-4 ring-white">
-            <i data-lucide="sparkles" class="w-4 h-4"></i> Tanya AI Koki
-        </button>
+        <nav class="absolute bottom-0 inset-x-0 h-16 bg-white border-t border-gray-100 grid grid-cols-5 items-center text-center text-gray-400 z-40 shadow-[0_-4px_12px_rgba(0,0,0,0.03)]">
+            <button onclick="switchTab('home')" class="nav-btn text-green-600 flex flex-col items-center gap-0.5"><i data-lucide="home" class="w-4 h-4"></i><span class="text-[9px] font-bold">Belanja</span></button>
+            <button onclick="handleCartTabClick()" class="nav-btn flex flex-col items-center gap-0.5 relative">
+                <i data-lucide="shopping-cart" class="w-4 h-4"></i><span class="text-[9px] font-bold">Keranjang</span>
+                <span id="cart-badge" class="absolute top-1 right-5 bg-red-500 text-white text-[8px] font-black w-4 h-4 rounded-full items-center justify-center hidden flex">0</span>
+            </button>
+            <button onclick="switchTab('promo')" class="nav-btn flex flex-col items-center gap-0.5"><i data-lucide="ticket" class="w-4 h-4"></i><span class="text-[9px] font-bold">Promo</span></button>
+            <button onclick="switchTab('tracking')" class="nav-btn flex flex-col items-center gap-0.5"><i data-lucide="truck" class="w-4 h-4"></i><span class="text-[9px] font-bold">Lacak</span></button>
+            <button onclick="switchTab('akun')" class="nav-btn flex flex-col items-center gap-0.5"><i data-lucide="user" class="w-4 h-4"></i><span class="text-[9px] font-bold">Akun</span></button>
+        </nav>
 
-        <nav class="absolute bottom-0 inset-x-0 h-16 bg-white border-t border-gray-100 grid grid-cols-6 items-center text-center text-gray-400 z-40 shadow-[0_-4px_12px_rgba(0,0,0,0.03)]">
-            <button id="nav-home" onclick="switchTab('home')" class="nav-btn text-green-600 flex flex-col items-center gap-0.5"><i data-lucide="home" class="w-4 h-4"></i><span class="text-[9px] font-bold">Belanja</span></button>
-            <button id="nav-cart" onclick="handleCartTabClick()" class="nav-btn flex flex-col items-center gap-0.5 relative">
-                <i data-lucide="shopping-cart" class="w-4 h-4"></i><span class="text-[9px] font-bold">Keranjang</span>
-                <span id="cart-badge" class="absolute top-1 right-3 bg-red-500 text-white text-[8px] font-black w-4 h-4 rounded-full items-center justify-center hidden flex">0</span>
-            </button>
-            <button id="nav-promo" onclick="switchTab('promo')" class="nav-btn flex flex-col items-center gap-0.5"><i data-lucide="ticket" class="w-4 h-4"></i><span class="text-[9px] font-bold">Promo</span></button>
-            <button id="nav-chat" onclick="switchTab('chat')" class="nav-btn flex flex-col items-center gap-0.5"><i data-lucide="message-square-text" class="w-4 h-4"></i><span class="text-[9px] font-bold">Chat</span></button>
-            <button id="nav-tracking" onclick="switchTab('tracking')" class="nav-btn flex flex-col items-center gap-0.5"><i data-lucide="truck" class="w-4 h-4"></i><span class="text-[9px] font-bold">Lacak</span></button>
-            <button id="nav-akun" onclick="switchTab('akun')" class="nav-btn flex flex-col items-center gap-0.5"><i data-lucide="user" class="w-4 h-4"></i><span class="text-[9px] font-bold">Akun</span></button>
-        </nav>
+        <div id="location-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end justify-center hidden opacity-0 transition-opacity duration-300">
+            <div class="bg-white w-full max-w-[480px] rounded-t-3xl p-6 animate-slide-up space-y-4">
+                <div class="flex justify-between items-center border-b border-gray-100 pb-3">
+                    <h3 class="text-base font-bold text-gray-800">Ubah Lokasi Pengiriman</h3>
+                    <button onclick="closeLocationModal()" class="text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+                </div>
+                <div class="space-y-2">
+                    <input type="text" id="address-input" placeholder="Masukkan alamat lengkap baru..." class="w-full px-3 py-2.5 bg-gray-50 border border-gray-100 text-sm rounded-xl focus:outline-none text-gray-800">
+                    <button onclick="saveLocation()" class="w-full bg-green-600 text-white font-bold py-2.5 rounded-xl text-xs btn-active">Simpan Alamat</button>
+                </div>
+            </div>
+        </div>
 
-        <div id="location-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end justify-center hidden opacity-0 transition-opacity duration-300">
-            <div class="bg-white w-full max-w-[480px] rounded-t-3xl p-6 animate-slide-up space-y-4">
-                <div class="flex justify-between items-center border-b border-gray-100 pb-3">
-                    <h3 class="text-base font-bold text-gray-800">Ubah Lokasi Pengiriman</h3>
-                    <button onclick="closeLocationModal()" class="text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-5 h-5"></i></button>
-                </div>
-                <div class="space-y-2">
-                    <input type="text" id="address-input" placeholder="Masukkan alamat lengkap baru..." class="w-full px-3 py-2.5 bg-gray-50 border border-gray-100 text-sm rounded-xl focus:outline-none text-gray-800">
-                    <button onclick="saveLocation()" class="w-full bg-green-600 text-white font-bold py-2.5 rounded-xl text-xs btn-active">Simpan Alamat</button>
-                </div>
-            </div>
-        </div>
+        <div id="ai-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end justify-center hidden opacity-0 transition-opacity duration-300">
+            <div class="bg-white w-full max-w-[480px] rounded-t-3xl p-6 animate-slide-up space-y-4 max-h-[80vh] flex flex-col">
+                <div class="flex justify-between items-center border-b border-gray-100 pb-3 shrink-0">
+                    <div class="flex items-center gap-2">
+                        <div class="p-1.5 bg-gradient-to-r from-teal-500 to-emerald-600 text-white rounded-lg"><i data-lucide="sparkles" class="w-4 h-4"></i></div>
+                        <h3 class="text-sm font-bold text-gray-800">Asisten Koki AI Segari</h3>
+                    </div>
+                    <button onclick="closeAiModal()" class="text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+                </div>
+                <div class="flex-grow overflow-y-auto space-y-3 py-2 text-xs no-scrollbar flex flex-col">
+                    <div class="bg-gray-50 border border-gray-100 rounded-xl p-3 text-gray-700 self-start mr-12">"Halo! Mau masak apa hari ini? Beritahu saya bahan dapur yang kamu punya!"</div>
+                    <div id="ai-chat-history" class="space-y-3 flex flex-col"></div>
+                </div>
+                <div class="flex gap-2 pt-2 border-t border-gray-100 shrink-0">
+                    <input type="text" id="ai-input" placeholder="Misal: bayam, telur..." class="flex-grow px-3 py-2 bg-gray-50 text-xs rounded-xl border-none text-gray-800">
+                    <button onclick="askAiChef()" class="bg-green-600 text-white p-2 rounded-xl btn-active"><i data-lucide="send" class="w-4 h-4"></i></button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="toast-container"></div>
+    </div>
 
-        <div id="ai-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end justify-center hidden opacity-0 transition-opacity duration-300">
-            <div class="bg-white w-full max-w-[480px] rounded-t-3xl p-6 animate-slide-up space-y-4 max-h-[80vh] flex flex-col">
-                <div class="flex justify-between items-center border-b border-gray-100 pb-3 shrink-0">
-                    <div class="flex items-center gap-2">
-                        <div class="p-1.5 bg-gradient-to-r from-teal-500 to-emerald-600 text-white rounded-lg"><i data-lucide="sparkles" class="w-4 h-4"></i></div>
-                        <h3 class="text-sm font-bold text-gray-800">Asisten Koki AI Segari</h3>
-                    </div>
-                    <button onclick="closeAiModal()" class="text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-5 h-5"></i></button>
-                </div>
-                <div class="flex-grow overflow-y-auto space-y-3 py-2 text-xs no-scrollbar flex flex-col">
-                    <div class="bg-gray-50 border border-gray-100 rounded-xl p-3 text-gray-700 self-start mr-12">"Halo! Mau masak apa hari ini? Beritahu saya bahan dapur yang kamu punya!"</div>
-                    <div id="ai-chat-history" class="space-y-3 flex flex-col"></div>
-                </div>
-                <div class="flex gap-2 pt-2 border-t border-gray-100 shrink-0">
-                    <input type="text" id="ai-input" placeholder="Misal: bayam, telur..." class="flex-grow px-3 py-2 bg-gray-50 text-xs rounded-xl border-none text-gray-800">
-                    <button onclick="askAiChef()" class="bg-green-600 text-white p-2 rounded-xl btn-active"><i data-lucide="send" class="w-4 h-4"></i></button>
-                </div>
-            </div>
-        </div>
-        
-        <div id="toast-container"></div>
-    </div>
+    <script>
+        const defaultProducts = [
+            { id: 1, name: "Wortel Berastagi Segar", category: "sayur", price: 6000, oldPrice: 12000, size: "500 gr", stock: 45, img: "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?auto=format&fit=crop&q=80&w=300" },
+            { id: 101, name: "Jeruk Santang Madu", category: "buah", price: 19500, oldPrice: 30000, size: "500 gr", stock: 20, img: "https://images.unsplash.com/photo-1557800636-894a64c1696f?auto=format&fit=crop&q=80&w=300" },
+            { id: 2, name: "Bayam Hijau Hidroponik", category: "sayur", price: 4500, size: "250 gr", stock: 30, img: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&q=80&w=300" },
+            { id: 3, name: "Apel Malang Premium", category: "buah", price: 28000, size: "1 kg", stock: 15, img: "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&q=80&w=300" },
+            { id: 4, name: "Daging Sapi Sirloin Lokal", category: "daging", price: 62000, size: "500 gr", stock: 10, img: "https://images.unsplash.com/photo-1603048588665-791ca8aea617?auto=format&fit=crop&q=80&w=300" }
+        ];
 
-    <script>
-        const defaultProducts = [
-            { id: 1, name: "Wortel Berastagi Segar", category: "sayur", price: 6000, oldPrice: 12000, size: "500 gr", stock: 45, img: "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?auto=format&fit=crop&q=80&w=300" },
-            { id: 101, name: "Jeruk Santang Madu", category: "buah", price: 19500, oldPrice: 30000, size: "500 gr", stock: 20, img: "https://images.unsplash.com/photo-1557800636-894a64c1696f?auto=format&fit=crop&q=80&w=300" },
-            { id: 2, name: "Bayam Hijau Hidroponik", category: "sayur", price: 4500, size: "250 gr", stock: 30, img: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&q=80&w=300" },
-            { id: 3, name: "Apel Malang Premium", category: "buah", price: 28000, size: "1 kg", stock: 15, img: "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&q=80&w=300" },
-            { id: 4, name: "Daging Sapi Sirloin Lokal", category: "daging", price: 62000, size: "500 gr", stock: 10, img: "https://images.unsplash.com/photo-1603048588665-791ca8aea617?auto=format&fit=crop&q=80&w=300" }
-        ];
+        let products = []; let cart = []; let activeUser = null; let selectedCategory = "semua";
 
-        let products = []; let cart = []; let activeUser = null; let selectedCategory = "semua";
+        const MASTER_USER_KEY = 'segari_users_v3';
+        const MASTER_SESSION_KEY = 'segari_session';
 
-        const MASTER_USER_KEY = 'segari_users_v3';
-        const MASTER_SESSION_KEY = 'segari_session';
+        window.addEventListener('DOMContentLoaded', () => {
+            initDatabase(); loadSession(); renderProducts(); updateCartCount(); startFlashSaleTimer(); lucide.createIcons();
+            window.addEventListener('storage', () => { initDatabase(); loadSession(); renderProducts(); updateCartCount(); });
+        });
 
-        window.addEventListener('DOMContentLoaded', () => {
-            initDatabase(); loadSession(); renderProducts(); updateCartCount(); startFlashSaleTimer(); lucide.createIcons();
-            window.addEventListener('storage', () => { initDatabase(); loadSession(); renderProducts(); updateCartCount(); renderChatView(); });
-        });
+        function initDatabase() {
+            if (!localStorage.getItem('segari_products')) localStorage.setItem('segari_products', JSON.stringify(defaultProducts));
+            if (!localStorage.getItem('segari_orders')) localStorage.setItem('segari_orders', JSON.stringify([]));
+            if (!localStorage.getItem(MASTER_USER_KEY)) {
+                localStorage.setItem(MASTER_USER_KEY, JSON.stringify([
+                    { username: "admin_segari", role: "Admin" }, 
+                    { username: "anita_sayur", role: "Pemilik Toko" }, 
+                    { username: "budi", role: "Pembeli" }
+                ]));
+            }
+            products = JSON.parse(localStorage.getItem('segari_products'));
+        }
 
-        function initDatabase() {
-            if (!localStorage.getItem('segari_products')) localStorage.setItem('segari_products', JSON.stringify(defaultProducts));
-            if (!localStorage.getItem('segari_orders')) localStorage.setItem('segari_orders', JSON.stringify([]));
-            if (!localStorage.getItem('segari_chats')) localStorage.setItem('segari_chats', JSON.stringify([]));
-            if (!localStorage.getItem(MASTER_USER_KEY)) {
-                localStorage.setItem(MASTER_USER_KEY, JSON.stringify([
-                    { username: "admin_segari", role: "Admin" }, 
-                    { username: "anita_sayur", role: "Pemilik Toko" }, 
-                    { username: "budi", role: "Pembeli" }
-                ]));
-            }
-            products = JSON.parse(localStorage.getItem('segari_products'));
-        }
+        function loadSession() {
+            activeUser = JSON.parse(localStorage.getItem(MASTER_SESSION_KEY)) || null;
+            const savedAddress = localStorage.getItem('segari_address') || "Rumah Utama, Jl. Ketapang No. 12";
+            localStorage.setItem('segari_address', savedAddress);
+            document.getElementById('current-address-text').innerText = "Kirim ke: " + savedAddress;
+            renderTrackingView(); renderAkunView();
+        }
 
-        function loadSession() {
-            activeUser = JSON.parse(localStorage.getItem(MASTER_SESSION_KEY)) || null;
-            const savedAddress = localStorage.getItem('segari_address') || "Rumah Utama, Jl. Ketapang No. 12";
-            localStorage.setItem('segari_address', savedAddress);
-            document.getElementById('current-address-text').innerText = "Kirim ke: " + savedAddress;
-            renderTrackingView(); renderAkunView(); renderChatView();
-        }
+        function redirectToLogin() { window.location.href = "login-consumer.html"; }
 
-        function redirectToLogin() { window.location.href = "login-consumer.html"; }
+        function switchTab(tabId) {
+            const pages = ['home-page', 'cart-page', 'promo-page', 'tracking-page', 'akun-page'];
+            pages.forEach(p => document.getElementById(p)?.classList.add('hidden'));
+            document.getElementById(`${tabId}-page`)?.classList.remove('hidden');
 
-        function switchTab(tabId) {
-            const pages = ['home-page', 'cart-page', 'promo-page', 'chat-page', 'tracking-page', 'akun-page'];
-            pages.forEach(p => document.getElementById(p)?.classList.add('hidden'));
-            document.getElementById(`${tabId}-page`)?.classList.remove('hidden');
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-green-600'); btn.classList.add('text-gray-400');
+            });
+            
+            if(window.event && window.event.currentTarget) {
+                window.event.currentTarget.classList.remove('text-gray-400');
+                window.event.currentTarget.classList.add('text-green-600');
+            }
+            
+            if (tabId === 'cart') renderCartItems();
+            if (tabId === 'tracking') renderTrackingView();
+            if (tabId === 'akun') renderAkunView();
+            lucide.createIcons();
+        }
 
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('text-green-600'); btn.classList.add('text-gray-400');
-            });
-            
-            const activeNavBtn = document.getElementById(`nav-${tabId}`);
-            if (activeNavBtn) {
-                activeNavBtn.classList.remove('text-gray-400');
-                activeNavBtn.classList.add('text-green-600');
-            }
-            
-            if (tabId === 'cart') renderCartItems();
-            if (tabId === 'tracking') renderTrackingView();
-            if (tabId === 'akun') renderAkunView();
-            if (tabId === 'chat') renderChatView();
-            lucide.createIcons();
-        }
+        function handleCartTabClick() { switchTab('cart'); }
 
-        function handleCartTabClick() { switchTab('cart'); }
+        function renderAkunView() {
+            const loggedOutState = document.getElementById('logged-out-state');
+            const loggedInState = document.getElementById('logged-in-state');
+            if (!loggedOutState || !loggedInState) return;
 
-        function renderAkunView() {
-            const loggedOutState = document.getElementById('logged-out-state');
-            const loggedInState = document.getElementById('logged-in-state');
-            if (!loggedOutState || !loggedInState) return;
+            if (activeUser && (activeUser.role === 'Pembeli' || activeUser.role === 'Konsumen')) {
+                loggedOutState.classList.add('hidden');
+                loggedInState.classList.remove('hidden');
+                document.getElementById('user-profile-name').innerText = "@" + activeUser.username;
+                document.getElementById('user-profile-role').innerText = "Pembeli";
+                document.getElementById('user-avatar-char').innerText = activeUser.username.charAt(0);
+            } else {
+                loggedOutState.classList.remove('hidden');
+                loggedInState.classList.add('hidden');
+            }
+        }
 
-            if (activeUser && (activeUser.role === 'Pembeli' || activeUser.role === 'Konsumen')) {
-                loggedOutState.classList.add('hidden');
-                loggedInState.classList.remove('hidden');
-                document.getElementById('user-profile-name').innerText = "@" + activeUser.username;
-                document.getElementById('user-profile-role').innerText = "Pembeli";
-                document.getElementById('user-avatar-char').innerText = activeUser.username.charAt(0);
-            } else {
-                loggedOutState.classList.remove('hidden');
-                loggedInState.classList.add('hidden');
-            }
-        }
+        function handleLogout() {
+            if(confirm("Apakah kamu yakin ingin keluar dari akun Segari?")) {
+                localStorage.removeItem(MASTER_SESSION_KEY);
+                activeUser = null;
+                showToast("Kamu berhasil keluar akun.");
+                loadSession();
+                switchTab('home');
+            }
+        }
 
-        function handleLogout() {
-            if(confirm("Apakah kamu yakin ingin keluar dari akun Segari?")) {
-                localStorage.removeItem(MASTER_SESSION_KEY);
-                activeUser = null;
-                showToast("Kamu berhasil keluar akun.");
-                loadSession();
-                switchTab('home');
-            }
-        }
+        function renderProducts(filterData = null) {
+            const grid = document.getElementById('product-grid'); if (!grid) return; grid.innerHTML = '';
+            let list = filterData || products;
+            if (selectedCategory !== 'semua' && !filterData) list = list.filter(p => p.category === selectedCategory);
+            
+            list.forEach(p => {
+                const isOut = p.stock <= 0;
+                const card = document.createElement('div');
+                card.className = "bg-white border border-gray-100 rounded-2xl p-3 flex flex-col justify-between shadow-sm";
+                card.innerHTML = `
+                    <div>
+                        <div class="relative mb-2 bg-gray-50 rounded-xl overflow-hidden aspect-square">
+                            <img src="${p.img}" class="w-full h-full object-cover ${isOut ? 'grayscale opacity-50':''}">
+                        </div>
+                        <h4 class="text-xs font-bold text-gray-800 line-clamp-2">${p.name}</h4>
+                        <p class="text-[10px] text-gray-400 mt-0.5">${p.size} | Stok: ${p.stock}</p>
+                    </div>
+                    <div class="mt-2">
+                        <span class="text-xs font-extrabold text-green-600">Rp${p.price.toLocaleString('id-ID')}</span>
+                        <button onclick="handleAddToCart(${p.id})" ${isOut ? 'disabled class="w-full mt-1 bg-gray-200 text-gray-400 py-1.5 rounded-xl text-[11px] font-bold cursor-not-allowed"':'class="w-full mt-1 bg-green-500 hover:bg-green-600 text-white py-1.5 rounded-xl text-[11px] font-bold btn-active transition"'}>Beli</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
 
-        function renderProducts(filterData = null) {
-            const grid = document.getElementById('product-grid'); if (!grid) return; grid.innerHTML = '';
-            let list = filterData || products;
-            if (selectedCategory !== 'semua' && !filterData) list = list.filter(p => p.category === selectedCategory);
-            
-            list.forEach(p => {
-                const isOut = p.stock <= 0;
-                const card = document.createElement('div');
-                card.className = "bg-white border border-gray-100 rounded-2xl p-3 flex flex-col justify-between shadow-sm";
-                card.innerHTML = `
-                    <div>
-                        <div class="relative mb-2 bg-gray-50 rounded-xl overflow-hidden aspect-square">
-                            <img src="${p.img}" class="w-full h-full object-cover ${isOut ? 'grayscale opacity-50':''}">
-                        </div>
-                        <h4 class="text-xs font-bold text-gray-800 line-clamp-2">${p.name}</h4>
-                        <p class="text-[10px] text-gray-400 mt-0.5">${p.size} | Stok: ${p.stock}</p>
-                    </div>
-                    <div class="mt-2">
-                        <span class="text-xs font-extrabold text-green-600">Rp${p.price.toLocaleString('id-ID')}</span>
-                        <button onclick="handleAddToCart(${p.id})" ${isOut ? 'disabled class="w-full mt-1 bg-gray-200 text-gray-400 py-1.5 rounded-xl text-[11px] font-bold cursor-not-allowed"':'class="w-full mt-1 bg-green-500 hover:bg-green-600 text-white py-1.5 rounded-xl text-[11px] font-bold btn-active transition"'}>Beli</button>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-        }
+        function filterCategory(cat) {
+            selectedCategory = cat;
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('bg-green-50', 'text-green-700', 'border-green-100');
+                btn.classList.add('bg-gray-50', 'text-gray-600', 'border-transparent');
+            });
+            if(window.event && window.event.currentTarget) {
+                window.event.currentTarget.classList.add('bg-green-50', 'text-green-700', 'border-green-100');
+                window.event.currentTarget.classList.remove('bg-gray-50', 'text-gray-600', 'border-transparent');
+            }
+            renderProducts();
+        }
 
-        function filterCategory(cat) {
-            selectedCategory = cat;
-            document.querySelectorAll('.category-btn').forEach(btn => {
-                btn.classList.remove('bg-green-50', 'text-green-700', 'border-green-100');
-                btn.classList.add('bg-gray-50', 'text-gray-600', 'border-transparent');
-            });
-            if(window.event && window.event.currentTarget) {
-                window.event.currentTarget.classList.add('bg-green-50', 'text-green-700', 'border-green-100');
-                window.event.currentTarget.classList.remove('bg-gray-50', 'text-gray-600', 'border-transparent');
-            }
-            renderProducts();
-        }
+        function searchProducts() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            renderProducts(products.filter(p => p.name.toLowerCase().includes(query)));
+        }
 
-        function searchProducts() {
-            const query = document.getElementById('search-input').value.toLowerCase();
-            renderProducts(products.filter(p => p.name.toLowerCase().includes(query)));
-        }
+        function handleAddToCart(id) {
+            const prod = products.find(p => p.id === id); if (!prod || prod.stock <= 0) return;
+            const idx = cart.findIndex(i => i.id === id);
+            if (idx > -1) { if (cart[idx].qty >= prod.stock) return; cart[idx].qty++; } else { cart.push({ ...prod, qty: 1 }); }
+            showToast(`${prod.name} masuk keranjang!`); updateCartCount();
+        }
 
-        function handleAddToCart(id) {
-            const prod = products.find(p => p.id === id); if (!prod || prod.stock <= 0) return;
-            const idx = cart.findIndex(i => i.id === id);
-            if (idx > -1) { if (cart[idx].qty >= prod.stock) return; cart[idx].qty++; } else { cart.push({ ...prod, qty: 1 }); }
-            showToast(`${prod.name} masuk keranjang!`); updateCartCount();
-        }
+        function updateCartCount() {
+            const b = document.getElementById('cart-badge'); const total = cart.reduce((s, i) => s + i.qty, 0);
+            if (total > 0) { b.innerText = total; b.classList.remove('hidden'); } else { b.classList.add('hidden'); }
+        }
 
-        function updateCartCount() {
-            const b = document.getElementById('cart-badge'); const total = cart.reduce((s, i) => s + i.qty, 0);
-            if (total > 0) { b.innerText = total; b.classList.remove('hidden'); } else { b.classList.add('hidden'); }
-        }
+        function renderCartItems() {
+            const act = document.getElementById('cart-active-state'); const emp = document.getElementById('empty-cart-state');
+            const container = document.getElementById('cart-items-list');
+            if (cart.length === 0) { act.classList.add('hidden'); emp.classList.remove('hidden'); return; }
+            emp.classList.add('hidden'); act.classList.remove('hidden'); container.innerHTML = '';
+            
+            let sub = 0;
+            cart.forEach((item, index) => {
+                sub += item.price * item.qty;
+                const div = document.createElement('div');
+                div.className = "flex items-center gap-3 bg-white p-3 rounded-2xl border border-gray-100";
+                div.innerHTML = `
+                    <img src="${item.img}" class="w-12 h-12 object-cover rounded-xl">
+                    <div class="flex-grow"><h4 class="text-xs font-bold text-gray-800">${item.name}</h4><p class="text-xs font-black text-green-600">Rp${(item.price * item.qty).toLocaleString('id-ID')}</p></div>
+                    <div class="flex items-center gap-2 bg-gray-50 p-1 rounded-xl">
+                        <button onclick="changeQty(${index}, -1)" class="w-5 h-5 bg-white rounded font-bold text-xs">-</button>
+                        <span class="text-xs font-bold">${item.qty}</span>
+                        <button onclick="changeQty(${index}, 1)" class="w-5 h-5 bg-white rounded font-bold text-xs">+</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+            document.getElementById('price-subtotal').innerText = `Rp${sub.toLocaleString('id-ID')}`;
+            document.getElementById('price-total').innerText = `Rp${sub.toLocaleString('id-ID')}`;
+        }
 
-        function renderCartItems() {
-            const act = document.getElementById('cart-active-state'); const emp = document.getElementById('empty-cart-state');
-            const container = document.getElementById('cart-items-list');
-            if (cart.length === 0) { act.classList.add('hidden'); emp.classList.remove('hidden'); return; }
-            emp.classList.add('hidden'); act.classList.remove('hidden'); container.innerHTML = '';
-            
-            let sub = 0;
-            cart.forEach((item, index) => {
-                sub += item.price * item.qty;
-                const div = document.createElement('div');
-                div.className = "flex items-center gap-3 bg-white p-3 rounded-2xl border border-gray-100";
-                div.innerHTML = `
-                    <img src="${item.img}" class="w-12 h-12 object-cover rounded-xl">
-                    <div class="flex-grow"><h4 class="text-xs font-bold text-gray-800">${item.name}</h4><p class="text-xs font-black text-green-600">Rp${(item.price * item.qty).toLocaleString('id-ID')}</p></div>
-                    <div class="flex items-center gap-2 bg-gray-50 p-1 rounded-xl">
-                        <button onclick="changeQty(${index}, -1)" class="w-5 h-5 bg-white rounded font-bold text-xs">-</button>
-                        <span class="text-xs font-bold">${item.qty}</span>
-                        <button onclick="changeQty(${index}, 1)" class="w-5 h-5 bg-white rounded font-bold text-xs">+</button>
-                    </div>
-                `;
-                container.appendChild(div);
-            });
-            document.getElementById('price-subtotal').innerText = `Rp${sub.toLocaleString('id-ID')}`;
-            document.getElementById('price-total').innerText = `Rp${sub.toLocaleString('id-ID')}`;
-        }
+        function changeQty(index, amt) {
+            cart[index].qty += amt; if (cart[index].qty <= 0) cart.splice(index, 1);
+            renderCartItems(); updateCartCount();
+        }
 
-        function changeQty(index, amt) {
-            cart[index].qty += amt; if (cart[index].qty <= 0) cart.splice(index, 1);
-            renderCartItems(); updateCartCount();
-        }
+        function processCheckout() {
+            if (!activeUser || (activeUser.role !== 'Pembeli' && activeUser.role !== 'Konsumen')) { 
+                alert("Wajib login akun Pembeli untuk memesan!"); 
+                redirectToLogin(); 
+                return; 
+            }
+            if (cart.length === 0) return;
+            
+            let masterProducts = JSON.parse(localStorage.getItem('segari_products')) || defaultProducts;
+            cart.forEach(item => { 
+                let p = masterProducts.find(mp => mp.id === item.id); 
+                if(p) p.stock = Math.max(0, p.stock - item.qty); 
+            });
+            localStorage.setItem('segari_products', JSON.stringify(masterProducts));
 
-        function processCheckout() {
-            if (!activeUser || (activeUser.role !== 'Pembeli' && activeUser.role !== 'Konsumen')) { 
-                alert("Wajib login akun Pembeli untuk memesan!"); 
-                redirectToLogin(); 
-                return; 
-            }
-            if (cart.length === 0) return;
-            
-            let masterProducts = JSON.parse(localStorage.getItem('segari_products')) || defaultProducts;
-            cart.forEach(item => { 
-                let p = masterProducts.find(mp => mp.id === item.id); 
-                if(p) p.stock = Math.max(0, p.stock - item.qty); 
-            });
-            localStorage.setItem('segari_products', JSON.stringify(masterProducts));
+            const currentOrders = JSON.parse(localStorage.getItem('segari_orders')) || [];
+            const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
+            const chosenSlot = document.querySelector('input[name="shipping-slot"]:checked')?.value || "Pagi (06:00 - 09:00)";
+            const currentAddress = localStorage.getItem('segari_address') || "Rumah Utama";
+            
+            const newOrder = {
+                id: "SGR-" + Math.floor(1000 + Math.random() * 9000),
+                user: activeUser.username,
+                items: [...cart], 
+                total: subtotal,
+                slot: chosenSlot,
+                status: "Diproses",
+                address: currentAddress,  
+                date: new Date().toLocaleDateString('id-ID')
+            };
 
-            const currentOrders = JSON.parse(localStorage.getItem('segari_orders')) || [];
-            const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
-            const chosenSlot = document.querySelector('input[name="shipping-slot"]:checked')?.value || "Pagi (06:00 - 09:00)";
-            const currentAddress = localStorage.getItem('segari_address') || "Rumah Utama";
-            
-            const newOrder = {
-                id: "SGR-" + Math.floor(1000 + Math.random() * 9000),
-                user: activeUser.username,
-                items: [...cart], 
-                total: subtotal,
-                slot: chosenSlot,
-                status: "Diproses",
-                address: currentAddress,  
-                date: new Date().toLocaleDateString('id-ID')
-            };
+            currentOrders.push(newOrder);
+            localStorage.setItem('segari_orders', JSON.stringify(currentOrders));
 
-            currentOrders.push(newOrder);
-            localStorage.setItem('segari_orders', JSON.stringify(currentOrders));
+            cart = [];
+            updateCartCount();
+            showToast("Pesanan sukses dikirim!");
+            products = masterProducts;
+            renderProducts();
+            switchTab('tracking');
+        }
 
-            cart = [];
-            updateCartCount();
-            showToast("Pesanan sukses dikirim!");
-            products = masterProducts;
-            renderProducts();
-            switchTab('tracking');
-        }
+        function renderTrackingView() {
+            const noOrder = document.getElementById('no-order-state');
+            const activeOrder = document.getElementById('active-order-state');
+            if (!noOrder || !activeOrder) return;
 
-        function renderTrackingView() {
-            const noOrder = document.getElementById('no-order-state');
-            const activeOrder = document.getElementById('active-order-state');
-            if (!noOrder || !activeOrder) return;
+            if (!activeUser) {
+                noOrder.classList.remove('hidden'); activeOrder.classList.add('hidden');
+                return;
+            }
 
-            if (!activeUser) {
-                noOrder.classList.remove('hidden'); activeOrder.classList.add('hidden');
-                return;
-            }
+            const currentOrders = JSON.parse(localStorage.getItem('segari_orders')) || [];
+            const userOrders = currentOrders.filter(o => o.user === activeUser.username);
 
-            const currentOrders = JSON.parse(localStorage.getItem('segari_orders')) || [];
-            const userOrders = currentOrders.filter(o => o.user === activeUser.username);
+            if (userOrders.length === 0) {
+                noOrder.classList.remove('hidden'); activeOrder.classList.add('hidden');
+                activeOrder.innerHTML = '';
+                return;
+            }
 
-            if (userOrders.length === 0) {
-                noOrder.classList.remove('hidden'); activeOrder.classList.add('hidden');
-                activeOrder.innerHTML = '';
-                return;
-            }
+            noOrder.classList.add('hidden');
+            activeOrder.classList.remove('hidden');
+            
+            activeOrder.innerHTML = userOrders.map(o => {
+                let badgeClass = 'bg-amber-50 text-amber-600 border border-amber-200/50';
+                if(o.status === 'Selesai') badgeClass = 'bg-green-50 text-green-600 border border-green-200/50';
+                if(o.status === 'Dalam Perjalanan') badgeClass = 'bg-blue-50 text-blue-600 border border-blue-200/50';
 
-            noOrder.classList.add('hidden');
-            activeOrder.classList.remove('hidden');
-            
-            activeOrder.innerHTML = userOrders.map(o => {
-                let badgeClass = 'bg-amber-50 text-amber-600 border border-amber-200/50';
-                if(o.status === 'Selesai') badgeClass = 'bg-green-50 text-green-600 border border-green-200/50';
-                if(o.status === 'Dalam Perjalanan') badgeClass = 'bg-blue-50 text-blue-600 border border-blue-200/50';
-
-                return `
-                    <div class="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm space-y-3">
-                        <div class="flex justify-between items-center border-b border-gray-50 pb-2">
-                            <div>
-                                <span class="text-[11px] font-mono text-gray-900 font-black">${o.id}</span>
-                                <p class="text-[10px] text-gray-400 font-bold">${o.date} • Slot: ${o.slot}</p>
-                            </div>
-                            <span class="${badgeClass} px-2.5 py-0.5 rounded-lg text-[10px] font-extrabold uppercase">${o.status}</span>
-                        </div>
-                        <div class="space-y-1 text-xs text-gray-600">
-                            ${o.items.map(it => `
-                                <div class="flex justify-between">
-                                    <span>${it.name} <b class="text-gray-400">x${it.qty}</b></span>
-                                    <span>Rp${(it.price * it.qty).toLocaleString('id-ID')}</span>
-                                </div>
-                            `).join('')}
-                        </div>
-                        <div class="border-t border-gray-100 pt-2 flex justify-between font-black text-xs">
-                            <span class="text-gray-400">Total Belanja</span>
-                            <span class="text-green-600">Rp${o.total.toLocaleString('id-ID')}</span>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        /* --- LOGIKA BARU: CHAT VIEW --- */
-        function renderChatView() {
-            const loggedOut = document.getElementById('chat-logged-out');
-            const loggedIn = document.getElementById('chat-logged-in');
-            if(!loggedOut || !loggedIn) return;
-
-            if (!activeUser || (activeUser.role !== 'Pembeli' && activeUser.role !== 'Konsumen')) {
-                loggedOut.classList.remove('hidden');
-                loggedIn.classList.add('hidden');
-                return;
-            }
-
-            loggedOut.classList.add('hidden');
-            loggedIn.classList.remove('hidden');
-
-            const chatBox = document.getElementById('chat-box');
-            const allChats = JSON.parse(localStorage.getItem('segari_chats')) || [];
-            
-            // Filter chat antara akun konsumen aktif & merchant default 'anita_sayur'
-            const userChats = allChats.filter(c => c.user === activeUser.username && c.merchant === 'anita_sayur');
-
-            if(userChats.length === 0) {
-                chatBox.innerHTML = `<div class="text-center my-auto text-gray-400 text-[11px] py-12">Belum ada pesan. Yuk chat penjual untuk bertanya stok sayur!</div>`;
-                return;
-            }
-
-            chatBox.innerHTML = userChats.map(c => {
-                const isUser = c.sender === 'user';
-                return `
-                    <div class="${isUser ? 'bg-green-500 text-white self-end rounded-br-none' : 'bg-white text-gray-800 border border-gray-100 self-start rounded-bl-none'} rounded-2xl p-2.5 max-w-[80%] space-y-1 shadow-sm">
-                        <p class="leading-relaxed font-medium break-words">${c.text}</p>
-                        <p class="text-[8px] ${isUser ? 'text-green-100' : 'text-gray-400'} text-right">${c.time}</p>
-                    </div>
-                `;
-            }).join('');
-            
-            setTimeout(() => { chatBox.scrollTop = chatBox.scrollHeight; }, 30);
-        }
-
-        function sendChatToMerchant() {
-            const input = document.getElementById('chat-text-input');
-            const text = input.value.trim();
-            if(!text || !activeUser) return;
-
-            let allChats = JSON.parse(localStorage.getItem('segari_chats')) || [];
-            const now = new Date();
-            const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-
-            allChats.push({
-                id: Date.now(),
-                merchant: 'anita_sayur', 
-                user: activeUser.username,
-                sender: 'user',
-                text: text,
-                time: timeStr
-            });
-
-            localStorage.setItem('segari_chats', JSON.stringify(allChats));
-            input.value = '';
-            renderChatView();
-        }
-
-        /* --- FUNGSI UTILITAS MODAL & BANNER --- */
-        function openLocationModal() {
-            const m = document.getElementById('location-modal');
-            m.classList.remove('hidden'); setTimeout(() => m.classList.remove('opacity-0'), 10);
-        }
-        function closeLocationModal() {
-            const m = document.getElementById('location-modal');
-            m.classList.add('opacity-0'); setTimeout(() => m.classList.add('hidden'), 300);
-        }
-        function saveLocation() {
-            const val = document.getElementById('address-input').value.trim();
-            if(val) {
-                localStorage.setItem('segari_address', val);
-                loadSession(); closeLocationModal(); showToast("Alamat pengiriman berhasil diperbarui!");
-            }
-        }
-
-        function openAiModal() {
-            const m = document.getElementById('ai-modal');
-            m.classList.remove('hidden'); setTimeout(() => m.classList.remove('opacity-0'), 10);
-        }
-        function closeAiModal() {
-            const m = document.getElementById('ai-modal');
-            m.classList.add('opacity-0'); setTimeout(() => m.classList.add('hidden'), 300);
-        }
-        function askAiChef() {
-            const input = document.getElementById('ai-input'); const val = input.value.trim(); if(!val) return;
-            const hist = document.getElementById('ai-chat-history');
-            hist.innerHTML += `<div class="bg-green-500 text-white rounded-xl p-2.5 self-end max-w-[80%]">${val}</div>`;
-            input.value = '';
-            setTimeout(() => {
-                hist.innerHTML += `<div class="bg-gray-50 border border-gray-100 rounded-xl p-2.5 text-gray-700 self-start max-w-[80%]">Wah ide bagus! Bahan <b>${val}</b> sangat cocok dimasak tumis mentega segar. Kakak bisa beli tambahannya di etalase kami ya!</div>`;
-            }, 800);
-        }
-
-        function startFlashSaleTimer() {
-            let h = 2, m = 14, s = 45;
-            setInterval(() => {
-                s--; if(s < 0) { s = 59; m--; if(m < 0) { m = 59; h--; } }
-                document.getElementById('timer-hours').innerText = String(h).padStart(2, '0');
-                document.getElementById('timer-mins').innerText = String(m).padStart(2, '0');
-                document.getElementById('timer-secs').innerText = String(s).padStart(2, '0');
-            }, 1000);
-        }
-
-        function showToast(msg) {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div'); toast.className = "toast-msg"; toast.innerText = msg;
-            container.appendChild(toast); setTimeout(() => toast.remove(), 2500);
-        }
-    </script>
-</body>
-</html>
+                return `
+                    <div class="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm space-y-3">
+                        <div class="flex justify-between items-center border-b border-gray-50 pb-2">
+                            <div>
+                                <span class="text-[11px] font-mono text-gray-900 font-black">${o.id}</span>
+                                <p class="text-[10px] text-gray-400 font-bold">${o.date} • Slot: ${o.slot}</p>
+                            </div>
+                            <span class="${badgeClass} px-2.5 py-0.5 rounded-lg text-[10px] font-extrabold uppercase">${o.status}</span>
+                        </div>
+                        <div class="space-y-1 text-xs text-gray-600">
+                            ${o.items.map(it => `<div class="flex justify-between"><span>${it.name} <b class="text-gray-400">x${it.qty}</b></span><span>Rp${(it.pric
