@@ -277,58 +277,53 @@
                     </div>
                 </div>
             </section>
-
             <section id="section-vouchers" class="hidden space-y-6">
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
                     <h3 class="text-sm font-bold text-gray-800 flex items-center gap-2">
-                        <i data-lucide="badge-plus" class="text-emerald-600"></i> Buat Kode Voucher Promosi Baru
+                        <i data-lucide="badge-percent" class="text-emerald-600"></i> Atur Diskon Potongan Harga Produk
                     </h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div>
-                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Kode Voucher</label>
-                            <input type="text" id="v-code" placeholder="Contoh: UNTUNG10K" class="w-full p-2.5 border border-gray-200 text-xs font-mono uppercase tracking-wider rounded-xl text-gray-800">
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Pilih Produk Toko Anda</label>
+                            <select id="disc-product-id" onchange="updateHargaAwalPromo()" class="w-full p-2.5 border border-gray-200 text-xs rounded-xl text-gray-800 bg-white focus:ring-2 focus:ring-emerald-500/20">
+                                </select>
                         </div>
                         <div>
-                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Tipe Potongan</label>
-                            <select id="v-type" class="w-full p-2.5 border border-gray-200 text-xs rounded-xl text-gray-800">
-                                <option value="nominal">Nominal Langsung (Rp)</option>
-                                <option value="persentase">Persentase (%)</option>
-                            </select>
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Harga Awal Asli (Rp)</label>
+                            <input type="number" id="disc-price-initial" placeholder="0" readonly class="w-full p-2.5 bg-gray-50 border border-gray-200 text-xs rounded-xl text-gray-500 font-semibold focus:outline-none">
                         </div>
                         <div>
-                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Nilai Diskon</label>
-                            <input type="number" id="v-value" placeholder="10000 atau 10" class="w-full p-2.5 border border-gray-200 text-xs rounded-xl text-gray-800">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Minimal Pembelian (Rp)</label>
-                            <input type="number" id="v-min" placeholder="Minimal belanja (0 jika tidak ada)" class="w-full p-2.5 border border-gray-200 text-xs rounded-xl text-gray-800">
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Harga Promo Baru (Rp)</label>
+                            <div class="relative">
+                                <input type="number" id="disc-price-promo" oninput="calculatePromoPercentage()" placeholder="Contoh: 500" class="w-full p-2.5 border border-gray-200 text-xs rounded-xl text-gray-800 font-bold focus:ring-2 focus:ring-emerald-500/20">
+                                <span id="disc-percentage-preview" class="absolute right-3 top-2.5 text-[10px] font-black bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded">0%</span>
+                            </div>
                         </div>
                     </div>
                     <div class="flex justify-end">
-                        <button onclick="addNewVoucher()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2.5 text-xs rounded-xl transition">
-                            Aktifkan Voucher
+                        <button onclick="addNewVoucher()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2.5 text-xs rounded-xl transition shadow-sm">
+                            Aktifkan Harga Diskon
                         </button>
                     </div>
                 </div>
 
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                     <div class="p-4 border-b border-gray-50 bg-gray-50/50">
-                        <h3 class="text-xs font-bold text-gray-700 uppercase tracking-wider">Daftar Voucher Aktif Toko Anda</h3>
+                        <h3 class="text-xs font-bold text-gray-700 uppercase tracking-wider">Daftar Produk Toko Sedang Diskon</h3>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-xs text-gray-600 min-w-[600px]">
                             <thead class="bg-gray-100 text-gray-700 font-bold">
                                 <tr>
-                                    <th class="p-4">Kode Voucher</th>
-                                    <th class="p-4">Tipe Potongan</th>
-                                    <th class="p-4">Besar Diskon</th>
-                                    <th class="p-4">Minimal Belanja</th>
-                                    <th class="p-4 text-center">Status</th>
+                                    <th class="p-4">Nama Produk</th>
+                                    <th class="p-4">Harga Awal Asli</th>
+                                    <th class="p-4">Harga Setelah Diskon</th>
+                                    <th class="p-4">Total Potongan %</th>
                                     <th class="p-4 text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody id="vouchers-table-body" class="divide-y divide-gray-100">
-                                <tr><td colspan="6" class="p-8 text-center text-gray-400 italic">Belum ada voucher promosi terdaftar.</td></tr>
+                                <tr><td colspan="5" class="p-8 text-center text-gray-400 italic">Belum ada promosi diskon produk yang berjalan saat ini.</td></tr>
                             </tbody>
                         </table>
                     </div>
