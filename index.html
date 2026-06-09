@@ -244,17 +244,15 @@
 
     <script>
         const defaultProducts = [
-            { id: 1, name: "Wortel Berastagi Segar", category: "sayur", price: 6000, oldPrice: 12000, size: "500 gr", stock: 45, img: "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?auto=format&fit=crop&q=80&w=300" },
-            { id: 101, name: "Jeruk Santang Madu", category: "buah", price: 19500, oldPrice: 30000, size: "500 gr", stock: 20, img: "https://images.unsplash.com/photo-1557800636-894a64c1696f?auto=format&fit=crop&q=80&w=300" },
-            { id: 2, name: "Bayam Hijau Hidroponik", category: "sayur", price: 4500, size: "250 gr", stock: 30, img: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&q=80&w=300" },
-            { id: 3, name: "Apel Malang Premium", category: "buah", price: 28000, size: "1 kg", stock: 15, img: "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&q=80&w=300" },
-            { id: 4, name: "Daging Sapi Sirloin Lokal", category: "daging", price: 62000, size: "500 gr", stock: 10, img: "https://images.unsplash.com/photo-1603048588665-791ca8aea617?auto=format&fit=crop&q=80&w=300" }
+            { id: 1, name: "Wortel Berastagi Segar", category: "sayur", price: 6000, oldPrice: 12000, size: "500 gr", stock: 45, img: "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?auto=format&fit=crop&q=80&w=300", merchant: "anita_sayur" },
+            { id: 101, name: "Jeruk Santang Madu", category: "buah", price: 19500, oldPrice: 30000, size: "500 gr", stock: 20, img: "https://images.unsplash.com/photo-1557800636-894a64c1696f?auto=format&fit=crop&q=80&w=300", merchant: "anita_sayur" },
+            { id: 2, name: "Bayam Hijau Hidroponik", category: "sayur", price: 4500, size: "250 gr", stock: 30, img: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&q=80&w=300", merchant: "anita_sayur" },
+            { id: 3, name: "Apel Malang Premium", category: "buah", price: 28000, size: "1 kg", stock: 15, img: "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&q=80&w=300", merchant: "toko_buah_budi" },
+            { id: 4, name: "Daging Sapi Sirloin Lokal", category: "daging", price: 62000, size: "500 gr", stock: 10, img: "https://images.unsplash.com/photo-1603048588665-791ca8aea617?auto=format&fit=crop&q=80&w=300", merchant: "segari_pusat" }
         ];
 
         let products = []; let cart = []; let activeUser = null; let selectedCategory = "semua";
-        
-        let activeVoucherCode = null;
-        let voucherDiscountAmount = 0;
+        let activeVoucherCode = null; let voucherDiscountAmount = 0;
 
         const MASTER_USER_KEY = 'segari_users_v3';
         const MASTER_SESSION_KEY = 'segari_session';
@@ -269,9 +267,11 @@
             if (!localStorage.getItem('segari_orders')) localStorage.setItem('segari_orders', JSON.stringify([]));
             if (!localStorage.getItem('segari_chats')) localStorage.setItem('segari_chats', JSON.stringify([]));
             
+            // DATABASE VOUCHER DENGAN TARGET PEMBELI & TOKO KHUSUS
             if (!localStorage.getItem('segari_vouchers')) {
                 localStorage.setItem('segari_vouchers', JSON.stringify([
-                    { code: "MEMBERBARU", discount: 10000, minPrice: 50000, status: "Aktif" }
+                    { code: "MEMBERBARU", discount: 10000, minPrice: 50000, status: "Aktif", targetPembeli: null, targetToko: null },
+                    { code: "KHUSUSBUDI", discount: 15000, minPrice: 20000, status: "Aktif", targetPembeli: "budi", targetToko: "anita_sayur" }
                 ]));
             }
 
@@ -282,6 +282,12 @@
                     { username: "budi", role: "Pembeli" }
                 ]));
             }
+
+            // AUTO-LOGIN UNTUK TESTING (Simulasi Akun Pembeli 'budi')
+            if (!localStorage.getItem(MASTER_SESSION_KEY)) {
+                localStorage.setItem(MASTER_SESSION_KEY, JSON.stringify({ username: "budi", role: "Pembeli" }));
+            }
+
             products = JSON.parse(localStorage.getItem('segari_products'));
         }
 
@@ -293,7 +299,9 @@
             renderTrackingView(); renderAkunView(); renderChatView(); renderPromoPage();
         }
 
-        function redirectToLogin() { window.location.href = "login-consumer.html"; }
+        function redirectToLogin() { 
+            showToast("Fitur Dialihkan: Simulasi login aktif."); 
+        }
 
         function switchTab(tabId) {
             const pages = ['home-page', 'cart-page', 'promo-page', 'chat-page', 'tracking-page', 'akun-page'];
@@ -321,7 +329,33 @@
 
         function handleCartTabClick() { switchTab('cart'); }
 
-        // --- MANAJEMEN PRODUK & ETALASE ---
+        function renderAkunView() {
+            const loggedOutState = document.getElementById('logged-out-state');
+            const loggedInState = document.getElementById('logged-in-state');
+            if (!loggedOutState || !loggedInState) return;
+
+            if (activeUser && (activeUser.role === 'Pembeli' || activeUser.role === 'Konsumen')) {
+                loggedOutState.classList.add('hidden');
+                loggedInState.classList.remove('hidden');
+                document.getElementById('user-profile-name').innerText = "@" + activeUser.username;
+                document.getElementById('user-profile-role').innerText = "Pembeli";
+                document.getElementById('user-avatar-char').innerText = activeUser.username.charAt(0);
+            } else {
+                loggedOutState.classList.remove('hidden');
+                loggedInState.classList.add('hidden');
+            }
+        }
+
+        function handleLogout() {
+            if(confirm("Apakah kamu yakin ingin keluar dari akun Segari?")) {
+                localStorage.removeItem(MASTER_SESSION_KEY);
+                activeUser = null;
+                showToast("Kamu berhasil keluar akun.");
+                loadSession();
+                switchTab('home');
+            }
+        }
+
         function renderProducts(filterData = null) {
             const grid = document.getElementById('product-grid'); if (!grid) return; grid.innerHTML = '';
             let list = filterData || products;
@@ -346,7 +380,7 @@
                             <img src="${p.img}" class="w-full h-full object-cover ${isOut ? 'grayscale opacity-50':''}">
                         </div>
                         <h4 class="text-xs font-bold text-gray-800 line-clamp-2">${p.name}</h4>
-                        <p class="text-[10px] text-gray-400 mt-0.5">${p.size} | Stok: ${p.stock}</p>
+                        <p class="text-[10px] text-gray-400 mt-0.5">Stok: ${p.stock} | Toko: @${p.merchant.split('_')[0]}</p>
                     </div>
                     <div class="mt-2">
                         <div class="flex items-center flex-wrap">
@@ -363,12 +397,10 @@
         function filterCategory(cat) {
             selectedCategory = cat;
             document.querySelectorAll('.category-btn').forEach(btn => {
-                btn.classList.remove('bg-green-50', 'text-green-700', 'border-green-100');
-                btn.classList.add('bg-gray-50', 'text-gray-600', 'border-transparent');
+                btn.className = "category-btn flex flex-col items-center gap-1 bg-gray-50 p-2 rounded-xl border border-transparent transition btn-active text-gray-600";
             });
             if(window.event && window.event.currentTarget) {
-                window.event.currentTarget.classList.add('bg-green-50', 'text-green-700', 'border-green-100');
-                window.event.currentTarget.classList.remove('bg-gray-50', 'text-gray-600', 'border-transparent');
+                window.event.currentTarget.className = "category-btn flex flex-col items-center gap-1 bg-green-50 p-2 rounded-xl border border-green-100 transition btn-active font-bold text-green-700";
             }
             renderProducts();
         }
@@ -390,306 +422,273 @@
             if (total > 0) { b.innerText = total; b.classList.remove('hidden'); } else { b.classList.add('hidden'); }
         }
 
-        // --- LANJUTAN LOGIKA KERANJANG & VERIFIKASI VOUCHER LIVE ---
+        /* PERBAIKAN & PENYELESAIAN FUNGSI KERANJANG */
         function renderCartItems() {
             const act = document.getElementById('cart-active-state'); const emp = document.getElementById('empty-cart-state');
             const container = document.getElementById('cart-items-list');
-            if (cart.length === 0) { act.classList.add('hidden'); emp.classList.remove('hidden'); return; }
+            
+            if (cart.length === 0) { 
+                act.classList.add('hidden'); 
+                emp.classList.remove('hidden'); 
+                activeVoucherCode = null; 
+                voucherDiscountAmount = 0;
+                return; 
+            }
+            
             emp.classList.add('hidden'); act.classList.remove('hidden'); container.innerHTML = '';
             
-            let sub = 0;
+            let subtotal = 0;
             cart.forEach((item, index) => {
-                sub += item.price * item.qty;
+                subtotal += item.price * item.qty;
                 const div = document.createElement('div');
                 div.className = "flex items-center gap-3 bg-white p-3 rounded-2xl border border-gray-100";
                 div.innerHTML = `
                     <img src="${item.img}" class="w-12 h-12 object-cover rounded-xl">
-                    <div class="flex-grow"><h4 class="text-xs font-bold text-gray-800">${item.name}</h4><p class="text-xs font-black text-green-600">Rp${(item.price * item.qty).toLocaleString('id-ID')}</p></div>
+                    <div class="flex-grow">
+                        <h4 class="text-xs font-bold text-gray-800">${item.name}</h4>
+                        <p class="text-[9px] text-gray-400">Toko: @${item.merchant}</p>
+                        <p class="text-xs font-black text-green-600">Rp${(item.price * item.qty).toLocaleString('id-ID')}</p>
+                    </div>
                     <div class="flex items-center gap-2 bg-gray-50 p-1 rounded-xl">
-                        <button onclick="changeQty(${index}, -1)" class="w-5 h-5 bg-white rounded font-bold text-xs">-</button>
+                        <button onclick="changeQty(${index}, -1)" class="w-5 h-5 bg-white rounded font-bold text-xs btn-active">-</button>
                         <span class="text-xs font-bold">${item.qty}</span>
-                        <button onclick="changeQty(${index}, 1)" class="w-5 h-5 bg-white rounded font-bold text-xs">+</button>
+                        <button onclick="changeQty(${index}, 1)" class="w-5 h-5 bg-white rounded font-bold text-xs btn-active">+</button>
                     </div>
                 `;
                 container.appendChild(div);
             });
 
-            // Validasi live kode voucher ketika kuantitas barang berubah
-            if (activeVoucherCode) {
-                const dbVouchers = JSON.parse(localStorage.getItem('segari_vouchers')) || [];
-                const currentVoucher = dbVouchers.find(v => v.code === activeVoucherCode && v.status === "Aktif");
-                
-                if (currentVoucher && sub >= currentVoucher.minPrice) {
-                    voucherDiscountAmount = currentVoucher.discount;
-                    document.getElementById('discount-row').classList.remove('hidden');
-                    document.getElementById('price-discount').innerText = `-Rp${voucherDiscountAmount.toLocaleString('id-ID')}`;
-                } else {
-                    activeVoucherCode = null;
-                    voucherDiscountAmount = 0;
-                    document.getElementById('discount-row').classList.add('hidden');
-                    if (document.getElementById('voucher-message')) document.getElementById('voucher-message').classList.add('hidden');
-                    if (currentVoucher) {
-                        showToast(`Voucher terlepas, minimal belanja kurang dari Rp${currentVoucher.minPrice.toLocaleString('id-ID')}`);
-                    }
-                }
+            document.getElementById('price-subtotal').innerText = `Rp${subtotal.toLocaleString('id-ID')}`;
+            
+            const discountRow = document.getElementById('discount-row');
+            if (activeVoucherCode && voucherDiscountAmount > 0) {
+                discountRow.classList.remove('hidden');
+                document.getElementById('price-discount').innerText = `-Rp${voucherDiscountAmount.toLocaleString('id-ID')}`;
             } else {
-                document.getElementById('discount-row').classList.add('hidden');
+                discountRow.classList.add('hidden');
             }
 
-            let finalTotal = Math.max(0, sub - voucherDiscountAmount);
-            document.getElementById('price-subtotal').innerText = `Rp${sub.toLocaleString('id-ID')}`;
-            document.getElementById('price-total').innerText = `Rp${finalTotal.toLocaleString('id-ID')}`;
+            let totalFinal = subtotal - voucherDiscountAmount;
+            if (totalFinal < 0) totalFinal = 0;
+            document.getElementById('price-total').innerText = `Rp${totalFinal.toLocaleString('id-ID')}`;
         }
 
-        function changeQty(index, amt) {
-            cart[index].qty += amt; if (cart[index].qty <= 0) cart.splice(index, 1);
-            renderCartItems(); updateCartCount();
+        function changeQty(index, delta) {
+            cart[index].qty += delta;
+            if (cart[index].qty <= 0) cart.splice(index, 1);
+            updateCartCount();
+            renderCartItems();
         }
 
-        // FUNGSI PENGECEKAN KODE VOUCHER TOKO SECARA DINAMIS
+        /* LOGIKA UTAMA VALIDASI VOUCHER SESUAI TOKO & PEMBELI */
         function applyVoucherCode() {
-            const input = document.getElementById('voucher-input').value.trim().toUpperCase();
-            const messageBox = document.getElementById('voucher-message');
+            const voucherInput = document.getElementById('voucher-input').value.trim().toUpperCase();
+            const msgEl = document.getElementById('voucher-message');
             
-            if (!input) {
-                showToast("Masukkan kode voucher terlebih dahulu!");
+            if (!activeUser) {
+                msgEl.innerText = "Silakan masuk akun terlebih dahulu.";
+                msgEl.className = "text-[10px] font-bold text-red-500 block";
                 return;
             }
 
-            let subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
+            const vouchers = JSON.parse(localStorage.getItem('segari_vouchers')) || [];
+            const voucher = vouchers.find(v => v.code === voucherInput);
 
-            // MEMBACA DATABASE DARI LOCALSTORAGE SECARA REAL-TIME
-            const databaseVoucher = JSON.parse(localStorage.getItem('segari_vouchers')) || [];
-            const voucherCocok = databaseVoucher.find(v => v.code === input && v.status === "Aktif");
+            if (!voucher || voucher.status !== "Aktif") {
+                msgEl.innerText = "Kode voucher tidak valid atau kedaluwarsa.";
+                msgEl.className = "text-[10px] font-bold text-red-500 block";
+                return;
+            }
 
-            if (voucherCocok) {
-                if (subtotal >= voucherCocok.minPrice) {
-                    activeVoucherCode = voucherCocok.code;
-                    voucherDiscountAmount = voucherCocok.discount;
-                    messageBox.innerText = `✓ Berhasil! Diskon Rp${voucherDiscountAmount.toLocaleString('id-ID')} telah diterapkan.`;
-                    messageBox.className = "text-[10px] font-bold text-green-600 block";
-                    showToast("Voucher berhasil digunakan!");
-                    renderCartItems();
-                } else {
-                    messageBox.innerText = `✕ Gagal: Minimal belanja Rp${voucherCocok.minPrice.toLocaleString('id-ID')} diperlukan.`;
-                    messageBox.className = "text-[10px] font-bold text-red-500 block";
-                    showToast("Belanjaan belum mencukupi!");
+            // 1. VALIDASI PEMBELI INDEX KHUSUS
+            if (voucher.targetPembeli && voucher.targetPembeli !== activeUser.username) {
+                msgEl.innerText = "Voucher tidak terdaftar untuk akun Anda.";
+                msgEl.className = "text-[10px] font-bold text-red-500 block";
+                return;
+            }
+
+            let subtotalTotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+
+            // 2. VALIDASI LOKASI ASAL TOKO PRODUK
+            if (voucher.targetToko) {
+                const merchantItems = cart.filter(item => item.merchant === voucher.targetToko);
+                const merchantSubtotal = merchantItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
+
+                if (merchantItems.length === 0) {
+                    msgEl.innerText = `Voucher hanya berlaku untuk produk dari toko @${voucher.targetToko}.`;
+                    msgEl.className = "text-[10px] font-bold text-red-500 block";
+                    return;
+                }
+
+                if (merchantSubtotal < voucher.minPrice) {
+                    msgEl.innerText = `Klaim gagal. Min. belanja toko @${voucher.targetToko} harus Rp${voucher.minPrice.toLocaleString('id-ID')}.`;
+                    msgEl.className = "text-[10px] font-bold text-red-500 block";
+                    return;
                 }
             } else {
-                messageBox.innerText = "✕ Kode voucher tidak valid atau kedaluwarsa.";
-                messageBox.className = "text-[10px] font-bold text-red-500 block";
-                showToast("Kode voucher salah!");
+                if (subtotalTotal < voucher.minPrice) {
+                    msgEl.innerText = `Minimal pembelian belum mencapai Rp${voucher.minPrice.toLocaleString('id-ID')}.`;
+                    msgEl.className = "text-[10px] font-bold text-red-500 block";
+                    return;
+                }
             }
+
+            activeVoucherCode = voucher.code;
+            voucherDiscountAmount = voucher.discount;
+            msgEl.innerText = `Voucher berhasil digunakan! Diskon Rp${voucher.discount.toLocaleString('id-ID')}`;
+            msgEl.className = "text-[10px] font-bold text-green-600 block";
+            renderCartItems();
         }
 
-        // RENDER HALAMAN PROMO DINAMIS DARI LOCALSTORAGE
+        function processCheckout() {
+            if(cart.length === 0) return;
+            const chosenSlot = document.querySelector('input[name="shipping-slot"]:checked').value;
+            const orders = JSON.parse(localStorage.getItem('segari_orders')) || [];
+            
+            const newOrder = {
+                id: "SGR-" + Date.now(),
+                items: [...cart],
+                slot: chosenSlot,
+                discount: voucherDiscountAmount,
+                total: cart.reduce((s, i) => s + (i.price * i.qty), 0) - voucherDiscountAmount,
+                status: "Diproses Penjual"
+            };
+
+            orders.unshift(newOrder);
+            localStorage.setItem('segari_orders', JSON.stringify(orders));
+            cart = [];
+            activeVoucherCode = null;
+            voucherDiscountAmount = 0;
+            updateCartCount();
+            showToast("Pesanan Berhasil Dibuat!");
+            switchTab('tracking');
+        }
+
+        /* TAMPILAN PROMO & VOUCHER DARI DB */
         function renderPromoPage() {
             const container = document.getElementById('promo-list-container'); if(!container) return;
-            const databaseVoucher = JSON.parse(localStorage.getItem('segari_vouchers')) || [];
-            const voucherAktif = databaseVoucher.filter(v => v.status === "Aktif");
-            
-            if(voucherAktif.length === 0) {
-                container.innerHTML = `<p class="text-xs font-bold text-gray-400 text-center py-8">Belum ada promo voucher aktif dari toko.</p>`;
-                return;
-            }
-
+            const vouchers = JSON.parse(localStorage.getItem('segari_vouchers')) || [];
             container.innerHTML = '';
-            voucherAktif.forEach(v => {
+            
+            vouchers.forEach(v => {
                 const div = document.createElement('div');
-                div.className = "bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl p-4 text-white flex justify-between items-center shadow-sm";
+                div.className = "bg-white border-2 border-dashed border-orange-200 rounded-2xl p-4 flex justify-between items-center shadow-sm";
                 div.innerHTML = `
-                    <div>
-                        <h4 class="text-xs font-black uppercase tracking-wide bg-black/20 px-2 py-0.5 rounded inline-block">${v.code}</h4>
-                        <p class="text-sm font-bold mt-1">Potongan Flat Rp${v.discount.toLocaleString('id-ID')}</p>
-                        <p class="text-[9px] text-emerald-100">Minimal transaksi belanja Rp${v.minPrice.toLocaleString('id-ID')}</p>
+                    <div class="space-y-1">
+                        <span class="bg-orange-100 text-orange-600 text-[10px] font-black px-2 py-0.5 rounded">${v.code}</span>
+                        <h4 class="text-xs font-black text-gray-800">Potongan Harga Rp${v.discount.toLocaleString('id-ID')}</h4>
+                        <p class="text-[9px] text-gray-400">Min. Belanja Rp${v.minPrice.toLocaleString('id-ID')} ${v.targetToko ? `| Khusus Toko: @${v.targetToko}`:''}</p>
                     </div>
-                    <button onclick="claimVoucherFromPromo('${v.code}')" class="bg-white text-emerald-700 font-extrabold text-[10px] px-3 py-1.5 rounded-xl shadow-sm transition btn-active">Gunakan</button>
+                    <button onclick="document.getElementById('voucher-input').value='${v.code}'; switchTab('cart');" class="bg-orange-500 text-white font-bold px-3 py-1.5 rounded-xl text-[10px] btn-active">Gunakan</button>
                 `;
                 container.appendChild(div);
             });
         }
 
-        function claimVoucherFromPromo(code) {
-            switchTab('cart');
-            const inputField = document.getElementById('voucher-input');
-            if (inputField) {
-                inputField.value = code;
-                applyVoucherCode();
-            }
-        }
-
-        // --- CHECKOUT & PROSES TRANSAKSI ---
-        function processCheckout() {
-            if (!activeUser || (activeUser.role !== 'Pembeli' && activeUser.role !== 'Konsumen')) { 
-                alert("Wajib login akun Pembeli untuk memesan!"); redirectToLogin(); return; 
-            }
-            if (cart.length === 0) return;
+        /* FITUR LACAK TRANSAKSI */
+        function renderTrackingView() {
+            const noOrder = document.getElementById('no-order-state');
+            const activeOrder = document.getElementById('active-order-state');
+            const orders = JSON.parse(localStorage.getItem('segari_orders')) || [];
             
-            let masterProducts = JSON.parse(localStorage.getItem('segari_products')) || defaultProducts;
-            cart.forEach(item => { 
-                let p = masterProducts.find(mp => mp.id === item.id); 
-                if(p) p.stock = Math.max(0, p.stock - item.qty); 
+            if(orders.length === 0) { noOrder?.classList.remove('hidden'); activeOrder?.classList.add('hidden'); return; }
+            noOrder?.classList.add('hidden'); activeOrder?.classList.remove('hidden'); activeOrder.innerHTML = '';
+
+            orders.forEach(ord => {
+                const card = document.createElement('div');
+                card.className = "bg-white border border-gray-100 rounded-2xl p-4 shadow-sm space-y-3";
+                card.innerHTML = `
+                    <div class="flex justify-between items-center border-b border-gray-50 pb-2">
+                        <span class="text-[10px] font-black text-gray-400">${ord.id}</span>
+                        <span class="bg-blue-50 text-blue-600 text-[9px] font-black px-2 py-0.5 rounded-full">${ord.status}</span>
+                    </div>
+                    <p class="text-xs font-bold text-gray-600">${ord.items[0].name} ${ord.items.length > 1 ? `dan ${ord.items.length - 1} item lainnya`:''}</p>
+                    <div class="flex justify-between items-center text-xs font-black pt-1">
+                        <span class="text-gray-400">Total Pembayaran</span>
+                        <span class="text-green-600">Rp${ord.total.toLocaleString('id-ID')}</span>
+                    </div>
+                `;
+                activeOrder.appendChild(card);
             });
-            localStorage.setItem('segari_products', JSON.stringify(masterProducts));
-
-            const currentOrders = JSON.parse(localStorage.getItem('segari_orders')) || [];
-            const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
-            const chosenSlot = document.querySelector('input[name="shipping-slot"]:checked')?.value || "Pagi (06:00 - 09:00)";
-            const currentAddress = localStorage.getItem('segari_address') || "Rumah Utama";
-            
-            let finalPayment = Math.max(0, subtotal - voucherDiscountAmount);
-
-            const newOrder = {
-                id: "SGR-" + Math.floor(1000 + Math.random() * 9000),
-                user: activeUser.username,
-                items: [...cart], 
-                subtotal: subtotal,
-                discount: voucherDiscountAmount,
-                voucherUsed: activeVoucherCode,
-                total: finalPayment,
-                slot: chosenSlot,
-                address: currentAddress,
-                status: "Diproses",
-                date: new Date().toLocaleDateString('id-ID')
-            };
-            
-            currentOrders.push(newOrder);
-            localStorage.setItem('segari_orders', JSON.stringify(currentOrders));
-            
-            // RESET TRANSAKSI SISI USER
-            cart = []; activeVoucherCode = null; voucherDiscountAmount = 0;
-            if(document.getElementById('voucher-input')) document.getElementById('voucher-input').value = '';
-            if(document.getElementById('voucher-message')) document.getElementById('voucher-message').classList.add('hidden');
-            
-            updateCartCount(); showToast("Pesanan berhasil diproses!"); switchTab('tracking');
         }
 
-        // --- SISTEM UTILITAS PENDUKUNG ---
+        /* SIMULASI CHAT PENJUAL */
+        function renderChatView() {
+            const loggedOut = document.getElementById('chat-logged-out');
+            const loggedIn = document.getElementById('chat-logged-in');
+            if(!loggedOut || !loggedIn) return;
+
+            if(activeUser) {
+                loggedOut.classList.add('hidden'); loggedIn.classList.remove('hidden');
+                const box = document.getElementById('chat-box'); box.innerHTML = '';
+                const chats = JSON.parse(localStorage.getItem('segari_chats')) || [];
+                chats.forEach(c => {
+                    const isMe = c.sender === activeUser.username;
+                    const div = document.createElement('div');
+                    div.className = `p-2.5 rounded-xl max-w-[75%] text-xs font-medium ${isMe ? 'bg-green-500 text-white self-end':'bg-white border border-gray-100 text-gray-700 self-start'}`;
+                    div.innerText = c.msg;
+                    box.appendChild(div);
+                });
+                box.scrollTop = box.scrollHeight;
+            } else {
+                loggedOut.classList.remove('hidden'); loggedIn.classList.add('hidden');
+            }
+        }
+
+        function sendChatToMerchant() {
+            const input = document.getElementById('chat-text-input'); if(!input.value.trim()) return;
+            const chats = JSON.parse(localStorage.getItem('segari_chats')) || [];
+            chats.push({ sender: activeUser.username, msg: input.value.trim() });
+            localStorage.setItem('segari_chats', JSON.stringify(chats));
+            input.value = ''; renderChatView();
+        }
+
+        /* ASISTEN AI CHEF */
+        function openAiModal() { const m = document.getElementById('ai-modal'); m.classList.remove('hidden'); setTimeout(() => m.classList.remove('opacity-0'), 10); }
+        function closeAiModal() { const m = document.getElementById('ai-modal'); m.classList.add('opacity-0'); setTimeout(() => m.classList.add('hidden'), 300); }
+        function askAiChef() {
+            const input = document.getElementById('ai-input'); if(!input.value.trim()) return;
+            const hist = document.getElementById('ai-chat-history');
+            
+            const userDiv = document.createElement('div');
+            userDiv.className = "bg-green-500 text-white rounded-xl p-3 self-end ml-12 text-right font-medium";
+            userDiv.innerText = input.value;
+            hist.appendChild(userDiv);
+
+            const botDiv = document.createElement('div');
+            botDiv.className = "bg-gray-50 border border-gray-100 rounded-xl p-3 text-gray-700 self-start mr-12 mt-2 font-medium";
+            botDiv.innerText = `Wah, pakai bahan "${input.value}" paling pas dimasak sup segar atau tumis bawang putih kak! Bisa langsung checkout bahannya di Segari ya.`;
+            
+            setTimeout(() => { hist.appendChild(botDiv); hist.parentElement.scrollTop = hist.parentElement.scrollHeight; }, 600);
+            input.value = '';
+        }
+
+        /* MODAL ALAMAT & UTILS */
+        function openLocationModal() { const m = document.getElementById('location-modal'); m.classList.remove('hidden'); setTimeout(() => m.classList.remove('opacity-0'), 10); }
+        function closeLocationModal() { const m = document.getElementById('location-modal'); m.classList.add('opacity-0'); setTimeout(() => m.classList.add('hidden'), 300); }
+        function saveLocation() {
+            const val = document.getElementById('address-input').value.trim();
+            if(val) { localStorage.setItem('segari_address', val); loadSession(); closeLocationModal(); showToast("Alamat pengiriman diperbarui!"); }
+        }
+
         function startFlashSaleTimer() {
-            let hours = 2, minutes = 14, seconds = 45;
             setInterval(() => {
-                seconds--;
-                if (seconds < 0) { seconds = 59; minutes--; }
-                if (minutes < 0) { minutes = 59; hours--; }
-                if (hours < 0) { hours = 0; minutes = 0; seconds = 0; }
-                document.getElementById('timer-hours').innerText = String(hours).padStart(2, '0');
-                document.getElementById('timer-mins').innerText = String(minutes).padStart(2, '0');
-                document.getElementById('timer-secs').innerText = String(seconds).padStart(2, '0');
+                let s = parseInt(document.getElementById('timer-secs').innerText);
+                let m = parseInt(document.getElementById('timer-mins').innerText);
+                let h = parseInt(document.getElementById('timer-hours').innerText);
+                s--;
+                if(s < 0) { s = 59; m--; if(m < 0) { m = 59; h--; if(h < 0) { h = 2; m = 14; s = 45; } } }
+                document.getElementById('timer-secs').innerText = String(s).padStart(2, '0');
+                document.getElementById('timer-mins').innerText = String(m).padStart(2, '0');
+                document.getElementById('timer-hours').innerText = String(h).padStart(2, '0');
             }, 1000);
         }
 
         function showToast(msg) {
-            const container = document.getElementById('toast-container'); if (!container) return;
-            const toast = document.createElement('div'); toast.className = "toast-msg";
-            toast.innerText = msg; container.appendChild(toast);
-            setTimeout(() => { toast.remove(); }, 2000);
-        }
-
-        function openLocationModal() {
-            const modal = document.getElementById('location-modal'); modal.classList.remove('hidden');
-            setTimeout(() => modal.classList.remove('opacity-0'), 10);
-        }
-
-        function closeLocationModal() {
-            const modal = document.getElementById('location-modal'); modal.classList.add('opacity-0');
-            setTimeout(() => modal.classList.add('hidden'), 300);
-        }
-
-        function saveLocation() {
-            const input = document.getElementById('address-input').value; if (!input.trim()) return;
-            localStorage.setItem('segari_address', input);
-            document.getElementById('current-address-text').innerText = "Kirim ke: " + input;
-            closeLocationModal(); showToast("Alamat pengiriman diubah!");
-        }
-
-        function openAiModal() {
-            const modal = document.getElementById('ai-modal'); modal.classList.remove('hidden');
-            setTimeout(() => modal.classList.remove('opacity-0'), 10);
-        }
-
-        function closeAiModal() {
-            const modal = document.getElementById('ai-modal'); modal.classList.add('opacity-0');
-            setTimeout(() => modal.classList.add('hidden'), 300);
-        }
-
-        function askAiChef() {
-            const input = document.getElementById('ai-input'); const query = input.value.trim(); if (!query) return;
-            const history = document.getElementById('ai-chat-history');
-            
-            const userDiv = document.createElement('div');
-            userDiv.className = "bg-green-600 text-white rounded-xl p-3 text-xs self-end ml-12 my-1 max-w-[85%]";
-            userDiv.innerText = query; history.appendChild(userDiv); input.value = '';
-            
-            setTimeout(() => {
-                const aiDiv = document.createElement('div');
-                aiDiv.className = "bg-gray-50 border border-gray-100 rounded-xl p-3 text-xs text-gray-700 self-start mr-12 my-1 max-w-[85%]";
-                aiDiv.innerText = `Bahan masakan "${query}" sangat cocok dibuat sup bening koki atau tumisan sayur segar Segari!`;
-                history.appendChild(aiDiv); history.scrollTop = history.scrollHeight;
-            }, 1000);
-        }
-
-        function renderChatView() {
-            const loggedOut = document.getElementById('chat-logged-out'); const loggedIn = document.getElementById('chat-logged-in');
-            if (!loggedOut || !loggedIn) return;
-            if (!activeUser) { loggedOut.classList.remove('hidden'); loggedIn.classList.add('hidden'); return; }
-            loggedOut.classList.add('hidden'); loggedIn.classList.remove('hidden');
-
-            const chatBox = document.getElementById('chat-box'); chatBox.innerHTML = '';
-            const chats = JSON.parse(localStorage.getItem('segari_chats')) || [];
-            const userChats = chats.filter(c => c.user === activeUser.username);
-            
-            if(userChats.length === 0) {
-                chatBox.innerHTML = `<p class="text-[11px] text-gray-400 text-center my-auto">Belum ada pesan. Kirim pesan ke penjual...</p>`;
-                return;
-            }
-            userChats.forEach(c => {
-                const div = document.createElement('div');
-                div.className = c.sender === 'user' ? "bg-green-500 text-white rounded-xl p-2.5 text-xs self-end max-w-[80%] my-0.5" : "bg-white border border-gray-100 rounded-xl p-2.5 text-xs self-start max-w-[80%] text-gray-800 shadow-sm my-0.5";
-                div.innerText = c.text; chatBox.appendChild(div);
-            });
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
-
-        function sendChatToMerchant() {
-            const input = document.getElementById('chat-text-input'); const text = input.value.trim(); if (!text || !activeUser) return;
-            const chats = JSON.parse(localStorage.getItem('segari_chats')) || [];
-            chats.push({ user: activeUser.username, sender: 'user', text: text });
-            localStorage.setItem('segari_chats', JSON.stringify(chats)); input.value = ''; renderChatView();
-            
-            setTimeout(() => {
-                const updatedChats = JSON.parse(localStorage.getItem('segari_chats')) || [];
-                updatedChats.push({ user: activeUser.username, sender: 'merchant', text: "Halo! Toko kami sedang menyiapkan produk pesanan Anda." });
-                localStorage.setItem('segari_chats', JSON.stringify(updatedChats)); renderChatView();
-            }, 1500);
-        }
-
-        function renderTrackingView() {
-            const noOrder = document.getElementById('no-order-state'); const activeOrder = document.getElementById('active-order-state');
-            if (!noOrder || !activeOrder) return;
-            if (!activeUser) { noOrder.classList.remove('hidden'); activeOrder.classList.add('hidden'); return; }
-
-            const orders = JSON.parse(localStorage.getItem('segari_orders')) || [];
-            const userOrders = orders.filter(o => o.user === activeUser.username);
-            if (userOrders.length === 0) { noOrder.classList.remove('hidden'); activeOrder.classList.add('hidden'); return; }
-
-            noOrder.classList.add('hidden'); activeOrder.classList.remove('hidden'); activeOrder.innerHTML = '';
-            userOrders.reverse().forEach(o => {
-                const div = document.createElement('div'); div.className = "bg-white border border-gray-100 rounded-2xl p-4 space-y-2 shadow-sm mb-2";
-                let itemNames = o.items.map(i => `${i.name} (x${i.qty})`).join(', ');
-                div.innerHTML = `
-                    <div class="flex justify-between items-center border-b border-gray-50 pb-1.5">
-                        <div><span class="text-xs font-black text-gray-800">${o.id}</span><p class="text-[9px] text-gray-400">${o.slot}</p></div>
-                        <span class="bg-blue-50 text-blue-600 text-[10px] font-bold px-2 py-0.5 rounded-full">${o.status}</span>
-                    </div>
-                    <p class="text-[11px] text-gray-600 truncate"><b>Item:</b> ${itemNames}</p>
-                    <div class="flex justify-between items-center text-xs pt-1">
-                        <span class="text-gray-400">Total Belanja</span>
-                        <span class="font-black text-green-600">Rp${o.total.toLocaleString('id-ID')}</span>
-                    </div>
-                `;
-                activeOrder.appendChild(div);
-            });
+            const container = document.getElementById('toast-container');
+            const t = document.createElement('div'); t.className = "toast-msg"; t.innerText = msg;
+            container?.appendChild(t); setTimeout(() => t.remove(), 2500);
         }
     </script>
 </body>
-</html>
+    </html>
