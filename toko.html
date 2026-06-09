@@ -9,6 +9,7 @@
 </head>
 <body class="bg-gray-100 font-sans antialiased">
 
+    <!-- Mobile Topbar -->
     <div class="md:hidden bg-emerald-900 text-white p-4 flex justify-between items-center sticky top-0 z-50 shadow-md">
         <div class="flex items-center gap-2">
             <span class="text-xl font-black tracking-tight text-white">se<span class="text-orange-400">gari</span></span>
@@ -23,7 +24,9 @@
 
     <div class="min-h-screen flex flex-col md:flex-row relative">
         
+        <!-- Sidebar Navigation -->
         <aside id="sidebar-menu" class="fixed md:static inset-y-0 left-0 z-50 w-64 bg-emerald-900 text-white p-6 flex flex-col justify-between transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out shadow-2xl md:shadow-none">
+            
             <div class="space-y-6">
                 <div class="hidden md:flex justify-between items-center">
                     <div class="flex items-center gap-2">
@@ -54,8 +57,9 @@
                         <button id="nav-finance" onclick="switchSection('finance')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-emerald-100 hover:bg-emerald-800/50 transition">
                             <i data-lucide="bar-chart-3" class="w-4 h-4"></i> Laporan Keuangan
                         </button>
+                        <!-- Mengubah Voucher menjadi Diskon Promosi -->
                         <button id="nav-vouchers" onclick="switchSection('vouchers')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-emerald-100 hover:bg-emerald-800/50 transition">
-                            <i data-lucide="ticket-percent" class="w-4 h-4"></i> Voucher & Diskon
+                            <i data-lucide="percent" class="w-4 h-4"></i> Diskon Promosi
                         </button>
                         <button id="nav-chats" onclick="switchSection('chats')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-emerald-100 hover:bg-emerald-800/50 transition">
                             <i data-lucide="message-square-text" class="w-4 h-4"></i> Chat Pembeli
@@ -74,6 +78,7 @@
             </div>
         </aside>
 
+        <!-- Main Content View -->
         <main class="flex-grow p-4 md:p-8 space-y-6 w-full overflow-x-hidden">
             <header class="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
                 <h1 class="text-base md:text-lg font-bold text-gray-800 flex items-center gap-2" id="section-title">
@@ -86,6 +91,7 @@
                 </div>
             </header>
 
+            <!-- Dashboard Section -->
             <section id="section-dashboard" class="space-y-6">
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
@@ -154,20 +160,20 @@
                 </div>
             </section>
 
+            <!-- Inventory Section -->
             <section id="section-inventory" class="hidden space-y-6">
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
                     <h3 class="text-sm font-bold text-gray-800 flex items-center gap-2"><i data-lucide="plus-circle" class="text-emerald-600"></i> Tambah / Suplai Produk Baru ke Hub</h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
                         <input type="text" id="p-name" placeholder="Nama Sayur / Buah" class="p-2.5 border border-gray-200 text-xs rounded-xl focus:ring-2 focus:ring-emerald-500/20 text-gray-800">
                         <select id="p-cat" class="p-2.5 border border-gray-200 text-xs rounded-xl text-gray-800">
                             <option value="sayur">Sayuran</option>
                             <option value="buah">Buahan</option>
                             <option value="daging">Daging & Ikan</option>
                         </select>
-                        <input type="number" id="p-price" placeholder="Harga Jual Aktif (Rp)" class="p-2.5 border border-gray-200 text-xs rounded-xl text-gray-800">
-                        <input type="number" id="p-old-price" placeholder="Harga Awal/Coret (Opsional)" class="p-2.5 border border-gray-200 text-xs rounded-xl text-gray-800">
+                        <input type="number" id="p-price" placeholder="Harga Jual (Rp)" class="p-2.5 border border-gray-200 text-xs rounded-xl text-gray-800">
                         <input type="text" id="p-size" placeholder="Ukuran (misal: 500 gr)" class="p-2.5 border border-gray-200 text-xs rounded-xl text-gray-800">
-                        <input type="number" id="p-stock" placeholder="Jumlah Stok" class="p-2.5 border border-gray-200 text-xs rounded-xl text-gray-800">
+                        <input type="number" id="p-stock" placeholder="Jumlah Kuantitas Stok" class="p-2.5 border border-gray-200 text-xs rounded-xl text-gray-800">
                     </div>
                     <div class="flex flex-col sm:flex-row gap-3 items-center">
                         <input type="text" id="p-img" placeholder="URL Gambar Unsplash (Opsional)" class="w-full p-2.5 border border-gray-200 text-xs rounded-xl text-gray-800">
@@ -185,7 +191,7 @@
                                 <tr>
                                     <th class="p-4">Produk</th>
                                     <th class="p-4">Kategori</th>
-                                    <th class="p-4">Harga Satuan / Coret</th>
+                                    <th class="p-4">Harga Satuan</th>
                                     <th class="p-4">Ukuran Pak</th>
                                     <th class="p-4">Ketersediaan Stok</th>
                                     <th class="p-4 text-center">Update Stok Manual</th>
@@ -198,6 +204,7 @@
                 </div>
             </section>
 
+            <!-- Orders Section -->
             <section id="section-orders" class="hidden space-y-4">
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                     <div class="p-4 bg-gray-50/50 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
@@ -227,6 +234,7 @@
                 </div>
             </section>
 
+            <!-- Finance Section -->
             <section id="section-finance" class="hidden space-y-6">
                 <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div class="space-y-0.5">
@@ -278,63 +286,64 @@
                 </div>
             </section>
 
+            <!-- Refactored Promotion Discount Section -->
             <section id="section-vouchers" class="hidden space-y-6">
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
                     <h3 class="text-sm font-bold text-gray-800 flex items-center gap-2">
-                        <i data-lucide="badge-plus" class="text-emerald-600"></i> Buat Kode Voucher Promosi Baru
+                        <i data-lucide="badge-percent" class="text-emerald-600"></i> Atur Diskon Promosi Harga Coret
                     </h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                         <div>
-                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Kode Voucher</label>
-                            <input type="text" id="v-code" placeholder="Contoh: UNTUNG10K" class="w-full p-2.5 border border-gray-200 text-xs font-mono uppercase tracking-wider rounded-xl text-gray-800 font-bold">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Tipe Potongan</label>
-                            <select id="v-type" class="w-full p-2.5 border border-gray-200 text-xs rounded-xl text-gray-800">
-                                <option value="nominal">Nominal Langsung (Rp)</option>
-                                <option value="persentase">Persentase (%)</option>
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Pilih Produk</label>
+                            <select id="disc-product-select" onchange="autoFillPrice()" class="w-full p-2.5 border border-gray-200 text-xs rounded-xl text-gray-800">
+                                <option value="">-- Pilih Produk --</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Nilai Diskon</label>
-                            <input type="number" id="v-value" placeholder="10000 atau 10" class="w-full p-2.5 border border-gray-200 text-xs rounded-xl text-gray-800">
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Harga Awal (Rp)</label>
+                            <input type="number" id="disc-initial-price" placeholder="Contoh: 1000" class="w-full p-2.5 border border-gray-200 text-xs rounded-xl text-gray-800" oninput="calculateDiscountPercent()">
                         </div>
                         <div>
-                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Minimal Pembelian (Rp)</label>
-                            <input type="number" id="v-min" placeholder="Minimal belanja" class="w-full p-2.5 border border-gray-200 text-xs rounded-xl text-gray-800">
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Harga Diskon Baru (Rp)</label>
+                            <input type="number" id="disc-promo-price" placeholder="Contoh: 500" class="w-full p-2.5 border border-gray-200 text-xs rounded-xl text-gray-800" oninput="calculateDiscountPercent()">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Persentase Diskon (%)</label>
+                            <input type="text" id="disc-percent-display" value="0%" readonly class="w-full p-2.5 bg-gray-50 border border-gray-200 text-xs font-bold text-emerald-600 rounded-xl">
                         </div>
                     </div>
                     <div class="flex justify-end">
-                        <button onclick="addNewVoucher()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2.5 text-xs rounded-xl transition">
-                            Aktifkan Voucher
+                        <button onclick="applyProductDiscount()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2.5 text-xs rounded-xl transition">
+                            Aktifkan Diskon Toko
                         </button>
                     </div>
                 </div>
 
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                     <div class="p-4 border-b border-gray-50 bg-gray-50/50">
-                        <h3 class="text-xs font-bold text-gray-700 uppercase tracking-wider">Daftar Voucher Aktif Toko Anda</h3>
+                        <h3 class="text-xs font-bold text-gray-700 uppercase tracking-wider">Daftar Produk dengan Diskon Aktif</h3>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-xs text-gray-600 min-w-[600px]">
                             <thead class="bg-gray-100 text-gray-700 font-bold">
                                 <tr>
-                                    <th class="p-4">Kode Voucher</th>
-                                    <th class="p-4">Tipe Potongan</th>
-                                    <th class="p-4">Besar Diskon</th>
-                                    <th class="p-4">Minimal Belanja</th>
-                                    <th class="p-4 text-center">Status</th>
+                                    <th class="p-4">Nama Produk</th>
+                                    <th class="p-4">Harga Awal (Dicoret)</th>
+                                    <th class="p-4">Harga Diskon</th>
+                                    <th class="p-4 text-center">Besar Diskon (%)</th>
+                                    <th class="p-4 text-center">Status Atribut</th>
                                     <th class="p-4 text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody id="vouchers-table-body" class="divide-y divide-gray-100">
-                                <tr><td colspan="6" class="p-8 text-center text-gray-400 italic">Belum ada voucher promosi terdaftar.</td></tr>
+                                <tr><td colspan="6" class="p-8 text-center text-gray-400 italic">Belum ada promo diskon produk terdaftar.</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </section>
 
+            <!-- Chats Section -->
             <section id="section-chats" class="hidden">
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden grid grid-cols-1 md:grid-cols-3 min-h-[500px]">
                     <div class="border-r border-gray-100 flex flex-col bg-gray-50/30">
@@ -358,7 +367,7 @@
                         </div>
 
                         <div class="p-3 border-t border-gray-100 bg-gray-50 flex items-center gap-2">
-                            <input type="text" id="chat-input-field" onkeydown="if(event.key === 'Enter') sendMerchantMessage()" placeholder="Tulis balasan pesan resmi merchant Anda ke konsumen di sini..." class="w-full px-4 py-2.5 bg-white border border-gray-200 text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-gray-800 placeholder-gray-400 transition shadow-sm">
+                            <input type="text" id="chat-input-field" onkeydown="if(event.key === 'Enter') sendMerchantMessage()" placeholder="Tulis balasan pesan resmi merchant Anda..." class="w-full px-4 py-2.5 bg-white border border-gray-200 text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-gray-800 placeholder-gray-400 transition shadow-sm">
                             <button onclick="sendMerchantMessage()" class="p-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition shadow-sm shrink-0">
                                 <i data-lucide="send" class="w-4 h-4"></i>
                             </button>
@@ -369,15 +378,21 @@
         </main>
     </div>
 
+    <!-- JavaScript Application Logic -->
     <script>
         let isSidebarOpen = false;
         let currentFinanceFilter = 'harian'; 
-        let activeChatUser = null;
+        let activeChatUser = null; 
 
-        const defaultProducts = [
-            { id: 1, name: "Wortel Berastagi Segar", category: "sayur", price: 6000, oldPrice: 12000, size: "500 gr", stock: 45, img: "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?auto=format&fit=crop&q=80&w=300", merchant: "anita_sayur" },
-            { id: 101, name: "Jeruk Santang Madu", category: "buah", price: 19500, oldPrice: 30000, size: "500 gr", stock: 20, img: "https://images.unsplash.com/photo-1557800636-894a64c1696f?auto=format&fit=crop&q=80&w=300", merchant: "anita_sayur" }
-        ];
+        // Inisialisasi Mock Data jika kosong demi kelancaran simulasi dashboard
+        if (!localStorage.getItem('segari_products')) {
+            const initialProducts = [
+                { id: 'P-001', name: 'Bayam Hidroponik', category: 'sayur', price: 1000, originalPrice: 1000, size: '250 gr', stock: 15, img: '', discountPercent: 0, isPromo: false },
+                { id: 'P-002', name: 'Apel Fuji Super', category: 'buah', price: 15000, originalPrice: 15000, size: '1 kg', stock: 25, img: '', discountPercent: 0, isPromo: false },
+                { id: 'P-003', name: 'Daging Sapi Sirloin', category: 'daging', price: 85000, originalPrice: 85000, size: '500 gr', stock: 4, img: '', discountPercent: 0, isPromo: false }
+            ];
+            localStorage.setItem('segari_products', JSON.stringify(initialProducts));
+        }
 
         window.addEventListener('DOMContentLoaded', () => {
             loadMerchantSession();
@@ -385,7 +400,8 @@
             renderOrdersTable();
             updateDashboardMetrics(); 
             renderFinanceReport(); 
-            renderVouchersTable(); 
+            populateProductSelect();
+            renderDiscountsTable(); 
             renderChatsPanel(); 
             lucide.createIcons();
 
@@ -394,31 +410,31 @@
                 renderOrdersTable();
                 updateDashboardMetrics();
                 renderFinanceReport();
-                renderVouchersTable();
+                populateProductSelect();
+                renderDiscountsTable();
                 renderChatsPanel();
             });
         });
 
         function getActiveMerchant() {
             const session = JSON.parse(localStorage.getItem('segari_session'));
-            return session ? session.username : "anita_sayur";
+            return session ? session.username : "Mitra Toko";
         }
 
         function loadMerchantSession() {
-            const session = JSON.parse(localStorage.getItem('segari_session'));
-            if (!session || (session.role !== 'Pemilik Toko' && session.role !== 'Toko')) {
-                // Untuk keperluan testing jika dijalankan standalone, buat session otomatis jika kosong
-                const fakeSession = { username: "anita_sayur", role: "Pemilik Toko" };
-                localStorage.setItem('segari_session', JSON.stringify(fakeSession));
+            // Simulasi bypass jika session login kosong untuk kebutuhan toko.html mandiri
+            let session = JSON.parse(localStorage.getItem('segari_session'));
+            if (!session) {
+                session = { username: "Segari Utama", role: "Pemilik Toko" };
+                localStorage.setItem('segari_session', JSON.stringify(session));
             }
-            const currentMerchant = getActiveMerchant();
-            document.getElementById('merchant-user-display').innerText = `${currentMerchant} (Mitra Toko)`;
+            document.getElementById('merchant-user-display').innerText = `${session.username} (Mitra Toko)`;
         }
 
         function handleMerchantLogout() {
             if (confirm("Apakah Anda yakin ingin keluar dari manajemen Mitra Toko?")) {
                 localStorage.removeItem('segari_session');
-                window.location.href = 'login-toko.html';
+                alert("Sesi keluar. Mengalihkan ke login...");
             }
         }
 
@@ -426,6 +442,7 @@
             const sidebar = document.getElementById('sidebar-menu');
             const overlay = document.getElementById('sidebar-overlay');
             isSidebarOpen = !isSidebarOpen;
+            
             if (isSidebarOpen) {
                 sidebar.classList.remove('-translate-x-full');
                 overlay.classList.remove('hidden');
@@ -442,6 +459,7 @@
             document.getElementById('section-finance').classList.add('hidden');
             document.getElementById('section-vouchers').classList.add('hidden'); 
             document.getElementById('section-chats').classList.add('hidden'); 
+            
             document.getElementById(`section-${secId}`).classList.remove('hidden');
             
             const btnDash = document.getElementById('nav-dashboard');
@@ -461,381 +479,389 @@
             const title = document.getElementById('section-title');
             if(secId === 'dashboard') title.innerHTML = `<i data-lucide="layout-dashboard" class="text-emerald-600"></i> Ringkasan Dashboard`;
             if(secId === 'inventory') title.innerHTML = `<i data-lucide="boxes" class="text-emerald-600"></i> Inventori Produk Toko`;
-            if(secId === 'orders') title.innerHTML = `<i data-lucide="clipboard-list" class="text-emerald-600"></i> Manajemen Pesanan Masuk`;
-            if(secId === 'finance') title.innerHTML = `<i data-lucide="bar-chart-3" class="text-emerald-600"></i> Laporan Keuangan Toko`;
-            if(secId === 'vouchers') title.innerHTML = `<i data-lucide="ticket-percent" class="text-emerald-600"></i> Voucher & Diskon Promosi`;
-            if(secId === 'chats') title.innerHTML = `<i data-lucide="message-square-text" class="text-emerald-600"></i> Saluran Chat Konsumen`;
+            if(secId === 'orders') title.innerHTML = `<i data-lucide="clipboard-list" class="text-emerald-600"></i> Logistik Pesanan Masuk`;
+            if(secId === 'finance') title.innerHTML = `<i data-lucide="bar-chart-3" class="text-emerald-600"></i> Laporan Buku Besar`;
+            if(secId === 'vouchers') title.innerHTML = `<i data-lucide="percent" class="text-emerald-600"></i> Manajemen Diskon Promosi`;
+            if(secId === 'chats') title.innerHTML = `<i data-lucide="message-square-text" class="text-emerald-600"></i> Obrolan Hub Pembeli`;
+            
             lucide.createIcons();
         }
 
-        // --- MANAJEMEN INVENTORI (DENGAN DISKON POTONGAN HARGA CORET) ---
+        // --- Logika Stok & Inventori ---
         function addNewProduct() {
-            const name = document.getElementById('p-name').value.trim();
+            const name = document.getElementById('p-name').value;
             const cat = document.getElementById('p-cat').value;
-            const price = parseInt(document.getElementById('p-price').value);
-            const oldPriceInput = document.getElementById('p-old-price').value;
-            const oldPrice = oldPriceInput ? parseInt(oldPriceInput) : null;
-            const size = document.getElementById('p-size').value.trim();
+            const price = parseFloat(document.getElementById('p-price').value);
+            const size = document.getElementById('p-size').value;
             const stock = parseInt(document.getElementById('p-stock').value);
-            let img = document.getElementById('p-img').value.trim();
+            const img = document.getElementById('p-img').value || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400';
 
-            if (!name || isNaN(price) || !size || isNaN(stock)) {
-                alert("Mohon lengkapi data produk terlebih dahulu!");
+            if(!name || !price || !size || isNaN(stock)) {
+                alert("Harap lengkapi seluruh kolom produk!");
                 return;
             }
 
-            if (!img) img = "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&q=80&w=300";
+            const products = JSON.parse(localStorage.getItem('segari_products')) || [];
+            const newProd = {
+                id: 'P-' + Date.now().toString().slice(-4),
+                name, category: cat, price, originalPrice: price, size, stock, img,
+                discountPercent: 0, isPromo: false
+            };
 
-            let localProds = JSON.parse(localStorage.getItem('segari_products')) || defaultProducts;
+            products.push(newProd);
+            localStorage.setItem('segari_products', JSON.stringify(products));
             
-            localProds.push({
-                id: Date.now(),
-                name,
-                category: cat,
-                price,
-                oldPrice, // Disimpan ke localStorage agar index.html membacanya secara dinamis
-                size,
-                stock,
-                img,
-                merchant: getActiveMerchant()
-            });
-
-            localStorage.setItem('segari_products', JSON.stringify(localProds));
-            alert("Produk Baru Berhasil Dirilis!");
-            
-            // Reset fields
+            // reset form
             document.getElementById('p-name').value = '';
             document.getElementById('p-price').value = '';
-            document.getElementById('p-old-price').value = '';
             document.getElementById('p-size').value = '';
             document.getElementById('p-stock').value = '';
-            document.getElementById('p-img').value = '';
 
             renderInventoryTable();
+            populateProductSelect();
             updateDashboardMetrics();
+            alert("Produk baru berhasil didaftarkan ke gudang!");
         }
 
         function renderInventoryTable() {
+            const products = JSON.parse(localStorage.getItem('segari_products')) || [];
             const tbody = document.getElementById('inventory-table-body');
-            if (!tbody) return;
-            const localProds = JSON.parse(localStorage.getItem('segari_products')) || defaultProducts;
-            const currentMerchant = getActiveMerchant();
+            tbody.innerHTML = '';
 
-            // Saring hanya produk milik toko aktif saat ini
-            const merchantProds = localProds.filter(p => p.merchant === currentMerchant);
-
-            if (merchantProds.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-400 italic">Belum ada produk terdaftar di toko ini.</td></tr>`;
+            if(products.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center italic text-gray-400">Gudang kosong.</td></tr>`;
                 return;
             }
 
-            tbody.innerHTML = merchantProds.map(p => {
-                const isOut = p.stock <= 0;
-                
-                // LOGIKA IMPLEMENTASI DISKON POTONGAN HARGA CORET
-                let priceDisplayHtml = "";
-                if (p.oldPrice && p.oldPrice > p.price) {
-                    const discountPercent = Math.round(((p.oldPrice - p.price) / p.oldPrice) * 100);
-                    priceDisplayHtml = `
-                        <div class="flex flex-col">
-                            <span class="text-green-600 font-extrabold text-xs">Rp${p.price.toLocaleString('id-ID')}</span>
-                            <div class="flex items-center gap-1">
-                                <span class="text-[10px] text-gray-400 line-through">Rp${p.oldPrice.toLocaleString('id-ID')}</span>
-                                <span class="bg-red-100 text-red-600 text-[9px] font-black px-1 rounded">${discountPercent}% OFF</span>
-                            </div>
+            products.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50 transition";
+                tr.innerHTML = `
+                    <td class="p-4 font-bold text-gray-800">${p.name}</td>
+                    <td class="p-4 uppercase text-[10px] font-bold text-gray-500">${p.category}</td>
+                    <td class="p-4 font-mono font-bold text-emerald-700">Rp${p.price.toLocaleString('id-ID')}</td>
+                    <td class="p-4 text-gray-600">${p.size}</td>
+                    <td class="p-4 font-bold ${p.stock <= 5 ? 'text-rose-600 animate-pulse' : 'text-gray-700'}">${p.stock} Unit</td>
+                    <td class="p-4 text-center">
+                        <div class="flex items-center justify-center gap-1">
+                            <button onclick="adjustStock('${p.id}', -1)" class="p-1 bg-gray-200 hover:bg-gray-300 rounded text-xs font-bold">-</button>
+                            <button onclick="adjustStock('${p.id}', 1)" class="p-1 bg-gray-200 hover:bg-gray-300 rounded text-xs font-bold">+</button>
                         </div>
-                    `;
-                } else {
-                    priceDisplayHtml = `<span class="font-bold text-gray-700">Rp${p.price.toLocaleString('id-ID')}</span>`;
-                }
-
-                return `
-                    <tr class="hover:bg-gray-50/50">
-                        <td class="p-4 font-bold text-gray-800 flex items-center gap-2">
-                            <img src="${p.img}" class="w-8 h-8 rounded-lg object-cover">
-                            <span>${p.name}</span>
-                        </td>
-                        <td class="p-4 uppercase text-[10px] font-black text-gray-400">${p.category}</td>
-                        <td class="p-4">${priceDisplayHtml}</td>
-                        <td class="p-4 text-gray-500">${p.size}</td>
-                        <td class="p-4 font-black ${p.stock <= 5 ? 'text-red-500' : 'text-gray-700'}">${p.stock} pcs</td>
-                        <td class="p-4 text-center">
-                            <div class="flex items-center justify-center gap-1">
-                                <input type="number" id="input-stock-${p.id}" value="${p.stock}" class="w-16 p-1 border border-gray-200 text-center rounded-lg text-xs font-bold">
-                                <button onclick="updateStock(${p.id})" class="bg-gray-800 text-white px-2 py-1 rounded-lg text-[10px] font-bold">Set</button>
-                            </div>
-                        </td>
-                        <td class="p-4 text-center">
-                            <button onclick="deleteProduct(${p.id})" class="text-xs text-red-500 font-bold hover:underline">Hapus</button>
-                        </td>
-                    </tr>
+                    </td>
+                    <td class="p-4 text-center">
+                        <button onclick="deleteProduct('${p.id}')" class="text-rose-600 hover:text-rose-800"><i data-lucide="trash-2" class="w-4 h-4 mx-auto"></i></button>
+                    </td>
                 `;
-            }).join('');
+                tbody.appendChild(tr);
+            });
+            lucide.createIcons();
         }
 
-        function updateStock(id) {
-            const val = parseInt(document.getElementById(`input-stock-${id}`).value);
-            if (isNaN(val) || val < 0) return;
-            let localProds = JSON.parse(localStorage.getItem('segari_products')) || [];
-            let p = localProds.find(item => item.id === id);
-            if (p) {
-                p.stock = val;
-                localStorage.setItem('segari_products', JSON.stringify(localProds));
-                alert("Stok produk berhasil diperbarui!");
+        function adjustStock(id, amount) {
+            const products = JSON.parse(localStorage.getItem('segari_products')) || [];
+            const target = products.find(p => p.id === id);
+            if(target) {
+                target.stock = Math.max(0, target.stock + amount);
+                localStorage.setItem('segari_products', JSON.stringify(products));
                 renderInventoryTable();
                 updateDashboardMetrics();
             }
         }
 
         function deleteProduct(id) {
-            if (confirm("Apakah Anda yakin ingin menghapus produk ini dari etalase toko?")) {
-                let localProds = JSON.parse(localStorage.getItem('segari_products')) || [];
-                localProds = localProds.filter(p => p.id !== id);
-                localStorage.setItem('segari_products', JSON.stringify(localProds));
+            if(confirm("Hapus produk ini dari katalog?")) {
+                let products = JSON.parse(localStorage.getItem('segari_products')) || [];
+                products = products.filter(p => p.id !== id);
+                localStorage.setItem('segari_products', JSON.stringify(products));
                 renderInventoryTable();
+                populateProductSelect();
                 updateDashboardMetrics();
             }
         }
 
-        // --- LOGISTIK ORDER MASUK ---
-        function renderOrdersTable() {
-            const tbody = document.getElementById('orders-table-body');
-            if (!tbody) return;
-            const orders = JSON.parse(localStorage.getItem('segari_orders')) || [];
-            
-            if(orders.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-gray-400 italic">Belum ada pesanan masuk dari kurir pembeli.</td></tr>`;
+        // --- Logika Baru Dinamis: Manajemen Diskon Promosi ---
+        function populateProductSelect() {
+            const products = JSON.parse(localStorage.getItem('segari_products')) || [];
+            const select = document.getElementById('disc-product-select');
+            select.innerHTML = '<option value="">-- Pilih Produk --</option>';
+
+            products.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.id;
+                opt.innerText = `${p.name} (Sekarang: Rp${p.price})`;
+                select.appendChild(opt);
+            });
+        }
+
+        function autoFillPrice() {
+            const products = JSON.parse(localStorage.getItem('segari_products')) || [];
+            const selectedId = document.getElementById('disc-product-select').value;
+            const target = products.find(p => p.id === selectedId);
+
+            if(target) {
+                // Isi otomatis harga awal berdasarkan data real produk
+                document.getElementById('disc-initial-price').value = target.originalPrice || target.price;
+                document.getElementById('disc-promo-price').value = '';
+                document.getElementById('disc-percent-display').value = '0%';
+            }
+        }
+
+        function calculateDiscountPercent() {
+            const initialPrice = parseFloat(document.getElementById('disc-initial-price').value);
+            const promoPrice = parseFloat(document.getElementById('disc-promo-price').value);
+            const display = document.getElementById('disc-percent-display');
+
+            if(!isNaN(initialPrice) && !isNaN(promoPrice) && initialPrice > 0) {
+                if(promoPrice > initialPrice) {
+                    display.value = "Harga promo melebihi harga awal!";
+                    return;
+                }
+                const cut = initialPrice - promoPrice;
+                const pct = Math.round((cut / initialPrice) * 100);
+                display.value = `${pct}%`;
+            } else {
+                display.value = '0%';
+            }
+        }
+
+        function applyProductDiscount() {
+            const pid = document.getElementById('disc-product-select').value;
+            const initialPrice = parseFloat(document.getElementById('disc-initial-price').value);
+            const promoPrice = parseFloat(document.getElementById('disc-promo-price').value);
+
+            if(!pid || isNaN(initialPrice) || isNaN(promoPrice)) {
+                alert("Harap pilih produk dan tentukan skema harga awal ke harga diskon!");
                 return;
             }
 
-            tbody.innerHTML = orders.map(o => {
-                let actionBtn = '';
-                if(o.status === 'Diproses Penjual' || o.status === 'Diproses') {
-                    actionBtn = `<button onclick="updateOrderStatus('${o.id}', 'Dalam Perjalanan')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-1 rounded-xl text-[10px] shadow-sm">Kirim Kurir</button>`;
-                } else if(o.status === 'Dalam Perjalanan') {
-                    actionBtn = `<button onclick="updateOrderStatus('${o.id}', 'Selesai')" class="bg-green-600 hover:bg-green-700 text-white font-bold px-3 py-1 rounded-xl text-[10px] shadow-sm">Selesaikan</button>`;
-                }
+            if(promoPrice >= initialPrice) {
+                alert("Harga diskon harus lebih rendah dari harga awal!");
+                return;
+            }
 
-                return `
-                    <tr class="hover:bg-gray-50/50">
-                        <td class="p-4 font-mono font-black text-gray-800">${o.id}</td>
-                        <td class="p-4"><b>@Pembeli</b><p class="text-[10px] text-gray-400">Slot Pengiriman: ${o.slot || 'Pagi'}</p></td>
-                        <td class="p-4 text-xs text-gray-600">${o.items.map(it => `${it.name} (${it.qty}x)`).join('<br>')}</td>
-                        <td class="p-4 font-black text-emerald-700">Rp${o.total.toLocaleString('id-ID')}</td>
-                        <td class="p-4 text-center"><span class="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase bg-slate-100 text-slate-700">${o.status}</span></td>
-                        <td class="p-4 text-center">${actionBtn || '<span class="text-gray-300 font-bold">- Selesai -</span>'}</td>
+            const products = JSON.parse(localStorage.getItem('segari_products')) || [];
+            const target = products.find(p => p.id === pid);
+
+            if(target) {
+                const cut = initialPrice - promoPrice;
+                const pct = Math.round((cut / initialPrice) * 100);
+
+                target.originalPrice = initialPrice;
+                target.price = promoPrice; // Harga beli aktif ditimpa harga promo
+                target.discountPercent = pct;
+                target.isPromo = true;
+
+                localStorage.setItem('segari_products', JSON.stringify(products));
+                
+                // reset form
+                document.getElementById('disc-product-select').value = '';
+                document.getElementById('disc-initial-price').value = '';
+                document.getElementById('disc-promo-price').value = '';
+                document.getElementById('disc-percent-display').value = '0%';
+
+                renderInventoryTable();
+                populateProductSelect();
+                renderDiscountsTable();
+                alert(`Diskon Promosi ${pct}% berhasil diaktifkan secara live!`);
+            }
+        }
+
+        function renderDiscountsTable() {
+            const products = JSON.parse(localStorage.getItem('segari_products')) || [];
+            const tbody = document.getElementById('vouchers-table-body');
+            tbody.innerHTML = '';
+
+            const promoProducts = products.filter(p => p.isPromo === true);
+
+            if(promoProducts.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-gray-400 italic">Belum ada promo diskon produk terdaftar. Try inputting 1000 to 500.</td></tr>`;
+                return;
+            }
+
+            promoProducts.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50 transition";
+                tr.innerHTML = `
+                    <td class="p-4 font-bold text-gray-800">${p.name}</td>
+                    <td class="p-4 font-mono text-gray-400 line-through">Rp${p.originalPrice.toLocaleString('id-ID')}</td>
+                    <td class="p-4 font-mono font-bold text-emerald-600 bg-emerald-50/50">Rp${p.price.toLocaleString('id-ID')}</td>
+                    <td class="p-4 text-center font-black text-orange-600">${p.discountPercent}%</td>
+                    <td class="p-4 text-center">
+                        <span class="px-2 py-1 bg-orange-100 text-orange-700 font-bold rounded-lg text-[10px]">HARGA CORET</span>
+                    </td>
+                    <td class="p-4 text-center">
+                        <button onclick="removeDiscount('${p.id}')" class="px-3 py-1 bg-rose-50 text-rose-600 hover:bg-rose-100 text-[11px] font-bold rounded-xl transition">
+                            Hapus Diskon
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function removeDiscount(id) {
+            const products = JSON.parse(localStorage.getItem('segari_products')) || [];
+            const target = products.find(p => p.id === id);
+            if(target) {
+                target.price = target.originalPrice; // Kembalikan harga asli
+                target.isPromo = false;
+                target.discountPercent = 0;
+
+                localStorage.setItem('segari_products', JSON.stringify(products));
+                renderInventoryTable();
+                populateProductSelect();
+                renderDiscountsTable();
+                alert("Promosi harga coret dinonaktifkan. Harga kembali normal.");
+            }
+        }
+
+        // --- Logika Log Pesanan & Dashboard KPI ---
+        function renderOrdersTable() {
+            const orders = JSON.parse(localStorage.getItem('segari_orders')) || [];
+            const tbody = document.getElementById('orders-table-body');
+            tbody.innerHTML = '';
+            
+            const searchKeyword = document.getElementById('order-search').value.toLowerCase();
+            const filtered = orders.filter(o => 
+                o.invoice.toLowerCase().includes(searchKeyword) ||
+                o.customer.toLowerCase().includes(searchKeyword)
+            );
+
+            if(filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-400 italic">Tidak ditemukan riwayat invoice pembeli.</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(o => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-4 font-mono font-bold">${o.invoice}<br><span class="text-gray-400 font-sans text-[10px]">${o.date}</span></td>
+                    <td class="p-4 font-bold">${o.customer}<br><span class="text-gray-400 font-normal text-[11px]">${o.address}</span></td>
+                    <td class="p-4 text-gray-600">${o.itemsSummary || 'Produk Segar'}</td>
+                    <td class="p-4 font-bold text-emerald-700">Rp${o.total.toLocaleString('id-ID')}</td>
+                    <td class="p-4 text-center"><span class="px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded font-bold text-[10px]">${o.status}</span></td>
+                    <td class="p-4 text-center"><button class="px-2 py-1 bg-emerald-600 text-white rounded text-[11px]">Kirim</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function updateDashboardMetrics() {
+            const products = JSON.parse(localStorage.getItem('segari_products')) || [];
+            const orders = JSON.parse(localStorage.getItem('segari_orders')) || [];
+            
+            // Total omzet
+            const totalRev = orders.reduce((sum, o) => sum + o.total, 0);
+            document.getElementById('stat-revenue').innerText = 'Rp' + totalRev.toLocaleString('id-ID');
+            document.getElementById('stat-orders').innerText = `${orders.length} Transaksi`;
+
+            // Alert stok kritis
+            const lowStockCount = products.filter(p => p.stock <= 5).length;
+            document.getElementById('stat-low-stock').innerText = `${lowStockCount} Produk`;
+            
+            const alertBg = document.getElementById('stat-low-stock-icon-bg');
+            if(lowStockCount > 0) {
+                alertBg.className = "p-3 bg-rose-100 rounded-xl text-rose-600 animate-bounce";
+            } else {
+                alertBg.className = "p-3 bg-gray-50 rounded-xl text-gray-400";
+            }
+
+            // Atur tabel ringkasan dasbor
+            const lowRows = document.getElementById('dashboard-low-stock-rows');
+            lowRows.innerHTML = '';
+            const criticals = products.filter(p => p.stock <= 5);
+            if(criticals.length === 0) {
+                lowRows.innerHTML = `<tr><td colspan="3" class="p-3 text-center text-gray-400 italic">Seluruh stok aman (&gt; 5).</td></tr>`;
+            } else {
+                criticals.forEach(c => {
+                    lowRows.innerHTML += `<tr><td class="p-3 font-bold">${c.name}</td><td class="p-3 text-gray-500">${c.size}</td><td class="p-3 text-center text-rose-600 font-bold">${c.stock}</td></tr>`;
+                });
+            }
+        }
+
+        function changeFinanceFilter(type) {
+            currentFinanceFilter = type;
+            ['harian', 'mingguan', 'bulanan', 'tahunan'].forEach(f => {
+                const btn = document.getElementById(`btn-fin-${f}`);
+                if(btn) {
+                    btn.className = f === type 
+                        ? "px-4 py-1.5 text-xs font-bold rounded-lg transition shadow-sm bg-white text-emerald-900"
+                        : "px-4 py-1.5 text-xs font-bold rounded-lg transition text-gray-600 hover:text-gray-900";
+                }
+            });
+            renderFinanceReport();
+        }
+
+        function renderFinanceReport() {
+            const orders = JSON.parse(localStorage.getItem('segari_orders')) || [];
+            const rows = document.getElementById('finance-table-rows');
+            rows.innerHTML = '';
+
+            if(orders.length === 0) {
+                rows.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-gray-400 italic">Belum ada transaksi terekam.</td></tr>`;
+                return;
+            }
+
+            let filteredOrders = [...orders]; 
+            const totalRev = filteredOrders.reduce((sum, o) => sum + o.total, 0);
+            const avg = filteredOrders.length > 0 ? Math.round(totalRev / filteredOrders.length) : 0;
+
+            document.getElementById('fin-stat-revenue').innerText = 'Rp' + totalRev.toLocaleString('id-ID');
+            document.getElementById('fin-stat-count').innerText = `${filteredOrders.length} Invoice`;
+            document.getElementById('fin-stat-avg').innerText = 'Rp' + avg.toLocaleString('id-ID');
+
+            filteredOrders.forEach(o => {
+                rows.innerHTML += `
+                    <tr>
+                        <td class="p-4 font-mono font-bold text-gray-700">${o.invoice}</td>
+                        <td class="p-4 text-gray-500">${o.date}</td>
+                        <td class="p-4 font-bold text-gray-800">${o.customer}</td>
+                        <td class="p-4 text-right font-black text-emerald-700">Rp${o.total.toLocaleString('id-ID')}</td>
                     </tr>
                 `;
-            }).join('');
-        }
-
-        function updateOrderStatus(orderId, nextStatus) {
-            let orders = JSON.parse(localStorage.getItem('segari_orders')) || [];
-            let target = orders.find(o => o.id === orderId);
-            if(target) {
-                target.status = nextStatus;
-                localStorage.setItem('segari_orders', JSON.stringify(orders));
-                renderOrdersTable();
-                updateDashboardMetrics();
-                renderFinanceReport();
-            }
-        }
-
-        // --- MANAJEMEN VOUCHER TOKO ---
-        function addNewVoucher() {
-            const code = document.getElementById('v-code').value.trim().toUpperCase();
-            const type = document.getElementById('v-type').value;
-            const value = parseInt(document.getElementById('v-value').value);
-            const min = parseInt(document.getElementById('v-min').value) || 0;
-
-            if(!code || isNaN(value)) {
-                alert("Mohon isi form kode dan nilai diskon voucher!");
-                return;
-            }
-
-            let vouchers = JSON.parse(localStorage.getItem('segari_vouchers')) || [];
-            if(vouchers.some(v => v.code === code)) {
-                alert("Kode voucher ini sudah terdaftar!");
-                return;
-            }
-
-            vouchers.push({
-                code: code,
-                type: type,
-                discount: value,
-                minPrice: min,
-                status: "Aktif",
-                targetPembeli: null,
-                targetToko: getActiveMerchant() // Otomatis mengunci kecocokan voucher khusus toko ini
             });
-
-            localStorage.setItem('segari_vouchers', JSON.stringify(vouchers));
-            alert(`Voucher ${code} berhasil diaktifkan secara live!`);
-            
-            document.getElementById('v-code').value = '';
-            document.getElementById('v-value').value = '';
-            document.getElementById('v-min').value = '';
-            
-            renderVouchersTable();
         }
 
-        function renderVouchersTable() {
-            const tbody = document.getElementById('vouchers-table-body');
-            if(!tbody) return;
-            const vouchers = JSON.parse(localStorage.getItem('segari_vouchers')) || [];
-            const currentMerchant = getActiveMerchant();
-
-            // Filter voucher milik merchant ini
-            const merchantVouchers = vouchers.filter(v => v.targetToko === currentMerchant || v.targetToko === null);
-
-            if(merchantVouchers.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-gray-400 italic">Belum ada voucher promosi terdaftar.</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = merchantVouchers.map(v => `
-                <tr class="hover:bg-gray-50/50">
-                    <td class="p-4 font-mono font-black text-gray-900 tracking-wide">${v.code}</td>
-                    <td class="p-4 uppercase text-[10px] font-bold text-gray-400">${v.type || 'nominal'}</td>
-                    <td class="p-4 font-bold text-emerald-600">Rp${v.discount.toLocaleString('id-ID')}</td>
-                    <td class="p-4 font-bold text-gray-500">Rp${v.minPrice.toLocaleString('id-ID')}</td>
-                    <td class="p-4 text-center">
-                        <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase ${v.status === 'Aktif' ? 'bg-green-100 text-green-700':'bg-red-100 text-red-700'}">${v.status}</span>
-                    </td>
-                    <td class="p-4 text-center space-x-2">
-                        <button onclick="toggleVoucherStatus('${v.code}')" class="text-xs text-amber-600 font-bold hover:underline">Ubah Status</button>
-                        <button onclick="deleteVoucher('${v.code}')" class="text-xs text-red-500 font-bold hover:underline">Hapus</button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function toggleVoucherStatus(code) {
-            let vouchers = JSON.parse(localStorage.getItem('segari_vouchers')) || [];
-            let target = vouchers.find(v => v.code === code);
-            if(target) {
-                target.status = target.status === "Aktif" ? "Nonaktif" : "Aktif";
-                localStorage.setItem('segari_vouchers', JSON.stringify(vouchers));
-                renderVouchersTable();
-            }
-        }
-
-        function deleteVoucher(code) {
-            if(confirm(`Hapus voucher ${code} dari sistem?`)) {
-                let vouchers = JSON.parse(localStorage.getItem('segari_vouchers')) || [];
-                vouchers = vouchers.filter(v => v.code !== code);
-                localStorage.setItem('segari_vouchers', JSON.stringify(vouchers));
-                renderVouchersTable();
-            }
-        }
-
-        // --- AKUNTANSI LAPORAN KEUANGAN ---
-        function renderFinanceReport() {
-            const tbody = document.getElementById('finance-table-rows');
-            if (!tbody) return;
-            const orders = JSON.parse(localStorage.getItem('segari_orders')) || [];
-            const completed = orders.filter(o => o.status === 'Selesai');
-
-            if(completed.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-gray-400 italic">Belum ada aliran kas omzet masuk.</td></tr>`;
-                return;
-            }
-
-            let revenue = completed.reduce((sum, o) => sum + o.total, 0);
-            document.getElementById('fin-stat-revenue').innerText = `Rp${revenue.toLocaleString('id-ID')}`;
-            document.getElementById('fin-stat-count').innerText = `${completed.length} Invoice`;
-            document.getElementById('fin-stat-avg').innerText = `Rp${Math.round(revenue / completed.length).toLocaleString('id-ID')}`;
-
-            tbody.innerHTML = completed.map(o => `
-                <tr class="hover:bg-gray-50/50">
-                    <td class="p-4 font-mono font-bold text-gray-800">${o.id}</td>
-                    <td class="p-4 text-gray-400 font-bold">${o.date || new Date().toLocaleDateString('id-ID')}</td>
-                    <td class="p-4 font-bold">@Pelanggan</td>
-                    <td class="p-4 text-right font-black text-emerald-700">+Rp${o.total.toLocaleString('id-ID')}</td>
-                </tr>
-            `).join('');
-        }
-
-        // --- METRIK DASHBOARD UTAMA ---
-        function updateDashboardMetrics() {
-            const prods = JSON.parse(localStorage.getItem('segari_products')) || defaultProducts;
-            const orders = JSON.parse(localStorage.getItem('segari_orders')) || [];
-            const currentMerchant = getActiveMerchant();
-
-            const merchantProds = prods.filter(p => p.merchant === currentMerchant);
-            const lowStockList = merchantProds.filter(p => p.stock <= 5);
-            const completed = orders.filter(o => o.status === 'Selesai');
-
-            let revSum = completed.reduce((sum, o) => sum + o.total, 0);
-            document.getElementById('stat-revenue').innerText = `Rp${revSum.toLocaleString('id-ID')}`;
-            document.getElementById('stat-orders').innerText = `${orders.length} Transaksi`;
-            document.getElementById('stat-low-stock').innerText = `${lowStockList.length} Produk`;
-
-            // Render baris kritis di panel dashboard
-            const lowStockRows = document.getElementById('dashboard-low-stock-rows');
-            if(lowStockRows) {
-                if(lowStockList.length === 0) {
-                    lowStockRows.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-green-600 font-bold">✓ Stok gudang aman.</td></tr>`;
-                } else {
-                    lowStockRows.innerHTML = lowStockList.map(p => `<tr><td class="p-3 font-bold">${p.name}</td><td class="p-3">${p.size}</td><td class="p-3 text-center text-red-600 font-black">${p.stock} left</td></tr>`).join('');
-                }
-            }
-        }
-
-        // --- LIVE CHAT SYSTEM ---
+        // --- Logika Chat Pembeli Muted Placeholder ---
         function renderChatsPanel() {
-            const list = document.getElementById('chat-channels-list');
-            if(!list) return;
-            const chats = JSON.parse(localStorage.getItem('segari_chats')) || [];
-            
-            // Mengambil Unique User/Sender
-            let uniqueSenders = [...new Set(chats.map(c => c.sender))].filter(s => s !== "anita_sayur" && s !== "admin");
-
-            if(uniqueSenders.length === 0) {
-                list.innerHTML = `<p class="text-xs text-gray-400 text-center py-8">Belum ada obrolan konsumen.</p>`;
-                return;
-            }
-
-            list.innerHTML = uniqueSenders.map(u => `
-                <div onclick="openChatWindow('${u}')" class="p-4 border-b border-gray-100 flex items-center justify-between cursor-pointer hover:bg-emerald-50/50">
-                    <div><h4 class="text-xs font-bold text-gray-800">@${u}</h4><p class="text-[10px] text-gray-400">Konsumen Segari</p></div>
-                    <i data-lucide="chevron-right" class="w-4 h-4 text-gray-300"></i>
+            const listContainer = document.getElementById('chat-channels-list');
+            listContainer.innerHTML = `
+                <div onclick="selectActiveChat('Justin Mason')" class="p-4 border-b border-gray-100 hover:bg-emerald-50/40 cursor-pointer transition flex items-center justify-between bg-emerald-50/20">
+                    <div class="space-y-0.5">
+                        <p class="text-xs font-black text-gray-800">Justin Mason</p>
+                        <p class="text-[11px] text-emerald-700 font-bold truncate">Apakah Bayam ready 10 ikat kak?</p>
+                    </div>
+                    <span class="w-2 h-2 rounded-full bg-orange-500"></span>
                 </div>
-            `).join('');
-            lucide.createIcons();
+            `;
         }
 
-        function openChatWindow(username) {
-            activeChatUser = username;
-            document.getElementById('chat-window-title').innerText = `@${username} (Konsumen)`;
-            const container = document.getElementById('chat-messages-container');
-            const chats = JSON.parse(localStorage.getItem('segari_chats')) || [];
-
-            container.innerHTML = chats.map(c => {
-                const isMerchant = c.sender === getActiveMerchant();
-                return `
-                    <div class="flex flex-col ${isMerchant ? 'items-end' : 'items-start'}">
-                        <div class="p-2.5 rounded-2xl text-xs max-w-[75%] ${isMerchant ? 'bg-emerald-800 text-white' : 'bg-gray-200 text-gray-800'}">
-                            ${c.msg || c.text}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            container.scrollTop = container.scrollHeight;
+        function selectActiveChat(user) {
+            activeChatUser = user;
+            document.getElementById('chat-window-title').innerText = `${user} (Konsumen Segari)`;
+            const msgBox = document.getElementById('chat-messages-container');
+            msgBox.innerHTML = `
+                <div class="flex flex-col bg-white p-3 rounded-2xl shadow-sm border border-gray-100 max-w-[85%] self-start space-y-1">
+                    <p class="text-[11px] font-bold text-emerald-700">${user}</p>
+                    <p class="text-xs text-gray-800">Apakah Bayam ready 10 ikat kak? Mau dipakai buat katering besok pagi.</p>
+                </div>
+            `;
         }
 
         function sendMerchantMessage() {
             const input = document.getElementById('chat-input-field');
-            const text = input.value.trim();
-            if(!text || !activeChatUser) return;
+            if(!input.value.trim() || !activeChatUser) return;
 
-            let chats = JSON.parse(localStorage.getItem('segari_chats')) || [];
-            chats.push({ sender: getActiveMerchant(), msg: text, user: activeChatUser });
-            localStorage.setItem('segari_chats', JSON.stringify(chats));
-            
+            const msgBox = document.getElementById('chat-messages-container');
+            msgBox.innerHTML += `
+                <div class="flex flex-col bg-emerald-800 text-white p-3 rounded-2xl shadow-sm max-w-[85%] ml-auto space-y-1 text-right">
+                    <p class="text-[10px] font-bold text-emerald-300">Anda (Merchant Support)</p>
+                    <p class="text-xs">${input.value}</p>
+                </div>
+            `;
             input.value = '';
-            openChatWindow(activeChatUser);
+            msgBox.scrollTop = msgBox.scrollHeight;
         }
     </script>
 </body>
-    </html>
+</html>
