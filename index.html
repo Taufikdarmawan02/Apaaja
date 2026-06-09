@@ -125,7 +125,8 @@
 
         <div id="promo-page" class="hidden p-4 space-y-4">
             <h2 class="text-base font-black text-gray-800 flex items-center gap-2"><i data-lucide="ticket" class="text-orange-500 w-5 h-5"></i> Voucher & Promo Spesial</h2>
-            <div id="promo-list-container" class="space-y-3"></div>
+            <div id="promo-list-container" class="space-y-3">
+                </div>
         </div>
 
         <div id="chat-page" class="hidden p-4 space-y-4">
@@ -253,6 +254,7 @@
 
         let products = []; let cart = []; let activeUser = null; let selectedCategory = "semua";
         
+        // VARIABEL STATE VOUCHER AKTIF
         let activeVoucherCode = null;
         let voucherDiscountAmount = 0;
 
@@ -269,6 +271,7 @@
             if (!localStorage.getItem('segari_orders')) localStorage.setItem('segari_orders', JSON.stringify([]));
             if (!localStorage.getItem('segari_chats')) localStorage.setItem('segari_chats', JSON.stringify([]));
             
+            // INISIALISASI DATABASE VOUCHER DINAMIS
             if (!localStorage.getItem('segari_vouchers')) {
                 localStorage.setItem('segari_vouchers', JSON.stringify([
                     { code: "MEMBERBARU", discount: 10000, minPrice: 50000, status: "Aktif" }
@@ -321,7 +324,33 @@
 
         function handleCartTabClick() { switchTab('cart'); }
 
-        // --- MANAJEMEN PRODUK & ETALASE ---
+        function renderAkunView() {
+            const loggedOutState = document.getElementById('logged-out-state');
+            const loggedInState = document.getElementById('logged-in-state');
+            if (!loggedOutState || !loggedInState) return;
+
+            if (activeUser && (activeUser.role === 'Pembeli' || activeUser.role === 'Konsumen')) {
+                loggedOutState.classList.add('hidden');
+                loggedInState.classList.remove('hidden');
+                document.getElementById('user-profile-name').innerText = "@" + activeUser.username;
+                document.getElementById('user-profile-role').innerText = "Pembeli";
+                document.getElementById('user-avatar-char').innerText = activeUser.username.charAt(0);
+            } else {
+                loggedOutState.classList.remove('hidden');
+                loggedInState.classList.add('hidden');
+            }
+        }
+
+        function handleLogout() {
+            if(confirm("Apakah kamu yakin ingin keluar dari akun Segari?")) {
+                localStorage.removeItem(MASTER_SESSION_KEY);
+                activeUser = null;
+                showToast("Kamu berhasil keluar akun.");
+                loadSession();
+                switchTab('home');
+            }
+        }
+
         function renderProducts(filterData = null) {
             const grid = document.getElementById('product-grid'); if (!grid) return; grid.innerHTML = '';
             let list = filterData || products;
@@ -390,7 +419,6 @@
             if (total > 0) { b.innerText = total; b.classList.remove('hidden'); } else { b.classList.add('hidden'); }
         }
 
-        // --- LANJUTAN LOGIKA KERANJANG & VERIFIKASI VOUCHER LIVE ---
         function renderCartItems() {
             const act = document.getElementById('cart-active-state'); const emp = document.getElementById('empty-cart-state');
             const container = document.getElementById('cart-items-list');
@@ -414,7 +442,7 @@
                 container.appendChild(div);
             });
 
-            // Validasi live kode voucher ketika kuantitas barang berubah
+            // VALIDASI ULANG VOUCHER SECARA LIVE SAAT JUMLAH ITEM BERUBAH
             if (activeVoucherCode) {
                 const dbVouchers = JSON.parse(localStorage.getItem('segari_vouchers')) || [];
                 const currentVoucher = dbVouchers.find(v => v.code === activeVoucherCode && v.status === "Aktif");
@@ -427,9 +455,9 @@
                     activeVoucherCode = null;
                     voucherDiscountAmount = 0;
                     document.getElementById('discount-row').classList.add('hidden');
-                    if (document.getElementById('voucher-message')) document.getElementById('voucher-message').classList.add('hidden');
+                    document.getElementById('voucher-message').classList.add('hidden');
                     if (currentVoucher) {
-                        showToast(`Voucher terlepas, minimal belanja kurang dari Rp${currentVoucher.minPrice.toLocaleString('id-ID')}`);
+                        showToast(`Voucher dilepas! Min. belanja kurang dari Rp${currentVoucher.minPrice.toLocaleString('id-ID')}`);
                     }
                 }
             } else {
@@ -446,7 +474,7 @@
             renderCartItems(); updateCartCount();
         }
 
-        // FUNGSI PENGECEKAN KODE VOUCHER TOKO SECARA DINAMIS
+        // FUNGSI PENGECEKAN KODE VOUCHER SECARA DINAMIS
         function applyVoucherCode() {
             const input = document.getElementById('voucher-input').value.trim().toUpperCase();
             const messageBox = document.getElementById('voucher-message');
@@ -458,7 +486,7 @@
 
             let subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
 
-            // MEMBACA DATABASE DARI LOCALSTORAGE SECARA REAL-TIME
+            // AMBIL DATA KODE VOUCHER DARI LOCALSTORAGE
             const databaseVoucher = JSON.parse(localStorage.getItem('segari_vouchers')) || [];
             const voucherCocok = databaseVoucher.find(v => v.code === input && v.status === "Aktif");
 
@@ -482,7 +510,7 @@
             }
         }
 
-        // RENDER HALAMAN PROMO DINAMIS DARI LOCALSTORAGE
+        // RENDER DATA PROMO SECARA DINAMIS DARI LOCALSTORAGE
         function renderPromoPage() {
             const container = document.getElementById('promo-list-container'); if(!container) return;
             const databaseVoucher = JSON.parse(localStorage.getItem('segari_vouchers')) || [];
@@ -518,7 +546,6 @@
             }
         }
 
-        // --- CHECKOUT & PROSES TRANSAKSI ---
         function processCheckout() {
             if (!activeUser || (activeUser.role !== 'Pembeli' && activeUser.role !== 'Konsumen')) { 
                 alert("Wajib login akun Pembeli untuk memesan!"); redirectToLogin(); return; 
@@ -556,7 +583,7 @@
             currentOrders.push(newOrder);
             localStorage.setItem('segari_orders', JSON.stringify(currentOrders));
             
-            // RESET TRANSAKSI SISI USER
+            // RESET SETELAH ORDER
             cart = []; activeVoucherCode = null; voucherDiscountAmount = 0;
             if(document.getElementById('voucher-input')) document.getElementById('voucher-input').value = '';
             if(document.getElementById('voucher-message')) document.getElementById('voucher-message').classList.add('hidden');
@@ -564,7 +591,6 @@
             updateCartCount(); showToast("Pesanan berhasil diproses!"); switchTab('tracking');
         }
 
-        // --- SISTEM UTILITAS PENDUKUNG ---
         function startFlashSaleTimer() {
             let hours = 2, minutes = 14, seconds = 45;
             setInterval(() => {
