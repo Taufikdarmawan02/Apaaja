@@ -594,94 +594,44 @@ function closeProductDetail() {
             const b = document.getElementById('cart-badge'); const total = cart.reduce((s, i) => s + i.qty, 0);
             if (total > 0) { b.innerText = total; b.classList.remove('hidden'); } else { b.classList.add('hidden'); }
         }
-        
         function handleCheckout() {
     if (cart.length === 0) {
         alert("Keranjang belanja Anda masih kosong!");
         return;
     }
 
-    // 1. Ambil data master produk dari localStorage
-    let productsFromStorage = JSON.parse(localStorage.getItem('segari_products')) || products;
+    // 1. Ambil data transaksi yang sudah ada, atau buat array baru jika belum ada
+    let transactions = JSON.parse(localStorage.getItem('segari_transactions')) || [];
 
-    // 2. Looping semua item yang ada di dalam keranjang belanja
-    cart.forEach(cartItem => {
-        // Cari produk yang cocok di dalam database master
-        const productIndex = productsFromStorage.findIndex(p => p.id === cartItem.id);
-        
-        if (productIndex !== -1) {
-            // Jika properti sold belum ada, inisialisasi dengan angka 0
-            if (!productsFromStorage[productIndex].sold) {
-                productsFromStorage[productIndex].sold = 0;
-            }
-            
-            // TAMBAHKAN angka terjual sesuai jumlah Qty yang dibeli konsumen
-            productsFromStorage[productIndex].sold += cartItem.qty;
+    // 2. Hitung total pembayaran untuk log transaksi
+    let totalPayment = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
 
-            // (Opsional) KURANGI juga stok produk di toko secara otomatis
-            productsFromStorage[productIndex].stock -= cartItem.qty;
-            if (productsFromStorage[productIndex].stock < 0) {
-                productsFromStorage[productIndex].stock = 0; // Cegah stok minus
-            }
-        }
-    });
+    // 3. Buat objek struktur data transaksi baru
+    const newTransaction = {
+        transactionId: "TRX-" + Date.now(),
+        date: new Date().toLocaleString('id-ID'),
+        items: cart.map(item => ({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            qty: item.qty // Jumlah yang dibeli
+        })),
+        total: totalPayment
+    };
 
-    // 3. Simpan kembali data produk yang sudah diperbarui ke localStorage
-    localStorage.setItem('segari_products', JSON.stringify(productsFromStorage));
+    // 4. Masukkan ke dalam database transaksi
+    transactions.push(newTransaction);
+    localStorage.setItem('segari_transactions', JSON.stringify(transactions));
 
-    // 4. Kosongkan keranjang belanja karena sudah dibayar
+    // 5. Jalankan fungsi sinkronisasi angka terjual berdasarkan seluruh data transaksi
+    syncSoldFromTransactions();
+
+    // 6. Kosongkan keranjang & refresh tampilan halaman
     cart = [];
     if (typeof updateCartCount === "function") updateCartCount();
+    renderCartItems();
     
-    // 5. Refresh visual halaman
-    renderCartItems(); 
-    if (typeof renderProducts === "function") renderProducts(); 
-
-    alert("🎉 Pembayaran Berhasil! Angka terjual di toko telah diperbarui secara real-time.");
-}
-        function handleCheckout() {
-    if (cart.length === 0) {
-        alert("Keranjang belanja Anda masih kosong!");
-        return;
-    }
-
-    // 1. Ambil data master produk dari localStorage
-    let productsFromStorage = JSON.parse(localStorage.getItem('segari_products')) || products;
-
-    // 2. Looping semua item yang ada di dalam keranjang belanja
-    cart.forEach(cartItem => {
-        // Cari produk yang cocok di dalam database master
-        const productIndex = productsFromStorage.findIndex(p => p.id === cartItem.id);
-        
-        if (productIndex !== -1) {
-            // Jika properti sold belum ada, inisialisasi dengan angka 0
-            if (!productsFromStorage[productIndex].sold) {
-                productsFromStorage[productIndex].sold = 0;
-            }
-            
-            // TAMBAHKAN angka terjual sesuai jumlah Qty yang dibeli konsumen
-            productsFromStorage[productIndex].sold += cartItem.qty;
-
-            // (Opsional) KURANGI juga stok produk di toko secara otomatis
-            productsFromStorage[productIndex].stock -= cartItem.qty;
-            if (productsFromStorage[productIndex].stock < 0) {
-                productsFromStorage[productIndex].stock = 0; // Cegah stok minus
-            }
-        }
-    });
-
-    // 3. Simpan kembali data produk yang sudah diperbarui ke localStorage
-    localStorage.setItem('segari_products', JSON.stringify(productsFromStorage));
-
-    // 4. Kosongkan keranjang belanja karena sudah dibayar
-    cart = [];
-    if (typeof updateCartCount === "function") updateCartCount();
-    
-    // 5. Refresh visual halaman
-    renderCartItems(); 
-    if (typeof renderProducts === "function") renderProducts(); 
-
-    alert("🎉 Pembayaran Berhasil! Angka terjual di toko telah diperbarui secara real-time.");
+    alert("🎉 Pembayaran Berhasil! Data transaksi telah dicatat dan angka terjual diperbarui.");
 }
         function renderCartItems() {
     const act = document.getElementById('cart-active-state'); 
