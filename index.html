@@ -244,123 +244,13 @@
     </div>
 
     <script>
-        // 1. Data Dummy / Mengambil dari LocalStorage Merchant (Berdasarkan logika sebelumnya)
-        function getProducts() {
-            const localData = localStorage.getItem('segari_products');
-            if (localData) {
-                return JSON.parse(localData);
-            }
-            
-            // Data bawaan jika LocalStorage kosong agar tampilan tetap terlihat
-            const defaultProducts = [
-                { id: 1, name: "Bayam Hijau Segar", size: "250g", price: 5000, promoPrice: 3500, image: "🥬", category: "sayur" },
-                { id: 2, name: "Apel Fuji Sweet", size: "1kg", price: 45000, promoPrice: null, image: "🍎", category: "buah" },
-                { id: 3, name: "Daging Sapi Giling", size: "500g", price: 65000, promoPrice: 58000, image: "🥩", category: "daging" },
-                { id: 4, name: "Jeruk Medan", size: "1kg", price: 30000, promoPrice: 25000, image: "🍊", category: "buah" }
-            ];
-            
-            localStorage.setItem('segari_products', JSON.stringify(defaultProducts));
-            return defaultProducts;
-        }
-
-        // 2. Fungsi Utama Merender Produk ke dalam Grid
-        function renderProducts(categoryFilter = 'semua', searchQuery = '') {
-            const grid = document.getElementById('product-grid');
-            let products = getProducts();
-
-            // Logika Filter (Kategori & Pencarian)
-            if (categoryFilter !== 'semua') {
-                products = products.filter(p => p.category === categoryFilter);
-            }
-            if (searchQuery) {
-                products = products.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()));
-            }
-
-            if (products.length === 0) {
-                grid.innerHTML = `<p class="col-span-2 text-center py-8 text-xs text-gray-400 font-bold">Produk tidak ditemukan.</p>`;
-                return;
-            }
-
-            // Render HTML Kartu Produk
-            grid.innerHTML = products.map(p => {
-                const initialNum = Number(p.price);
-                const promoNum = Number(p.promoPrice);
-                
-                // Deteksi apakah produk sedang dalam masa diskon
-                const hasPromo = p.promoPrice && promoNum < initialNum;
-                const displayPrice = hasPromo ? promoNum : initialNum;
-                
-                // Kalkulasi Persentase
-                const percentage = hasPromo ? Math.round(((initialNum - promoNum) / initialNum) * 100) : 0;
-                
-                // HTML Harga Coret (Line-through)
-                const originalPriceHtml = hasPromo 
-                    ? `<p class="text-[10px] text-gray-400 line-through font-medium">Rp${initialNum.toLocaleString('id-ID')}</p>` 
-                    : `<p class="text-[10px] text-transparent hidden">Spacer</p>`; // Spacer agar tinggi elemen sejajar
-
-                // HTML Badge Potongan Harga
-                const discountBadge = hasPromo 
-                    ? `<span class="absolute top-2 left-2 bg-rose-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-md shadow-sm z-10 animate-slide-up">-${percentage}%</span>` 
-                    : '';
-
-                return `
-                    <div class="bg-white border border-gray-100 rounded-2xl p-3 flex flex-col gap-2 relative shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition hover:shadow-md">
-                        ${discountBadge}
-                        <div class="text-5xl text-center py-4 bg-gray-50/50 rounded-xl flex items-center justify-center relative">
-                            ${p.image || '🛒'}
-                        </div>
-                        <div class="flex-grow space-y-0.5">
-                            <h4 class="text-xs font-bold text-gray-800 line-clamp-1">${p.name}</h4>
-                            <p class="text-[10px] text-gray-400 font-medium">${p.size || 'Pak'}</p>
-                        </div>
-                        <div class="mt-auto pt-2 flex items-end justify-between">
-                            <div class="flex flex-col">
-                                ${originalPriceHtml}
-                                <p class="text-sm font-black ${hasPromo ? 'text-rose-600' : 'text-gray-800'}">
-                                    Rp${displayPrice.toLocaleString('id-ID')}
-                                </p>
-                            </div>
-                            <button onclick="addToCart(${p.id})" class="bg-green-600 hover:bg-green-700 text-white p-1.5 rounded-lg transition btn-active shrink-0 shadow-sm shadow-green-200">
-                                <i data-lucide="plus" class="w-4 h-4"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            
-            // Wajib dipanggil agar icon Lucide yang baru disuntikkan ikut ter-render
-            lucide.createIcons();
-        }
-
-        // 3. Modifikasi fungsi tab agar sinkron & eksekusi render saat web dimuat
-        function switchTab(tabId) {
-            // Sembunyikan semua halaman
-            ['home-page', 'cart-page', 'promo-page', 'chat-page', 'tracking-page', 'akun-page'].forEach(id => {
-                document.getElementById(id).classList.add('hidden');
-            });
-            // Tampilkan halaman aktif
-            document.getElementById(tabId + '-page').classList.remove('hidden');
-            
-            // Ubah warna icon di Bottom Nav
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.replace('text-green-600', 'text-gray-400'));
-            document.getElementById('nav-' + tabId).classList.replace('text-gray-400', 'text-green-600');
-        }
-
-        // Fungsi dummy tambahan untuk mencegah error di konsol
-        function filterCategory(cat) { renderProducts(cat); }
-        function searchProducts() { 
-            const query = document.getElementById('search-input').value;
-            renderProducts('semua', query);
-        }
-        function openLocationModal() { document.getElementById('location-modal').classList.remove('hidden', 'opacity-0'); }
-        function closeLocationModal() { document.getElementById('location-modal').classList.add('hidden', 'opacity-0'); }
-        function addToCart(id) { alert('Produk ditambahkan ke keranjang!'); }
-
-        // Inisialisasi awal saat web dibuka
-        document.addEventListener('DOMContentLoaded', () => {
-            renderProducts();
-            lucide.createIcons();
-        });
+        const defaultProducts = [
+            { id: 1, name: "Wortel Berastagi Segar", category: "sayur", price: 6000, oldPrice: 12000, size: "500 gr", stock: 45, img: "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?auto=format&fit=crop&q=80&w=300" },
+            { id: 101, name: "Jeruk Santang Madu", category: "buah", price: 19500, oldPrice: 30000, size: "500 gr", stock: 20, img: "https://images.unsplash.com/photo-1557800636-894a64c1696f?auto=format&fit=crop&q=80&w=300" },
+            { id: 2, name: "Bayam Hijau Hidroponik", category: "sayur", price: 4500, size: "250 gr", stock: 30, img: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&q=80&w=300" },
+            { id: 3, name: "Apel Malang Premium", category: "buah", price: 28000, size: "1 kg", stock: 15, img: "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&q=80&w=300" },
+            { id: 4, name: "Daging Sapi Sirloin Lokal", category: "daging", price: 62000, size: "500 gr", stock: 10, img: "https://images.unsplash.com/photo-1603048588665-791ca8aea617?auto=format&fit=crop&q=80&w=300" }
+        ];
 
         let products = []; let cart = []; let activeUser = null; let selectedCategory = "semua";
         
