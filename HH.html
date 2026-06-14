@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Segari - Sayur & Buah Segar Instan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .animate-slide-up { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .toast-msg { animation: slideUp 0.2s ease-out; position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #1f2937; color: white; padding: 8px 16px; border-radius: 9999px; font-size: 11px; font-weight: bold; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .btn-active:active { transform: scale(0.96); }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans antialiased flex justify-center text-gray-800">
+
+    <div class="w-full max-w-[480px] min-h-screen bg-white shadow-2xl relative flex flex-col pb-24 border-x border-gray-100">
+        
+        <div id="home-page" class="space-y-4">
+            <header class="bg-white sticky top-0 z-30 p-4 border-b border-gray-50 shadow-sm space-y-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-2xl font-black tracking-tight text-green-600">se<span class="text-orange-500">gari</span></span>
+                    <div onclick="openLocationModal()" class="flex items-center gap-1 bg-gray-50 border border-gray-100 px-3 py-1.5 rounded-full cursor-pointer transition btn-active">
+                        <i data-lucide="map-pin" class="w-3.5 h-3.5 text-orange-500"></i>
+                        <span id="current-address-text" class="text-[11px] font-bold text-gray-600 truncate max-w-[120px]">Kirim ke: Rumah Utama</span>
+                        <i data-lucide="chevron-down" class="w-3 h-3 text-gray-400"></i>
+                    </div>
+                </div>
+                <div class="relative flex items-center">
+                    <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3"></i>
+                    <input type="text" id="search-input" oninput="searchProducts()" placeholder="Cari bayam, apel fuji, daging sapi..." class="w-full pl-9 pr-4 py-2 bg-gray-100 border-none text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500/20 text-gray-800 placeholder-gray-400">
+                </div>
+            </header>
+
+            <div class="px-4">
+                <div class="bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl p-4 text-white relative overflow-hidden shadow-md">
+                    <div class="relative z-10 space-y-1">
+                        <span class="bg-white/20 text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-md tracking-wider">Flash Sale Hari Ini</span>
+                        <h2 class="text-base font-black tracking-tight leading-tight">Diskon Bahan Dapur<br>Hingga 50%</h2>
+                        <div class="flex items-center gap-1 pt-1 font-mono text-[10px] font-bold">
+                            <span class="bg-black/20 px-1.5 py-0.5 rounded" id="timer-hours">02</span>:
+                            <span class="bg-black/20 px-1.5 py-0.5 rounded" id="timer-mins">14</span>:
+                            <span class="bg-black/20 px-1.5 py-0.5 rounded" id="timer-secs">45</span>
+                        </div>
+                    </div>
+                    <i data-lucide="shopping-bag" class="w-24 h-24 text-white/10 absolute -right-4 -bottom-4 rotate-12"></i>
+                </div>
+            </div>
+
+            <div class="px-4 space-y-2">
+                <h3 class="text-xs font-black uppercase text-gray-400 tracking-wider">Kategori Belanja</h3>
+                <div class="flex gap-2 overflow-x-auto no-scrollbar py-1">
+                    <button onclick="filterCategory('semua')" class="category-btn flex flex-col items-center gap-1 bg-green-50 p-2 rounded-xl border border-green-100 transition btn-active font-bold text-green-700">
+                        <span class="text-xs px-2 whitespace-nowrap">Semua</span>
+                    </button>
+                    <button onclick="filterCategory('sayur')" class="category-btn flex flex-col items-center gap-1 bg-gray-50 p-2 rounded-xl border border-transparent transition btn-active text-gray-600">
+                        <span class="text-xs px-2 whitespace-nowrap">🥦 Sayuran</span>
+                    </button>
+                    <button onclick="filterCategory('buah')" class="category-btn flex flex-col items-center gap-1 bg-gray-50 p-2 rounded-xl border border-transparent transition btn-active text-gray-600">
+                        <span class="text-xs px-2 whitespace-nowrap">🍎 Buahan</span>
+                    </button>
+                    <button onclick="filterCategory('daging')" class="category-btn flex flex-col items-center gap-1 bg-gray-50 p-2 rounded-xl border border-transparent transition btn-active text-gray-600">
+                        <span class="text-xs px-2 whitespace-nowrap">🥩 Daging & Ikan</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="px-4 space-y-3">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-sm font-black text-gray-800" id="product-section-title">Semua Produk Segar</h3>
+                    <span class="text-[10px] text-green-600 font-bold bg-green-50 px-2 py-0.5 rounded-full">Garansi Segar 100%</span>
+                </div>
+                <div class="grid grid-cols-2 gap-3" id="product-grid"></div>
+            </div>
+        </div>
+
+        <div id="cart-page" class="hidden p-4 space-y-4">
+            <h2 class="text-base font-black text-gray-800 border-b border-gray-100 pb-2 flex items-center gap-2"><i data-lucide="shopping-cart" class="text-green-600 w-5 h-5"></i> Keranjang Belanja Anda</h2>
+            <div id="empty-cart-state" class="text-center py-12 space-y-2 hidden">
+                <i data-lucide="shopping-cart" class="w-12 h-12 text-gray-300 mx-auto"></i>
+                <p class="text-xs font-bold text-gray-400">Keranjang belanja kosong nih, yuk isi dulu!</p>
+                <button onclick="switchTab('home')" class="bg-green-500 text-white text-xs px-4 py-1.5 rounded-xl font-bold">Mulai Belanja</button>
+            </div>
+            
+            <div id="cart-active-state" class="space-y-4">
+                <div id="cart-items-list" class="space-y-3"></div>
+                
+                <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4 space-y-2">
+                    <h4 class="text-xs font-black text-gray-700 flex items-center gap-1.5"><i data-lucide="ticket" class="w-3.5 h-3.5 text-orange-500"></i> Punya Kode Voucher Toko?</h4>
+                    <div class="flex gap-2">
+                        <input type="text" id="voucher-input" placeholder="Masukkan kode voucher" class="flex-grow px-3 py-2 bg-white border border-gray-200 text-xs rounded-xl focus:outline-none text-gray-800 font-bold uppercase tracking-wide">
+                        <button onclick="applyVoucherCode()" class="bg-orange-500 hover:bg-orange-600 text-white font-bold px-4 py-2 rounded-xl text-xs transition btn-active">Terapkan</button>
+                    </div>
+                    <p id="voucher-message" class="text-[10px] font-bold hidden"></p>
+                </div>
+
+                <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4 space-y-2">
+                    <h4 class="text-xs font-black text-gray-700 flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5 text-orange-500"></i> Pilih Slot Waktu Tiba Besok</h4>
+                    <div class="grid grid-cols-2 gap-2 text-[11px] font-bold">
+                        <label class="border border-green-500 bg-green-50/50 p-2.5 rounded-xl flex items-center gap-2 cursor-pointer text-green-900">
+                            <input type="radio" name="shipping-slot" value="Pagi (06:00 - 09:00)" checked class="accent-green-600"> Pagi (06:00 - 09:00)
+                        </label>
+                        <label class="border border-gray-200 bg-white p-2.5 rounded-xl flex items-center gap-2 cursor-pointer text-gray-600">
+                            <input type="radio" name="shipping-slot" value="Siang (11:00 - 14:00)" class="accent-green-600"> Siang (11:00 - 14:00)
+                        </label>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4 space-y-1.5 text-xs">
+                    <div class="flex justify-between text-gray-400"><span>Subtotal Item</span><span id="price-subtotal">Rp0</span></div>
+                    <div id="discount-row" class="flex justify-between text-red-500 font-bold hidden"><span>Potongan Voucher</span><span id="price-discount">-Rp0</span></div>
+                    <div class="flex justify-between text-gray-400"><span>Ongkos Kirim Flat</span><span>Rp0 (Promo)</span></div>
+                    <div class="border-t border-dashed border-gray-200 my-2 pt-2 flex justify-between font-black text-gray-800 text-sm">
+                        <span>Total Pembayaran</span><span class="text-green-600" id="price-total">Rp0</span>
+                    </div>
+                </div>
+                <button onclick="processCheckout()" class="w-full bg-green-600 text-white font-bold py-3 rounded-2xl text-xs transition btn-active shadow-lg shadow-green-100 flex items-center justify-center gap-2">
+                    <i data-lucide="credit-card" class="w-4 h-4"></i> Konfirmasi Pesanan & Bayar
+                </button>
+            </div>
+        </div>
+
+        <div id="promo-page" class="hidden p-4 space-y-4">
+            <h2 class="text-base font-black text-gray-800 flex items-center gap-2"><i data-lucide="ticket" class="text-orange-500 w-5 h-5"></i> Voucher & Promo Spesial</h2>
+            <div id="promo-list-container" class="space-y-3">
+                </div>
+        </div>
+
+        <div id="chat-page" class="hidden p-4 space-y-4">
+            <h2 class="text-base font-black text-gray-800 flex items-center gap-2"><i data-lucide="message-square-text" class="text-green-600 w-5 h-5"></i> Chat Penjual</h2>
+            <div id="chat-logged-out" class="bg-gray-50 border border-gray-100 rounded-3xl p-6 text-center space-y-4 hidden">
+                <div class="w-16 h-16 bg-gray-200 text-gray-400 rounded-full flex items-center justify-center mx-auto"><i data-lucide="message-square-text" class="w-8 h-8"></i></div>
+                <div>
+                    <h3 class="text-sm font-bold text-gray-800">Kamu Belum Masuk Akun</h3>
+                    <p class="text-xs text-gray-400 mt-1">Silakan masuk akun terlebih dahulu untuk chat dengan penjual.</p>
+                </div>
+                <button onclick="redirectToLogin()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2.5 rounded-xl text-xs transition btn-active">Masuk / Daftar Akun</button>
+            </div>
+            <div id="chat-logged-in" class="space-y-4 hidden flex flex-col">
+                <div id="chat-box" class="space-y-3 max-h-[50vh] overflow-y-auto no-scrollbar border border-gray-50 rounded-2xl bg-gray-50 p-3 min-h-[320px] flex flex-col"></div>
+                <div class="flex gap-2 pt-2 border-t border-gray-100">
+                    <input type="text" id="chat-text-input" onkeydown="if(event.key === 'Enter') sendChatToMerchant()" placeholder="Tulis pesan ke penjual..." class="flex-grow px-3 py-2 bg-gray-50 text-xs rounded-xl border-none text-gray-800 focus:outline-none focus:ring-1 focus:ring-green-500">
+                    <button onclick="sendChatToMerchant()" class="bg-green-600 text-white p-2 rounded-xl btn-active flex items-center justify-center"><i data-lucide="send" class="w-4 h-4"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <div id="tracking-page" class="hidden p-4 space-y-4">
+            <h2 class="text-base font-black text-gray-800 flex items-center gap-2"><i data-lucide="truck" class="text-blue-500 w-5 h-5"></i> Status Pengiriman Live</h2>
+            <div id="no-order-state" class="text-center py-12 text-gray-400 space-y-2 hidden">
+                <i data-lucide="package-open" class="w-10 h-10 mx-auto text-gray-300"></i>
+                <p class="text-xs">Kamu belum memiliki transaksi order aktif saat ini.</p>
+            </div>
+            <div id="active-order-state" class="space-y-4 max-h-[70vh] overflow-y-auto no-scrollbar pb-6"></div>
+        </div>
+
+        <div id="akun-page" class="hidden p-4 space-y-4">
+            <h2 class="text-base font-black text-gray-800 flex items-center gap-2"><i data-lucide="user" class="text-green-600 w-5 h-5"></i> Profil Akun Saya</h2>
+            <div id="logged-out-state" class="bg-gray-50 border border-gray-100 rounded-3xl p-6 text-center space-y-4">
+                <div class="w-16 h-16 bg-gray-200 text-gray-400 rounded-full flex items-center justify-center mx-auto"><i data-lucide="user" class="w-8 h-8"></i></div>
+                <div>
+                    <h3 class="text-sm font-bold text-gray-800">Kamu Belum Masuk Akun</h3>
+                    <p class="text-xs text-gray-400 mt-1">Silakan masuk atau daftar terlebih dahulu untuk mengakses riwayat pesanan.</p>
+                </div>
+                <button onclick="redirectToLogin()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2.5 rounded-xl text-xs transition btn-active">Masuk / Daftar Akun</button>
+            </div>
+            <div id="logged-in-state" class="space-y-4 hidden">
+                <div class="bg-gradient-to-r from-green-600 to-emerald-700 rounded-2xl p-4 text-white flex items-center gap-4 shadow-sm">
+                    <div class="w-12 h-12 bg-white/20 border border-white/10 rounded-full flex items-center justify-center font-black text-lg text-white uppercase" id="user-avatar-char">U</div>
+                    <div>
+                        <h3 class="text-sm font-black tracking-tight" id="user-profile-name">Nama Pengguna</h3>
+                        <p class="text-[10px] text-green-100 font-bold bg-white/20 px-2 py-0.5 rounded-full inline-block mt-1 uppercase" id="user-profile-role">Pembeli</p>
+                    </div>
+                </div>
+                <button onclick="handleLogout()" class="w-full bg-rose-50 border border-rose-100 hover:bg-rose-100 text-rose-600 font-bold py-3 rounded-2xl text-xs transition btn-active flex items-center justify-center gap-2 shadow-sm">
+                    <i data-lucide="log-out" class="w-4 h-4"></i> Keluar dari Akun (Logout)
+                </button>
+            </div>
+        </div>
+
+        <button onclick="openAiModal()" class="fixed bottom-20 right-[calc(50%-220px)] sm:right-auto bg-gradient-to-r from-teal-500 to-emerald-600 text-white p-3 rounded-full shadow-xl btn-active z-40 flex items-center gap-1.5 text-xs font-bold ring-4 ring-white">
+            <i data-lucide="sparkles" class="w-4 h-4"></i> Tanya AI Koki
+        </button>
+
+        <div id="ai-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end justify-center hidden opacity-0 transition-opacity duration-300">
+            <div class="bg-white w-full max-w-[480px] rounded-t-3xl p-6 animate-slide-up space-y-4 max-h-[80vh] flex flex-col">
+                <div class="flex justify-between items-center border-b border-gray-100 pb-3 shrink-0">
+                    <div class="flex items-center gap-2">
+                        <div class="p-1.5 bg-gradient-to-r from-teal-500 to-emerald-600 text-white rounded-lg"><i data-lucide="sparkles" class="w-4 h-4"></i></div>
+                        <h3 class="text-sm font-bold text-gray-800">Asisten Koki AI Segari</h3>
+                    </div>
+                    <button onclick="closeAiModal()" class="text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+                </div>
+                <div class="flex-grow overflow-y-auto space-y-3 py-2 text-xs no-scrollbar flex flex-col">
+                    <div class="bg-gray-50 border border-gray-100 rounded-xl p-3 text-gray-700 self-start mr-12">"Halo! Mau masak apa hari ini? Beritahu saya bahan dapur yang kamu punya!"</div>
+                    <div id="ai-chat-history" class="space-y-3 flex flex-col"></div>
+                </div>
+                <div class="flex gap-2 pt-2 border-t border-gray-100 shrink-0">
+                    <input type="text" id="ai-input" placeholder="Misal: bayam, telur..." class="flex-grow px-3 py-2 bg-gray-50 text-xs rounded-xl border-none text-gray-800">
+                    <button onclick="askAiChef()" class="bg-green-600 text-white p-2 rounded-xl btn-active"><i data-lucide="send" class="w-4 h-4"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <nav class="fixed bottom-0 w-full max-w-[480px] h-16 bg-white border-t border-gray-100 grid grid-cols-6 items-center text-center text-gray-400 z-40 shadow-[0_-4px_12px_rgba(0,0,0,0.08)]">
+            <button id="nav-home" onclick="switchTab('home')" class="nav-btn text-green-600 flex flex-col items-center gap-0.5">
+                <i data-lucide="home" class="w-4 h-4"></i><span class="text-[9px] font-bold">Belanja</span>
+            </button>
+            <button id="nav-cart" onclick="handleCartTabClick()" class="nav-btn flex flex-col items-center gap-0.5 relative">
+                <i data-lucide="shopping-cart" class="w-4 h-4"></i><span class="text-[9px] font-bold">Keranjang</span>
+                <span id="cart-badge" class="absolute top-1 right-3 bg-red-500 text-white text-[8px] font-black w-4 h-4 rounded-full items-center justify-center hidden flex">0</span>
+            </button>
+            <button id="nav-promo" onclick="switchTab('promo')" class="nav-btn flex flex-col items-center gap-0.5">
+                <i data-lucide="ticket" class="w-4 h-4"></i><span class="text-[9px] font-bold">Promo</span>
+            </button>
+            <button id="nav-chat" onclick="switchTab('chat')" class="nav-btn flex flex-col items-center gap-0.5">
+                <i data-lucide="message-square-text" class="w-4 h-4"></i><span class="text-[9px] font-bold">Chat</span>
+            </button>
+            <button id="nav-tracking" onclick="switchTab('tracking')" class="nav-btn flex flex-col items-center gap-0.5">
+                <i data-lucide="truck" class="w-4 h-4"></i><span class="text-[9px] font-bold">Lacak</span>
+            </button>
+            <button id="nav-akun" onclick="switchTab('akun')" class="nav-btn flex flex-col items-center gap-0.5">
+                <i data-lucide="user" class="w-4 h-4"></i><span class="text-[9px] font-bold">Akun</span>
+            </button>
+        </nav>
+
+        <div id="location-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end justify-center hidden opacity-0 transition-opacity duration-300">
+            <div class="bg-white w-full max-w-[480px] rounded-t-3xl p-6 animate-slide-up space-y-4">
+                <div class="flex justify-between items-center border-b border-gray-100 pb-3">
+                    <h3 class="text-base font-bold text-gray-800">Ubah Lokasi Pengiriman</h3>
+                    <button onclick="closeLocationModal()" class="text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+                </div>
+                <div class="space-y-2">
+                    <input type="text" id="address-input" placeholder="Masukkan alamat lengkap baru..." class="w-full px-3 py-2.5 bg-gray-50 border border-gray-100 text-sm rounded-xl focus:outline-none text-gray-800">
+                    <button onclick="saveLocation()" class="w-full bg-green-600 text-white font-bold py-2.5 rounded-xl text-xs btn-active">Simpan Alamat</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="toast-container"></div>
+    </div>
+
+    <script>
+        const defaultProducts = [
+            { id: 1, name: "Wortel Berastagi Segar", category: "sayur", price: 6000, oldPrice: 12000, size: "500 gr", stock: 45, img: "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?auto=format&fit=crop&q=80&w=300" },
+            { id: 101, name: "Jeruk Santang Madu", category: "buah", price: 19500, oldPrice: 30000, size: "500 gr", stock: 20, img: "https://images.unsplash.com/photo-1557800636-894a64c1696f?auto=format&fit=crop&q=80&w=300" },
+            { id: 2, name: "Bayam Hijau Hidroponik", category: "sayur", price: 4500, size: "250 gr", stock: 30, img: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&q=80&w=300" },
+            { id: 3, name: "Apel Malang Premium", category: "buah", price: 28000, size: "1 kg", stock: 15, img: "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&q=80&w=300" },
+            { id: 4, name: "Daging Sapi Sirloin Lokal", category: "daging", price: 62000, size: "500 gr", stock: 10, img: "https://images.unsplash.com/photo-1603048588665-791ca8aea617?auto=format&fit=crop&q=80&w=300" }
+        ];
+
+        let products = []; let cart = []; let activeUser = null; let selectedCategory = "semua";
+        
+        // VARIABEL STATE VOUCHER AKTIF
+        let activeVoucherCode = null;
+        let voucherDiscountAmount = 0;
+
+        const MASTER_USER_KEY = 'segari_users_v3';
+        const MASTER_SESSION_KEY = 'segari_session';
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initDatabase(); loadSession(); renderProducts(); updateCartCount(); startFlashSaleTimer(); lucide.createIcons();
+            window.addEventListener('storage', () => { initDatabase(); loadSession(); renderProducts(); updateCartCount(); renderChatView(); renderPromoPage(); });
+        });
+
+        function initDatabase() {
+            if (!localStorage.getItem('segari_products')) localStorage.setItem('segari_products', JSON.stringify(defaultProducts));
+            if (!localStorage.getItem('segari_orders')) localStorage.setItem('segari_orders', JSON.stringify([]));
+            if (!localStorage.getItem('segari_chats')) localStorage.setItem('segari_chats', JSON.stringify([]));
+            
+            // INISIALISASI DATABASE VOUCHER DINAMIS
+            if (!localStorage.getItem('segari_vouchers')) {
+                localStorage.setItem('segari_vouchers', JSON.stringify([
+                    { code: "MEMBERBARU", discount: 10000, minPrice: 50000, status: "Aktif" }
+                ]));
+            }
+
+            if (!localStorage.getItem(MASTER_USER_KEY)) {
+                localStorage.setItem(MASTER_USER_KEY, JSON.stringify([
+                    { username: "admin_segari", role: "Admin" }, 
+                    { username: "anita_sayur", role: "Pemilik Toko" }, 
+                    { username: "budi", role: "Pembeli" }
+                ]));
+            }
+            products = JSON.parse(localStorage.getItem('segari_products'));
+        }
+
+        function loadSession() {
+            activeUser = JSON.parse(localStorage.getItem(MASTER_SESSION_KEY)) || null;
+            const savedAddress = localStorage.getItem('segari_address') || "Rumah Utama, Jl. Ketapang No. 12";
+            localStorage.setItem('segari_address', savedAddress);
+            document.getElementById('current-address-text').innerText = "Kirim ke: " + savedAddress;
+            renderTrackingView(); renderAkunView(); renderChatView(); renderPromoPage();
+        }
+
+        function redirectToLogin() { window.location.href = "login-consumer.html"; }
+
+        function switchTab(tabId) {
+            const pages = ['home-page', 'cart-page', 'promo-page', 'chat-page', 'tracking-page', 'akun-page'];
+            pages.forEach(p => document.getElementById(p)?.classList.add('hidden'));
+            document.getElementById(`${tabId}-page`)?.classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-green-600'); btn.classList.add('text-gray-400');
+            });
+            
+            const activeNavButton = document.getElementById(`nav-${tabId}`);
+            if (activeNavButton) {
+                activeNavButton.classList.remove('text-gray-400');
+                activeNavButton.classList.add('text-green-600');
+            }
+            
+            if (tabId === 'home') renderProducts();
+            if (tabId === 'cart') renderCartItems();
+            if (tabId === 'promo') renderPromoPage();
+            if (tabId === 'tracking') renderTrackingView();
+            if (tabId === 'akun') renderAkunView();
+            if (tabId === 'chat') renderChatView();
+            lucide.createIcons();
+        }
+
+        function handleCartTabClick() { switchTab('cart'); }
+
+        function renderAkunView() {
+            const loggedOutState = document.getElementById('logged-out-state');
+            const loggedInState = document.getElementById('logged-in-state');
+            if (!loggedOutState || !loggedInState) return;
+
+            if (activeUser && (activeUser.role === 'Pembeli' || activeUser.role === 'Konsumen')) {
+                loggedOutState.classList.add('hidden');
+                loggedInState.classList.remove('hidden');
+                document.getElementById('user-profile-name').innerText = "@" + activeUser.username;
+                document.getElementById('user-profile-role').innerText = "Pembeli";
+                document.getElementById('user-avatar-char').innerText = activeUser.username.charAt(0);
+            } else {
+                loggedOutState.classList.remove('hidden');
+                loggedInState.classList.add('hidden');
+            }
+        }
+
+        function handleLogout() {
+            if(confirm("Apakah kamu yakin ingin keluar dari akun Segari?")) {
+                localStorage.removeItem(MASTER_SESSION_KEY);
+                activeUser = null;
+                showToast("Kamu berhasil keluar akun.");
+                loadSession();
+                switchTab('home');
+            }
+        }
+
+        function renderProducts(filterData = null) {
+            const grid = document.getElementById('product-grid'); if (!grid) return; grid.innerHTML = '';
+            let list = filterData || products;
+            if (selectedCategory !== 'semua' && !filterData) list = list.filter(p => p.category === selectedCategory);
+            
+            list.forEach(p => {
+                const isOut = p.stock <= 0;
+                let discountBadge = ''; let oldPriceHtml = '';
+                
+                if (p.oldPrice && p.oldPrice > p.price) {
+                    const discountPercent = Math.round(((p.oldPrice - p.price) / p.oldPrice) * 100);
+                    discountBadge = `<span class="absolute top-2 left-2 bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-md shadow-sm z-10">${discountPercent}% OFF</span>`;
+                    oldPriceHtml = `<span class="text-[10px] text-gray-400 line-through ml-1.5">Rp${p.oldPrice.toLocaleString('id-ID')}</span>`;
+                }
+
+                const card = document.createElement('div');
+                card.className = "bg-white border border-gray-100 rounded-2xl p-3 flex flex-col justify-between shadow-sm relative";
+                card.innerHTML = `
+                    <div>
+                        <div class="relative mb-2 bg-gray-50 rounded-xl overflow-hidden aspect-square">
+                            ${discountBadge}
+                            <img src="${p.img}" class="w-full h-full object-cover ${isOut ? 'grayscale opacity-50':''}">
+                        </div>
+                        <h4 class="text-xs font-bold text-gray-800 line-clamp-2">${p.name}</h4>
+                        <p class="text-[10px] text-gray-400 mt-0.5">${p.size} | Stok: ${p.stock}</p>
+                    </div>
+                    <div class="mt-2">
+                        <div class="flex items-center flex-wrap">
+                            <span class="text-xs font-extrabold text-green-600">Rp${p.price.toLocaleString('id-ID')}</span>
+                            ${oldPriceHtml}
+                        </div>
+                        <button onclick="handleAddToCart(${p.id})" ${isOut ? 'disabled class="w-full mt-1 bg-gray-200 text-gray-400 py-1.5 rounded-xl text-[11px] font-bold cursor-not-allowed"':'class="w-full mt-1 bg-green-500 hover:bg-green-600 text-white py-1.5 rounded-xl text-[11px] font-bold btn-active transition"'}>Beli</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterCategory(cat) {
+            selectedCategory = cat;
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('bg-green-50', 'text-green-700', 'border-green-100');
+                btn.classList.add('bg-gray-50', 'text-gray-600', 'border-transparent');
+            });
+            if(window.event && window.event.currentTarget) {
+                window.event.currentTarget.classList.add('bg-green-50', 'text-green-700', 'border-green-100');
+                window.event.currentTarget.classList.remove('bg-gray-50', 'text-gray-600', 'border-transparent');
+            }
+            renderProducts();
+        }
+
+        function searchProducts() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            renderProducts(products.filter(p => p.name.toLowerCase().includes(query)));
+        }
+
+        function handleAddToCart(id) {
+            const prod = products.find(p => p.id === id); if (!prod || prod.stock <= 0) return;
+            const idx = cart.findIndex(i => i.id === id);
+            if (idx > -1) { if (cart[idx].qty >= prod.stock) return; cart[idx].qty++; } else { cart.push({ ...prod, qty: 1 }); }
+            showToast(`${prod.name} masuk keranjang!`); updateCartCount();
+        }
+
+        function updateCartCount() {
+            const b = document.getElementById('cart-badge'); const total = cart.reduce((s, i) => s + i.qty, 0);
+            if (total > 0) { b.innerText = total; b.classList.remove('hidden'); } else { b.classList.add('hidden'); }
+        }
+
+        function renderCartItems() {
+            const act = document.getElementById('cart-active-state'); const emp = document.getElementById('empty-cart-state');
+            const container = document.getElementById('cart-items-list');
+            if (cart.length === 0) { act.classList.add('hidden'); emp.classList.remove('hidden'); return; }
+            emp.classList.add('hidden'); act.classList.remove('hidden'); container.innerHTML = '';
+            
+            let sub = 0;
+            cart.forEach((item, index) => {
+                sub += item.price * item.qty;
+                const div = document.createElement('div');
+                div.className = "flex items-center gap-3 bg-white p-3 rounded-2xl border border-gray-100";
+                div.innerHTML = `
+                    <img src="${item.img}" class="w-12 h-12 object-cover rounded-xl">
+                    <div class="flex-grow"><h4 class="text-xs font-bold text-gray-800">${item.name}</h4><p class="text-xs font-black text-green-600">Rp${(item.price * item.qty).toLocaleString('id-ID')}</p></div>
+                    <div class="flex items-center gap-2 bg-gray-50 p-1 rounded-xl">
+                        <button onclick="changeQty(${index}, -1)" class="w-5 h-5 bg-white rounded font-bold text-xs">-</button>
+                        <span class="text-xs font-bold">${item.qty}</span>
+                        <button onclick="changeQty(${index}, 1)" class="w-5 h-5 bg-white rounded font-bold text-xs">+</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+
+            // VALIDASI ULANG VOUCHER SECARA LIVE SAAT JUMLAH ITEM BERUBAH
+            if (activeVoucherCode) {
+                const dbVouchers = JSON.parse(localStorage.getItem('segari_vouchers')) || [];
+                const currentVoucher = dbVouchers.find(v => v.code === activeVoucherCode && v.status === "Aktif");
+                
+                if (currentVoucher && sub >= currentVoucher.minPrice) {
+                    voucherDiscountAmount = currentVoucher.discount;
+                    document.getElementById('discount-row').classList.remove('hidden');
+                    document.getElementById('price-discount').innerText = `-Rp${voucherDiscountAmount.toLocaleString('id-ID')}`;
+                } else {
+                    activeVoucherCode = null;
+                    voucherDiscountAmount = 0;
+                    document.getElementById('discount-row').classList.add('hidden');
+                    document.getElementById('voucher-message').classList.add('hidden');
+                    if (currentVoucher) {
+                        showToast(`Voucher dilepas! Min. belanja kurang dari Rp${currentVoucher.minPrice.toLocaleString('id-ID')}`);
+                    }
+                }
+            } else {
+                document.getElementById('discount-row').classList.add('hidden');
+            }
+
+            let finalTotal = Math.max(0, sub - voucherDiscountAmount);
+            document.getElementById('price-subtotal').innerText = `Rp${sub.toLocaleString('id-ID')}`;
+            document.getElementById('price-total').innerText = `Rp${finalTotal.toLocaleString('id-ID')}`;
+        }
+
+        function changeQty(index, amt) {
+            cart[index].qty += amt; if (cart[index].qty <= 0) cart.splice(index, 1);
+            renderCartItems(); updateCartCount();
+        }
+
+        // FUNGSI PENGECEKAN KODE VOUCHER SECARA DINAMIS
+        function applyVoucherCode() {
+            const input = document.getElementById('voucher-input').value.trim().toUpperCase();
+            const messageBox = document.getElementById('voucher-message');
+            
+            if (!input) {
+                showToast("Masukkan kode voucher terlebih dahulu!");
+                return;
+            }
+
+            let subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
+
+            // AMBIL DATA KODE VOUCHER DARI LOCALSTORAGE
+            const databaseVoucher = JSON.parse(localStorage.getItem('segari_vouchers')) || [];
+            const voucherCocok = databaseVoucher.find(v => v.code === input && v.status === "Aktif");
+
+            if (voucherCocok) {
+                if (subtotal >= voucherCocok.minPrice) {
+                    activeVoucherCode = voucherCocok.code;
+                    voucherDiscountAmount = voucherCocok.discount;
+                    messageBox.innerText = `✓ Berhasil! Diskon Rp${voucherDiscountAmount.toLocaleString('id-ID')} telah diterapkan.`;
+                    messageBox.className = "text-[10px] font-bold text-green-600 block";
+                    showToast("Voucher berhasil digunakan!");
+                    renderCartItems();
+                } else {
+                    messageBox.innerText = `✕ Gagal: Minimal belanja Rp${voucherCocok.minPrice.toLocaleString('id-ID')} diperlukan.`;
+                    messageBox.className = "text-[10px] font-bold text-red-500 block";
+                    showToast("Belanjaan belum mencukupi!");
+                }
+            } else {
+                messageBox.innerText = "✕ Kode voucher tidak valid atau kedaluwarsa.";
+                messageBox.className = "text-[10px] font-bold text-red-500 block";
+                showToast("Kode voucher salah!");
+            }
+        }
+
+        // RENDER DATA PROMO SECARA DINAMIS DARI LOCALSTORAGE
+        function renderPromoPage() {
+            const container = document.getElementById('promo-list-container'); if(!container) return;
+            const databaseVoucher = JSON.parse(localStorage.getItem('segari_vouchers')) || [];
+            const voucherAktif = databaseVoucher.filter(v => v.status === "Aktif");
+            
+            if(voucherAktif.length === 0) {
+                container.innerHTML = `<p class="text-xs font-bold text-gray-400 text-center py-8">Belum ada promo voucher aktif dari toko.</p>`;
+                return;
+            }
+
+            container.innerHTML = '';
+            voucherAktif.forEach(v => {
+                const div = document.createElement('div');
+                div.className = "bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl p-4 text-white flex justify-between items-center shadow-sm";
+                div.innerHTML = `
+                    <div>
+                        <h4 class="text-xs font-black uppercase tracking-wide bg-black/20 px-2 py-0.5 rounded inline-block">${v.code}</h4>
+                        <p class="text-sm font-bold mt-1">Potongan Flat Rp${v.discount.toLocaleString('id-ID')}</p>
+                        <p class="text-[9px] text-emerald-100">Minimal transaksi belanja Rp${v.minPrice.toLocaleString('id-ID')}</p>
+                    </div>
+                    <button onclick="claimVoucherFromPromo('${v.code}')" class="bg-white text-emerald-700 font-extrabold text-[10px] px-3 py-1.5 rounded-xl shadow-sm transition btn-active">Gunakan</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function claimVoucherFromPromo(code) {
+            switchTab('cart');
+            const inputField = document.getElementById('voucher-input');
+            if (inputField) {
+                inputField.value = code;
+                applyVoucherCode();
+            }
+        }
+
+        function processCheckout() {
+            if (!activeUser || (activeUser.role !== 'Pembeli' && activeUser.role !== 'Konsumen')) { 
+                alert("Wajib login akun Pembeli untuk memesan!"); redirectToLogin(); return; 
+            }
+            if (cart.length === 0) return;
+            
+            let masterProducts = JSON.parse(localStorage.getItem('segari_products')) || defaultProducts;
+            cart.forEach(item => { 
+                let p = masterProducts.find(mp => mp.id === item.id); 
+                if(p) p.stock = Math.max(0, p.stock - item.qty); 
+            });
+            localStorage.setItem('segari_products', JSON.stringify(masterProducts));
+
+            const currentOrders = JSON.parse(localStorage.getItem('segari_orders')) || [];
+            const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
+            const chosenSlot = document.querySelector('input[name="shipping-slot"]:checked')?.value || "Pagi (06:00 - 09:00)";
+            const currentAddress = localStorage.getItem('segari_address') || "Rumah Utama";
+            
+            let finalPayment = Math.max(0, subtotal - voucherDiscountAmount);
+
+            const newOrder = {
+                id: "SGR-" + Math.floor(1000 + Math.random() * 9000),
+                user: activeUser.username,
+                items: [...cart], 
+                subtotal: subtotal,
+                discount: voucherDiscountAmount,
+                voucherUsed: activeVoucherCode,
+                total: finalPayment,
+                slot: chosenSlot,
+                address: currentAddress,
+                status: "Diproses",
+                date: new Date().toLocaleDateString('id-ID')
+            };
+            
+            currentOrders.push(newOrder);
+            localStorage.setItem('segari_orders', JSON.stringify(currentOrders));
+            
+            // RESET SETELAH ORDER
+            cart = []; activeVoucherCode = null; voucherDiscountAmount = 0;
+            if(document.getElementById('voucher-input')) document.getElementById('voucher-input').value = '';
+            if(document.getElementById('voucher-message')) document.getElementById('voucher-message').classList.add('hidden');
+            
+            updateCartCount(); showToast("Pesanan berhasil diproses!"); switchTab('tracking');
+        }
+
+        function startFlashSaleTimer() {
+            let hours = 2, minutes = 14, seconds = 45;
+            setInterval(() => {
+                seconds--;
+                if (seconds < 0) { seconds = 59; minutes--; }
+                if (minutes < 0) { minutes = 59; hours--; }
+                if (hours < 0) { hours = 0; minutes = 0; seconds = 0; }
+                document.getElementById('timer-hours').innerText = String(hours).padStart(2, '0');
+                document.getElementById('timer-mins').innerText = String(minutes).padStart(2, '0');
+                document.getElementById('timer-secs').innerText = String(seconds).padStart(2, '0');
+            }, 1000);
+        }
+
+        function showToast(msg) {
+            const container = document.getElementById('toast-container'); if (!container) return;
+            const toast = document.createElement('div'); toast.className = "toast-msg";
+            toast.innerText = msg; container.appendChild(toast);
+            setTimeout(() => { toast.remove(); }, 2000);
+        }
+
+        function openLocationModal() {
+            const modal = document.getElementById('location-modal'); modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.remove('opacity-0'), 10);
+        }
+
+        function closeLocationModal() {
+            const modal = document.getElementById('location-modal'); modal.classList.add('opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        function saveLocation() {
+            const input = document.getElementById('address-input').value; if (!input.trim()) return;
+            localStorage.setItem('segari_address', input);
+            document.getElementById('current-address-text').innerText = "Kirim ke: " + input;
+            closeLocationModal(); showToast("Alamat pengiriman diubah!");
+        }
+
+        function openAiModal() {
+            const modal = document.getElementById('ai-modal'); modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.remove('opacity-0'), 10);
+        }
+
+        function closeAiModal() {
+            const modal = document.getElementById('ai-modal'); modal.classList.add('opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        function askAiChef() {
+            const input = document.getElementById('ai-input'); const query = input.value.trim(); if (!query) return;
+            const history = document.getElementById('ai-chat-history');
+            
+            const userDiv = document.createElement('div');
+            userDiv.className = "bg-green-600 text-white rounded-xl p-3 text-xs self-end ml-12 my-1 max-w-[85%]";
+            userDiv.innerText = query; history.appendChild(userDiv); input.value = '';
+            
+            setTimeout(() => {
+                const aiDiv = document.createElement('div');
+                aiDiv.className = "bg-gray-50 border border-gray-100 rounded-xl p-3 text-xs text-gray-700 self-start mr-12 my-1 max-w-[85%]";
+                aiDiv.innerText = `Bahan masakan "${query}" sangat cocok dibuat sup bening koki atau tumisan sayur segar Segari!`;
+                history.appendChild(aiDiv); history.scrollTop = history.scrollHeight;
+            }, 1000);
+        }
+
+        function renderChatView() {
+            const loggedOut = document.getElementById('chat-logged-out'); const loggedIn = document.getElementById('chat-logged-in');
+            if (!loggedOut || !loggedIn) return;
+            if (!activeUser) { loggedOut.classList.remove('hidden'); loggedIn.classList.add('hidden'); return; }
+            loggedOut.classList.add('hidden'); loggedIn.classList.remove('hidden');
+
+            const chatBox = document.getElementById('chat-box'); chatBox.innerHTML = '';
+            const chats = JSON.parse(localStorage.getItem('segari_chats')) || [];
+            const userChats = chats.filter(c => c.user === activeUser.username);
+            
+            if(userChats.length === 0) {
+                chatBox.innerHTML = `<p class="text-[11px] text-gray-400 text-center my-auto">Belum ada pesan. Kirim pesan ke penjual...</p>`;
+                return;
+            }
+            userChats.forEach(c => {
+                const div = document.createElement('div');
+                div.className = c.sender === 'user' ? "bg-green-500 text-white rounded-xl p-2.5 text-xs self-end max-w-[80%] my-0.5" : "bg-white border border-gray-100 rounded-xl p-2.5 text-xs self-start max-w-[80%] text-gray-800 shadow-sm my-0.5";
+                div.innerText = c.text; chatBox.appendChild(div);
+            });
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function sendChatToMerchant() {
+            const input = document.getElementById('chat-text-input'); const text = input.value.trim(); if (!text || !activeUser) return;
+            const chats = JSON.parse(localStorage.getItem('segari_chats')) || [];
+            chats.push({ user: activeUser.username, sender: 'user', text: text });
+            localStorage.setItem('segari_chats', JSON.stringify(chats)); input.value = ''; renderChatView();
+            
+            setTimeout(() => {
+                const updatedChats = JSON.parse(localStorage.getItem('segari_chats')) || [];
+                updatedChats.push({ user: activeUser.username, sender: 'merchant', text: "Halo! Toko kami sedang menyiapkan produk pesanan Anda." });
+                localStorage.setItem('segari_chats', JSON.stringify(updatedChats)); renderChatView();
+            }, 1500);
+        }
+
+        function renderTrackingView() {
+            const noOrder = document.getElementById('no-order-state'); const activeOrder = document.getElementById('active-order-state');
+            if (!noOrder || !activeOrder) return;
+            if (!activeUser) { noOrder.classList.remove('hidden'); activeOrder.classList.add('hidden'); return; }
+
+            const orders = JSON.parse(localStorage.getItem('segari_orders')) || [];
+            const userOrders = orders.filter(o => o.user === activeUser.username);
+            if (userOrders.length === 0) { noOrder.classList.remove('hidden'); activeOrder.classList.add('hidden'); return; }
+
+            noOrder.classList.add('hidden'); activeOrder.classList.remove('hidden'); activeOrder.innerHTML = '';
+            userOrders.reverse().forEach(o => {
+                const div = document.createElement('div'); div.className = "bg-white border border-gray-100 rounded-2xl p-4 space-y-2 shadow-sm mb-2";
+                let itemNames = o.items.map(i => `${i.name} (x${i.qty})`).join(', ');
+                div.innerHTML = `
+                    <div class="flex justify-between items-center border-b border-gray-50 pb-1.5">
+                        <div><span class="text-xs font-black text-gray-800">${o.id}</span><p class="text-[9px] text-gray-400">${o.slot}</p></div>
+                        <span class="bg-blue-50 text-blue-600 text-[10px] font-bold px-2 py-0.5 rounded-full">${o.status}</span>
+                    </div>
+                    <p class="text-[11px] text-gray-600 truncate"><b>Item:</b> ${itemNames}</p>
+                    <div class="flex justify-between items-center text-xs pt-1">
+                        <span class="text-gray-400">Total Belanja</span>
+                        <span class="font-black text-green-600">Rp${o.total.toLocaleString('id-ID')}</span>
+                    </div>
+                `;
+                activeOrder.appendChild(div);
+            });
+        }
+    </script>
+</body>
+    </html>
