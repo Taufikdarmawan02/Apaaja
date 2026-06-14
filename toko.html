@@ -277,63 +277,60 @@
                     </div>
                 </div>
             </section>
-
-            <section id="section-vouchers" class="hidden space-y-6">
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
-                    <h3 class="text-sm font-bold text-gray-800 flex items-center gap-2">
-                        <i data-lucide="badge-plus" class="text-emerald-600"></i> Buat Kode Voucher Promosi Baru
-                    </h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-                        <div>
-                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Kode Voucher</label>
-                            <input type="text" id="v-code" placeholder="Contoh: UNTUNG10K" class="w-full p-2.5 border border-gray-200 text-xs font-mono uppercase tracking-wider rounded-xl text-gray-800">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Tipe Potongan</label>
-                            <select id="v-type" class="w-full p-2.5 border border-gray-200 text-xs rounded-xl text-gray-800">
-                                <option value="nominal">Nominal Langsung (Rp)</option>
-                                <option value="persentase">Persentase (%)</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Nilai Diskon</label>
-                            <input type="number" id="v-value" placeholder="10000 atau 10" class="w-full p-2.5 border border-gray-200 text-xs rounded-xl text-gray-800">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Minimal Pembelian (Rp)</label>
-                            <input type="number" id="v-min" placeholder="Minimal belanja (0 jika tidak ada)" class="w-full p-2.5 border border-gray-200 text-xs rounded-xl text-gray-800">
-                        </div>
-                    </div>
-                    <div class="flex justify-end">
-                        <button onclick="addNewVoucher()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2.5 text-xs rounded-xl transition">
-                            Aktifkan Voucher
-                        </button>
-                    </div>
+            <!-- SECTION 5: DISKON PROMOSI (CORET HARGA) -->
+<section id="section-vouchers" class="hidden space-y-6">
+    <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+        <h3 class="text-sm font-bold text-gray-800 flex items-center gap-2">
+            <i data-lucide="badge-percent" class="text-emerald-600"></i> Atur Diskon Potongan Harga Produk (Harga Coret)
+        </h3>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+                <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Pilih Produk Toko Anda</label>
+                <select id="disc-product-id" onchange="updateHargaAwalPromo()" class="w-full p-2.5 border border-gray-200 text-xs rounded-xl text-gray-800 bg-white focus:ring-2 focus:ring-emerald-500/20">
+                    <!-- Diisi otomatis melalui JavaScript -->
+                </select>
+            </div>
+            <div>
+                <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Harga Awal Asli (Rp)</label>
+                <input type="number" id="disc-price-initial" placeholder="0" readonly class="w-full p-2.5 bg-gray-50 border border-gray-200 text-xs rounded-xl text-gray-500 font-semibold focus:outline-none">
+            </div>
+            <div>
+                <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Harga Promo Baru (Rp)</label>
+                <div class="relative">
+                    <input type="number" id="disc-price-promo" oninput="calculatePromoPercentage()" placeholder="Contoh: 500" class="w-full p-2.5 border border-gray-200 text-xs rounded-xl text-gray-800 font-bold focus:ring-2 focus:ring-emerald-500/20">
+                    <span id="disc-percentage-preview" class="absolute right-3 top-2.5 text-[10px] font-black bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded">0%</span>
                 </div>
+            </div>
+        </div>
+        <div class="flex justify-end">
+            <button onclick="addNewVoucher()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2.5 text-xs rounded-xl transition shadow-sm">
+                Aktifkan Harga Diskon
+            </button>
+        </div>
+    </div>
 
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                    <div class="p-4 border-b border-gray-50 bg-gray-50/50">
-                        <h3 class="text-xs font-bold text-gray-700 uppercase tracking-wider">Daftar Voucher Aktif Toko Anda</h3>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs text-gray-600 min-w-[600px]">
-                            <thead class="bg-gray-100 text-gray-700 font-bold">
-                                <tr>
-                                    <th class="p-4">Kode Voucher</th>
-                                    <th class="p-4">Tipe Potongan</th>
-                                    <th class="p-4">Besar Diskon</th>
-                                    <th class="p-4">Minimal Belanja</th>
-                                    <th class="p-4 text-center">Status</th>
-                                    <th class="p-4 text-center">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody id="vouchers-table-body" class="divide-y divide-gray-100">
-                                <tr><td colspan="6" class="p-8 text-center text-gray-400 italic">Belum ada voucher promosi terdaftar.</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="p-4 border-b border-gray-50 bg-gray-50/50">
+            <h3 class="text-xs font-bold text-gray-700 uppercase tracking-wider">Daftar Produk Toko Sedang Diskon</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-gray-600 min-w-[600px]">
+                <thead class="bg-gray-100 text-gray-700 font-bold">
+                    <tr>
+                        <th class="p-4">Nama Produk</th>
+                        <th class="p-4">Harga Awal Asli</th>
+                        <th class="p-4">Harga Setelah Diskon</th>
+                        <th class="p-4">Total Potongan %</th>
+                        <th class="p-4 text-center">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="vouchers-table-body" class="divide-y divide-gray-100">
+                    <tr><td colspan="5" class="p-8 text-center text-gray-400 italic">Belum ada promosi diskon produk yang berjalan saat ini.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
 
             <section id="section-chats" class="hidden">
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden grid grid-cols-1 md:grid-cols-3 min-h-[500px]">
@@ -373,29 +370,31 @@
     </div>
 
     <script>
-        let isSidebarOpen = false;
-        let currentFinanceFilter = 'harian'; 
-        let activeChatUser = null; // Menahan record username konsumen yang sedang dibuka chat-nya
+         let isSidebarOpen = false;
+    let currentFinanceFilter = 'harian'; 
+    let activeChatUser = null; 
 
-        window.addEventListener('DOMContentLoaded', () => {
-            loadMerchantSession();
+    window.addEventListener('DOMContentLoaded', () => {
+        loadMerchantSession();
+        renderInventoryTable();
+        populateProductDropdown(); // Sinkronisasi dropdown produk saat web dimuat
+        renderOrdersTable();
+        updateDashboardMetrics(); 
+        renderFinanceReport(); 
+        renderVouchersTable(); 
+        renderChatsPanel(); 
+        lucide.createIcons();
+
+        window.addEventListener('storage', () => {
             renderInventoryTable();
+            populateProductDropdown();
             renderOrdersTable();
-            updateDashboardMetrics(); 
-            renderFinanceReport(); 
-            renderVouchersTable(); 
-            renderChatsPanel(); 
-            lucide.createIcons();
-
-            window.addEventListener('storage', () => {
-                renderInventoryTable();
-                renderOrdersTable();
-                updateDashboardMetrics();
-                renderFinanceReport();
-                renderVouchersTable();
-                renderChatsPanel();
+            updateDashboardMetrics();
+            renderFinanceReport();
+            renderVouchersTable();
+            renderChatsPanel();
             });
-        });
+    });
 
         function getActiveMerchant() {
             const session = JSON.parse(localStorage.getItem('segari_session'));
@@ -811,100 +810,157 @@
             }
         }
 
-        function renderVouchersTable() {
-            const tbody = document.getElementById('vouchers-table-body');
-            if (!tbody) return;
+        /* ==========================================================================
+       SUB-SISTEM LOGIKA BARU: MANAJEMEN POTONGAN DISKON HARGA CORET
+       ========================================================================== */
+    
+    // 1. Ambil list produk milik toko aktif & masukkan ke menu pilihan dropdown
+    function populateProductDropdown() {
+        const currentMerchant = getActiveMerchant();
+        if (!currentMerchant) return;
 
-            const currentMerchant = getActiveMerchant();
-            if (!currentMerchant) return;
+        const allProducts = JSON.parse(localStorage.getItem('segari_products')) || [];
+        const myProducts = allProducts.filter(p => p.merchant === currentMerchant);
+        const select = document.getElementById('disc-product-id');
+        
+        if (!select) return;
 
-            const allVouchers = JSON.parse(localStorage.getItem('segari_vouchers')) || [];
-            const myVouchers = allVouchers.filter(v => v.merchant === currentMerchant);
-
-            if (myVouchers.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-gray-400 italic">Belum ada voucher promosi terdaftar.</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = myVouchers.map(v => {
-                const tipeDisplay = v.type === 'persentase' ? 'Persentase (%)' : 'Nominal Langsung (Rp)';
-                const nilaiDisplay = v.type === 'persentase' ? `${v.value}%` : `Rp${v.value.toLocaleString('id-ID')}`;
-                
-                return `
-                    <tr class="hover:bg-gray-50 transition border-b border-gray-100">
-                        <td class="p-4 font-mono font-bold text-emerald-800 tracking-wider uppercase">${v.code}</td>
-                        <td class="p-4 text-gray-600 font-medium">${tipeDisplay}</td>
-                        <td class="p-4 font-black text-gray-800">${nilaiDisplay}</td>
-                        <td class="p-4 text-gray-600">Rp${v.minPurchase.toLocaleString('id-ID')}</td>
-                        <td class="p-4 text-center">
-                            <span class="px-2 py-0.5 bg-green-100 text-green-800 rounded-full font-bold text-[10px]">AKTIF</span>
-                        </td>
-                        <td class="p-4 text-center">
-                            <button onclick="deleteVoucher(${v.id})" class="p-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl transition">
-                                <i data-lucide="trash-2" class="w-4 h-4"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-            lucide.createIcons();
+        if (myProducts.length === 0) {
+            select.innerHTML = '<option value="">-- Anda Belum Memiliki Produk --</option>';
+            return;
         }
 
-        function addNewVoucher() {
-            const currentMerchant = getActiveMerchant();
-            if (!currentMerchant) return;
+        select.innerHTML = '<option value="">-- Pilih SKU Produk Anda --</option>' + 
+            myProducts.map(p => `<option value="${p.id}">${p.name} (${p.size || 'Pak'})</option>`).join('');
+    }
+        // 2. Tampilkan otomatis Harga Awal Asli ketika nama produk dipilih di dropdown
+    function updateHargaAwalPromo() {
+        const productId = document.getElementById('disc-product-id').value;
+        const products = JSON.parse(localStorage.getItem('segari_products')) || [];
+        const selectedProd = products.find(p => p.id == productId);
+        
+        const initialPriceInput = document.getElementById('disc-price-initial');
+        if (selectedProd && initialPriceInput) {
+            initialPriceInput.value = selectedProd.price;
+        } else if (initialPriceInput) {
+            initialPriceInput.value = '';
+        }
+        calculatePromoPercentage();
+    }
 
-            const code = document.getElementById('v-code').value.trim().toUpperCase();
-            const type = document.getElementById('v-type').value;
-            const value = parseInt(document.getElementById('v-value').value);
-            let minPurchase = parseInt(document.getElementById('v-min').value);
+    // 3. Hitung persentase potongan harga secara langsung ketika user mengetik
+    function calculatePromoPercentage() {
+        const initial = parseFloat(document.getElementById('disc-price-initial').value) || 0;
+        const promo = parseFloat(document.getElementById('disc-price-promo').value) || 0;
+        const preview = document.getElementById('disc-percentage-preview');
+        
+        if (!preview) return;
+        if (initial > 0 && promo > 0 && promo < initial) {
+            const percentage = Math.round(((initial - promo) / initial) * 100);
+            preview.innerText = `-${percentage}%`;
+        } else {
+            preview.innerText = '0%';
+        }
+    }
 
-            if (!code || isNaN(value) || value <= 0) {
-                alert("Mohon isi kode voucher dan nilai diskon yang valid!");
-                return;
+    // 4. Proses simpan: Menyuntikkan property `promoPrice` ke object produk dalam database localStorage
+    function addNewVoucher() {
+        const currentMerchant = getActiveMerchant();
+        if (!currentMerchant) return;
+
+        const productId = document.getElementById('disc-product-id').value;
+        const promoPrice = parseFloat(document.getElementById('disc-price-promo').value);
+        const initialPrice = parseFloat(document.getElementById('disc-price-initial').value);
+
+        if (!productId) {
+            alert("Silakan pilih salah satu produk Anda terlebih dahulu!");
+            return;
             }
+        if (isNaN(promoPrice) || promoPrice <= 0) {
+            alert("Masukkan nominal nilai harga promo yang valid!");
+            return;
+        }
+        if (promoPrice >= initialPrice) {
+            alert("Harga diskon promo wajib lebih rendah dari harga awal asli!");
+            return;
+        }
 
-            if (isNaN(minPurchase) || minPurchase < 0) minPurchase = 0;
-
-            if (type === 'persentase' && value > 100) {
-                alert("Nilai diskon persentase tidak boleh melebihi 100%!");
-                return;
+        let products = JSON.parse(localStorage.getItem('segari_products')) || [];
+        products = products.map(p => {
+            if (p.id == productId && p.merchant === currentMerchant) {
+                p.promoPrice = promoPrice; 
             }
+            return p;
+        });
 
-            let vouchers = JSON.parse(localStorage.getItem('segari_vouchers')) || [];
+        localStorage.setItem('segari_products', JSON.stringify(products));
+
+        // Bersihkan data form
+        document.getElementById('disc-product-id').value = '';
+        document.getElementById('disc-price-initial').value = '';
+        document.getElementById('disc-price-promo').value = '';
+        document.getElementById('disc-percentage-preview').innerText = '0%';
+
+        renderVouchersTable();
+        renderInventoryTable(); // Refresh agar coret harga langsung tampil di tabel gudang
+        alert("Diskon promosi potongan harga coret berhasil diaktifkan!");
+    }
+
+    // 5. Render list data produk yang sedang berjalan masa promosi diskonnya
+    function renderVouchersTable() {
+        const tbody = document.getElementById('vouchers-table-body');
+        if (!tbody) return;
+
+        const currentMerchant = getActiveMerchant();
+        if (!currentMerchant) return;
+        const products = JSON.parse(localStorage.getItem('segari_products')) || [];
+        const promoProducts = products.filter(p => p.merchant === currentMerchant && p.promoPrice && Number(p.promoPrice) < Number(p.price));
+
+        if (promoProducts.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-gray-400 italic">Belum ada promosi diskon produk yang berjalan saat ini.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = promoProducts.map(p => {
+            const initialNum = Number(p.price);
+            const promoNum = Number(p.promoPrice);
+            const percentage = Math.round(((initialNum - promoNum) / initialNum) * 100);
             
-            if (vouchers.some(v => v.code === code && v.merchant === currentMerchant)) {
-                alert("Kode voucher ini sudah Anda gunakan! Silakan ganti kode yang lain.");
-                return;
-            }
+            return `
+                <tr class="hover:bg-gray-50 transition border-b border-gray-100 text-xs">
+                    <td class="p-4 font-bold text-gray-800">${p.name} <span class="text-gray-400 font-normal">(${p.size || 'Pak'})</span></td>
+                    <td class="p-4 text-gray-400 line-through font-medium">Rp${initialNum.toLocaleString('id-ID')}</td>
+                    <td class="p-4 font-black text-rose-600 text-sm">Rp${promoNum.toLocaleString('id-ID')}</td>
+                    <td class="p-4">
+                        <span class="px-2 py-1 bg-rose-100 text-rose-700 rounded-lg font-black text-[10px]">POTONGAN ${percentage}%</span>
+                    </td>
+             <td class="p-4 text-center">
+                        <button onclick="deleteVoucher(${p.id})" class="px-3 py-1 bg-gray-100 hover:bg-rose-50 text-gray-600 hover:text-rose-600 font-bold rounded-xl transition text-[11px]">
+                            Matikan Promo
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+        lucide.createIcons();
+    }
 
-            vouchers.push({
-                id: Date.now(),
-                code: code,
-                type: type,
-                value: value,
-                minPurchase: minPurchase,
-                merchant: currentMerchant
+    // 6. Nonaktifkan Diskon: Menghapus property `promoPrice` dan mengembalikan ke harga normal
+    function deleteVoucher(id) {
+        if (confirm("Apakah Anda yakin ingin menonaktifkan diskon ini dan mengembalikan produk ke harga normal asli?")) {
+            let products = JSON.parse(localStorage.getItem('segari_products')) || [];
+            products = products.map(p => {
+                if (p.id == id) {
+                    delete p.promoPrice; 
+                }
+                return p;
             });
-
-            localStorage.setItem('segari_vouchers', JSON.stringify(vouchers));
-
-            document.getElementById('v-code').value = '';
-            document.getElementById('v-value').value = '';
-            document.getElementById('v-min').value = '';
-
+            localStorage.setItem('segari_products', JSON.stringify(products));
             renderVouchersTable();
-            alert("Voucher Promosi Toko Berhasil Diaktifkan!");
+            renderInventoryTable();
+            alert("Promosi dihentikan, harga produk kembali normal.");
         }
-
-        function deleteVoucher(id) {
-            if (confirm("Apakah Anda yakin ingin menghapus/menonaktifkan kode voucher ini?")) {
-                let vouchers = JSON.parse(localStorage.getItem('segari_vouchers')) || [];
-                vouchers = vouchers.filter(v => v.id !== id);
-                localStorage.setItem('segari_vouchers', JSON.stringify(vouchers));
-                renderVouchersTable();
-            }
-        }
+    }
 
         // 🆕 Saluran Logika Pengoperasian Live Chat System Baru
         function renderChatsPanel() {
