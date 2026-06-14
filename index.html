@@ -633,6 +633,47 @@ function closeProductDetail() {
     
     alert("🎉 Pembayaran Berhasil! Data transaksi telah dicatat dan angka terjual diperbarui.");
 }
+        function syncSoldFromTransactions() {
+    // 1. Ambil data master produk dan data riwayat transaksi
+    let productsFromStorage = JSON.parse(localStorage.getItem('segari_products')) || products;
+    let transactions = JSON.parse(localStorage.getItem('segari_transactions')) || [];
+
+    // 2. Buat objek map/kamus kosong untuk menampung hitungan total terjual
+    // Contoh bentuk jadinya nanti: { "1": 12, "2": 5 } (artinya produk ID 1 terjual 12 pcs)
+    const soldMap = {};
+
+    // 3. Looping semua riwayat transaksi yang pernah ada
+    transactions.forEach(trx => {
+        trx.items.forEach(item => {
+            if (soldMap[item.id]) {
+                soldMap[item.id] += item.qty; // Jika ID produk sudah ada di kamus, tambahkan qty-nya
+            } else {
+                soldMap[item.id] = item.qty;  // Jika belum ada, set dengan qty saat ini
+            }
+        });
+    });
+
+    // 4. Perbarui properti 'sold' pada setiap produk di master data berdasarkan map tadi
+    const updatedProducts = productsFromStorage.map(prod => {
+        return {
+            ...prod,
+            // Jika ID produk ada di map transaksi, gunakan angka tersebut. Jika tidak ada, set 0
+            sold: soldMap[prod.id] || 0 
+        };
+    });
+
+    // 5. Simpan kembali data produk ter-update ke localStorage agar halaman toko & konsumen sinkron
+    localStorage.setItem('segari_products', JSON.stringify(updatedProducts));
+
+    // 6. Gambar ulang produk di layar agar angka terjual langsung berubah secara real-time
+    if (typeof renderProducts === "function") {
+        renderProducts(updatedProducts);
+    }
+        }
+        
+      // Letakkan ini di baris paling bawah tag <script> Anda
+// Menjamin setiap kali halaman di-refresh, data terjual dihitung dari transaksi riil
+syncSoldFromTransactions();                   
         function renderCartItems() {
     const act = document.getElementById('cart-active-state'); 
     const emp = document.getElementById('empty-cart-state');
