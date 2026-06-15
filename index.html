@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgroBumi - Sayur & Buah Segar Instan</title>
+    <title>Segari - Sayur & Buah Segar Instan</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -22,7 +22,7 @@
         <div id="home-page" class="space-y-4">
             <header class="bg-white sticky top-0 z-30 p-4 border-b border-gray-50 shadow-sm space-y-3">
                 <div class="flex justify-between items-center">
-                    <span class="text-2xl font-black tracking-tight text-green-600">Agro<span class="text-orange-500">Bumi</span></span>
+                    <span class="text-2xl font-black tracking-tight text-green-600">se<span class="text-orange-500">gari</span></span>
                     <div onclick="openLocationModal()" class="flex items-center gap-1 bg-gray-50 border border-gray-100 px-3 py-1.5 rounded-full cursor-pointer transition btn-active">
                         <i data-lucide="map-pin" class="w-3.5 h-3.5 text-orange-500"></i>
                         <span id="current-address-text" class="text-[11px] font-bold text-gray-600 truncate max-w-[120px]">Kirim ke: Rumah Utama</span>
@@ -77,47 +77,6 @@
             </div>
         </div>
 
-        <div id="product-detail-modal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-end sm:items-center justify-center hidden opacity-0 transition-opacity duration-300">
-            <div class="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl p-5 space-y-4 max-h-[85vh] overflow-y-auto transform translate-y-full sm:translate-y-0 transition-transform duration-300 shadow-xl" id="modal-content">
-                <div class="flex justify-between items-center border-b border-gray-100 pb-3">
-                    <span class="text-xs font-bold text-gray-400 tracking-wide uppercase" id="detail-category">Kategori</span>
-                    <button onclick="closeProductDetail()" class="w-7 h-7 bg-gray-100 text-gray-500 rounded-full flex items-center justify-center hover:bg-gray-200 font-bold transition">✕</button>
-                </div>
-        
-                <div class="relative bg-gray-50 rounded-2xl overflow-hidden aspect-square">
-                    <div id="detail-discount-badge"></div>
-                        <img id="detail-img" src="" class="w-full h-full object-cover">
-                </div>
-
-            <div>
-            <h3 class="text-base font-black text-gray-800 leading-tight" id="detail-name">Nama Produk</h3>
-            <div class="flex items-center gap-2 mt-2 text-xs text-gray-500">
-                <span id="detail-size" class="bg-gray-100 px-2 py-0.5 rounded-md font-medium text-gray-600">Ukuran</span>
-                <span>•</span>
-                <span id="detail-stock">Stok: 0</span>
-                <span>•</span>
-                <span id="detail-sold" class="text-amber-600 font-semibold bg-amber-50 px-2 py-0.5 rounded-md">Terjual 0</span>
-            </div>
-        </div>
-
-        <div class="border-t border-b border-gray-50 py-3">
-            <h4 class="text-xs font-black text-gray-800 mb-1">Deskripsi Produk</h4>
-            <p id="detail-desc" class="text-xs text-gray-500 leading-relaxed">Tidak ada deskripsi produk.</p>
-        </div>
-
-        <div class="flex items-center justify-between pt-2 gap-4">
-            <div>
-                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Harga Utama</p>
-                <div class="flex items-baseline flex-wrap">
-                    <span id="detail-price" class="text-base font-black text-green-600">Rp0</span>
-                    <span id="detail-old-price" class="text-xs text-gray-400 line-through ml-1.5 font-medium">Rp0</span>
-                </div>
-            </div>
-            <div id="detail-action-button" class="w-1/2">
-                </div>
-        </div>
-    </div>
-        </div>
         <div id="cart-page" class="hidden p-4 space-y-4">
             <h2 class="text-base font-black text-gray-800 border-b border-gray-100 pb-2 flex items-center gap-2"><i data-lucide="shopping-cart" class="text-green-600 w-5 h-5"></i> Keranjang Belanja Anda</h2>
             <div id="empty-cart-state" class="text-center py-12 space-y-2 hidden">
@@ -151,28 +110,15 @@
                 </div>
 
                 <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4 space-y-1.5 text-xs">
-                    <div class="flex justify-between text-gray-400">
-                        <span>Harga Sebelum Promo (Asli)</span>
-                        <span id="price-subtotal" class="line-through font-medium">Rp0</span>
+                    <div class="flex justify-between text-gray-400"><span>Subtotal Item</span><span id="price-subtotal">Rp0</span></div>
+                    <div id="discount-row" class="flex justify-between text-red-500 font-bold hidden"><span>Potongan Voucher</span><span id="price-discount">-Rp0</span></div>
+                    <div class="flex justify-between text-gray-400"><span>Ongkos Kirim Flat</span><span>Rp0 (Promo)</span></div>
+                    <div class="border-t border-dashed border-gray-200 my-2 pt-2 flex justify-between font-black text-gray-800 text-sm">
+                        <span>Total Pembayaran</span><span class="text-green-600" id="price-total">Rp0</span>
                     </div>
-                    <div id="discount-row" class="flex justify-between text-red-500 font-bold hidden">
-                        <div class="flex items-center gap-1.5">
-                            <span>Total Diskon Toko</span>
-                            <span id="discount-percentage-badge" class="bg-rose-100 text-rose-700 text-[10px] px-1.5 py-0.5 rounded font-black tracking-wide animate-pulse">0% OFF</span>
-                        </div>
-                        <span id="price-discount">-Rp0</span>
-                    </div>
-        <div class="flex justify-between text-gray-400">
-            <span>Ongkos Kirim Flat</span>
-            <span class="text-emerald-600 font-bold">Rp0 (Promo Free)</span>
-        </div>
-    <div class="border-t border-dashed border-gray-200 my-2 pt-2 flex justify-between font-black text-gray-800 text-sm">
-        <span>Total Pembayaran</span>
-        <span class="text-green-600 text-base" id="price-total">Rp0</span>
-    </div>
                 </div>
-                <button onclick="handleCheckout()" class="w-full bg-green-500 text-white py-3 rounded-xl font-bold mt-4">
-                Bayar & Selesaikan Pesanan
+                <button onclick="processCheckout()" class="w-full bg-green-600 text-white font-bold py-3 rounded-2xl text-xs transition btn-active shadow-lg shadow-green-100 flex items-center justify-center gap-2">
+                    <i data-lucide="credit-card" class="w-4 h-4"></i> Konfirmasi Pesanan & Bayar
                 </button>
             </div>
         </div>
@@ -405,190 +351,43 @@
             }
         }
 
-            function renderProducts(filterData = null) {
-    const grid = document.getElementById('product-grid'); if (!grid) return; grid.innerHTML = '';
-    
-    let productsFromStorage = JSON.parse(localStorage.getItem('segari_products')) || products;
-    let list = filterData || productsFromStorage;
-    if (selectedCategory !== 'semua' && !filterData) list = list.filter(p => p.category === selectedCategory);
-    
-    list.forEach(p => {
-        const isOut = p.stock <= 0;
-        let discountBadge = ''; let oldPriceHtml = '';
-        
-        let hargaAktif = p.price;
-        let hargaCoret = null;
-
-        if (p.promoPrice && Number(p.promoPrice) < Number(p.price)) {
-            hargaAktif = Number(p.promoPrice);
-            hargaCoret = Number(p.price);
-        } else if (p.oldPrice && Number(p.oldPrice) > Number(p.price)) {
-            hargaAktif = Number(p.price);
-            hargaCoret = Number(p.oldPrice);
-        }
-
-        if (hargaCoret) {
-            const discountPercent = Math.round(((hargaCoret - hargaAktif) / hargaCoret) * 100);
-            discountBadge = `<span class="absolute top-2 left-2 bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-md shadow-sm z-10">${discountPercent}% OFF</span>`;
-            oldPriceHtml = `<span class="text-[10px] text-gray-400 line-through ml-1.5">Rp${hargaCoret.toLocaleString('id-ID')}</span>`;
-        }
-
-        const card = document.createElement('div');
-        card.className = "bg-white border border-gray-100 rounded-2xl p-3 flex flex-col justify-between shadow-sm relative";
-        card.innerHTML = `
-            <div>
-                <div onclick="openProductDetail(${p.id})" class="relative mb-2 bg-gray-50 rounded-xl overflow-hidden aspect-square cursor-pointer hover:scale-[1.02] transition duration-200">
-                    ${discountBadge}
-                    <img src="${p.img}" class="w-full h-full object-cover ${isOut ? 'grayscale opacity-50':''}">
-                </div>
-                <h4 onclick="openProductDetail(${p.id})" class="text-xs font-bold text-gray-800 line-clamp-2 cursor-pointer hover:text-green-600 transition">${p.name}</h4>
+        function renderProducts(filterData = null) {
+            const grid = document.getElementById('product-grid'); if (!grid) return; grid.innerHTML = '';
+            let list = filterData || products;
+            if (selectedCategory !== 'semua' && !filterData) list = list.filter(p => p.category === selectedCategory);
+            
+            list.forEach(p => {
+                const isOut = p.stock <= 0;
+                let discountBadge = ''; let oldPriceHtml = '';
                 
-                <div class="flex flex-wrap items-center justify-between gap-1 mt-1 text-[10px] text-gray-400">
-                    <span>${p.size || 'Pak'} | Stok: ${p.stock}</span>
-                    <span class="text-gray-500 font-medium bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100">Terjual ${p.sold || 0}+</span>
-                </div>
-            </div>
-            <div class="mt-2">
-                <div class="flex items-center flex-wrap">
-                    <span class="text-xs font-extrabold text-green-600">Rp${hargaAktif.toLocaleString('id-ID')}</span>
-                    ${oldPriceHtml}
-                </div> 
-                <button onclick="handleAddToCart(${p.id})" ${isOut ? 'disabled class="w-full mt-1 bg-gray-200 text-gray-400 py-1.5 rounded-xl text-[11px] font-bold cursor-not-allowed"':'class="w-full mt-1 bg-green-500 hover:bg-green-600 text-white py-1.5 rounded-xl text-[11px] font-bold btn-active transition"'}>Beli</button>
-            </div>
-        `;
-        grid.appendChild(card);
-    });
-            }
+                if (p.oldPrice && p.oldPrice > p.price) {
+                    const discountPercent = Math.round(((p.oldPrice - p.price) / p.oldPrice) * 100);
+                    discountBadge = `<span class="absolute top-2 left-2 bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-md shadow-sm z-10">${discountPercent}% OFF</span>`;
+                    oldPriceHtml = `<span class="text-[10px] text-gray-400 line-through ml-1.5">Rp${p.oldPrice.toLocaleString('id-ID')}</span>`;
+                }
 
-        function renderCartItems() {
-    const act = document.getElementById('cart-active-state');
-    const emp = document.getElementById('empty-cart-state');
-    const container = document.getElementById('cart-items-list');
-    
-    if (cart.length === 0) {
-        act.classList.add('hidden');
-        emp.classList.remove('hidden');
-        return;
-    }
-    
-    emp.classList.add('hidden');
-    act.classList.remove('hidden');
-    container.innerHTML = '';
-    
-    // 1. Hitung Subtotal Asli (sebelum diskon)
-    let subtotalAsli = 0;
-    cart.forEach((item, index) => {
-        subtotalAsli += (item.oldPrice || item.price) * item.qty;
-        
-        // Render item keranjang... (kode rendering item Anda sebelumnya)
-        // ...
-    });
-
-    // 2. Hitung Total setelah harga promo (harga yang dibayar user)
-    let totalBayar = cart.reduce((s, i) => s + (i.price * i.qty), 0);
-    
-    // 3. Logika Diskon Toko (Perhitungan otomatis)
-    const discountRow = document.getElementById('discount-row');
-    const discountBadge = document.getElementById('discount-percentage-badge');
-    const priceDiscount = document.getElementById('price-discount');
-
-    if (subtotalAsli > totalBayar) {
-        let selisih = subtotalAsli - totalBayar;
-        let persen = Math.round((selisih / subtotalAsli) * 100);
-        
-        discountRow.classList.remove('hidden');
-        discountBadge.innerText = `${persen}% OFF`;
-        priceDiscount.innerText = `-Rp${selisih.toLocaleString('id-ID')}`;
-    } else {
-        discountRow.classList.add('hidden');
-    }
-
-    // 4. Update Tampilan Harga
-    document.getElementById('price-subtotal').innerText = `Rp${subtotalAsli.toLocaleString('id-ID')}`;
-    
-    // Total Akhir (setelah dikurangi voucher jika ada)
-    let finalTotal = Math.max(0, totalBayar - voucherDiscountAmount);
-    document.getElementById('price-total').innerText = `Rp${finalTotal.toLocaleString('id-ID')}`;
-}
-        
-        // FUNGSI UNTUK MEMBUKA MODAL DETAIL PRODUK
-function openProductDetail(id) {
-    const productsFromStorage = JSON.parse(localStorage.getItem('segari_products')) || products;
-    const prod = productsFromStorage.find(p => p.id === id);
-    if (!prod) return;
-
-    // Hitung Skema Harga Diskon Toko vs Bawaan
-    let hargaAktif = prod.price;
-    let hargaCoret = null;
-    if (prod.promoPrice && Number(prod.promoPrice) < Number(prod.price)) {
-        hargaAktif = Number(prod.promoPrice);
-        hargaCoret = Number(prod.price);
-    } else if (prod.oldPrice && Number(prod.oldPrice) > Number(prod.price)) {
-        hargaAktif = Number(prod.price);
-        hargaCoret = Number(prod.oldPrice);
-    }
-
-    // Suntik Data ke Elemen Modal HTML
-    document.getElementById('detail-category').innerText = prod.category || 'Sayur';
-    document.getElementById('detail-img').src = prod.img;
-    document.getElementById('detail-name').innerText = prod.name;
-    document.getElementById('detail-size').innerText = prod.size || 'Pak';
-    document.getElementById('detail-stock').innerText = `Stok: ${prod.stock}`;
-    
-    // Tampilkan data barang terjual
-    document.getElementById('detail-sold').innerText = `Terjual ${prod.sold || 0}+ produk`;
-    
-    // Tampilkan Deskripsi Produk (Gunakan properti .desc atau teks bawaan jika kosong)
-    document.getElementById('detail-desc').innerText = prod.desc || `Dapatkan kualitas ${prod.name} terbaik dan segar langsung dari mitra tani terpercaya kami. Dikemas dengan higienis dan standar mutu tinggi.`;
-    
-    document.getElementById('detail-price').innerText = `Rp${hargaAktif.toLocaleString('id-ID')}`;
-
-    // Atur Badge & Harga Coret Modal
-    const badgeContainer = document.getElementById('detail-discount-badge');
-    const oldPriceEl = document.getElementById('detail-old-price');
-    
-    if (hargaCoret) {
-        const percent = Math.round(((hargaCoret - hargaAktif) / hargaCoret) * 100);
-        badgeContainer.innerHTML = `<span class="absolute top-3 left-3 bg-red-500 text-white text-[11px] font-black px-2 py-0.5 rounded-md shadow z-10">${percent}% OFF</span>`;
-        oldPriceEl.innerText = `Rp${hargaCoret.toLocaleString('id-ID')}`;
-        oldPriceEl.classList.remove('hidden');
-    } else {
-        badgeContainer.innerHTML = '';
-        oldPriceEl.classList.add('hidden');
-    }
-
-    // Atur Tombol Eksekusi "Beli" di dalam modal detail
-    const actionBtnContainer = document.getElementById('detail-action-button');
-    const isOut = prod.stock <= 0;
-    if (isOut) {
-        actionBtnContainer.innerHTML = `<button disabled class="w-full bg-gray-200 text-gray-400 py-2 rounded-xl text-xs font-bold cursor-not-allowed">Habis</button>`;
-    } else {
-        actionBtnContainer.innerHTML = `<button onclick="handleAddToCart(${prod.id}); closeProductDetail();" class="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded-xl text-xs font-bold btn-active transition shadow-md shadow-green-100">Beli Sekarang</button>`;
-    }
-
-    // Tampilkan Modal dengan Animasi Smooth
-    const modal = document.getElementById('product-detail-modal');
-    const content = document.getElementById('modal-content');
-    
-    modal.classList.remove('hidden');
-    setTimeout(() => {
-        modal.classList.remove('opacity-0');
-        content.classList.remove('translate-y-full');
-    }, 10);
-}
-
-// FUNGSI UNTUK MENUTUP MODAL DETAIL PRODUK
-function closeProductDetail() {
-    const modal = document.getElementById('product-detail-modal');
-    const content = document.getElementById('modal-content');
-    
-    modal.classList.add('opacity-0');
-    content.classList.add('translate-y-full');
-    
-    setTimeout(() => {
-        modal.classList.add('hidden');
-    }, 300); // Sesuai dengan durasi transition-opacity duration-300
-}
+                const card = document.createElement('div');
+                card.className = "bg-white border border-gray-100 rounded-2xl p-3 flex flex-col justify-between shadow-sm relative";
+                card.innerHTML = `
+                    <div>
+                        <div class="relative mb-2 bg-gray-50 rounded-xl overflow-hidden aspect-square">
+                            ${discountBadge}
+                            <img src="${p.img}" class="w-full h-full object-cover ${isOut ? 'grayscale opacity-50':''}">
+                        </div>
+                        <h4 class="text-xs font-bold text-gray-800 line-clamp-2">${p.name}</h4>
+                        <p class="text-[10px] text-gray-400 mt-0.5">${p.size} | Stok: ${p.stock}</p>
+                    </div>
+                    <div class="mt-2">
+                        <div class="flex items-center flex-wrap">
+                            <span class="text-xs font-extrabold text-green-600">Rp${p.price.toLocaleString('id-ID')}</span>
+                            ${oldPriceHtml}
+                        </div>
+                        <button onclick="handleAddToCart(${p.id})" ${isOut ? 'disabled class="w-full mt-1 bg-gray-200 text-gray-400 py-1.5 rounded-xl text-[11px] font-bold cursor-not-allowed"':'class="w-full mt-1 bg-green-500 hover:bg-green-600 text-white py-1.5 rounded-xl text-[11px] font-bold btn-active transition"'}>Beli</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
 
         function filterCategory(cat) {
             selectedCategory = cat;
@@ -609,132 +408,67 @@ function closeProductDetail() {
         }
 
         function handleAddToCart(id) {
-    // Ambil data produk langsung dari localStorage database agar akurat
-    const productsFromStorage = JSON.parse(localStorage.getItem('segari_products')) || products;
-    const prod = productsFromStorage.find(p => p.id === id); 
-    
-    if (!prod || prod.stock <= 0) return;
-    
-    // Tentukan harga final & harga coret untuk disuntikkan ke keranjang konsumen
-    let hargaFinal = prod.price;
-    let hargaCoretAsli = prod.oldPrice || null;
-
-    if (prod.promoPrice && Number(prod.promoPrice) < Number(prod.price)) {
-        hargaFinal = Number(prod.promoPrice);
-        hargaCoretAsli = Number(prod.price);
-    }
-
-    const idx = cart.findIndex(i => i.id === id);
-    if (idx > -1) { 
-        if (cart[idx].qty >= prod.stock) return; 
-        cart[idx].qty++; 
-    } else { 
-        // Masukkan item dengan struktur harga diskon toko ter-update
-        cart.push({ 
-            ...prod, 
-            price: hargaFinal, 
-            oldPrice: hargaCoretAsli, 
-            qty: 1 
-        }); 
-    }
-    
-    showToast(`${prod.name} masuk keranjang!`); 
-    updateCartCount();
+            const prod = products.find(p => p.id === id); if (!prod || prod.stock <= 0) return;
+            const idx = cart.findIndex(i => i.id === id);
+            if (idx > -1) { if (cart[idx].qty >= prod.stock) return; cart[idx].qty++; } else { cart.push({ ...prod, qty: 1 }); }
+            showToast(`${prod.name} masuk keranjang!`); updateCartCount();
         }
 
         function updateCartCount() {
             const b = document.getElementById('cart-badge'); const total = cart.reduce((s, i) => s + i.qty, 0);
             if (total > 0) { b.innerText = total; b.classList.remove('hidden'); } else { b.classList.add('hidden'); }
         }
-        function handleCheckout() {
-    if (cart.length === 0) {
-        alert("Keranjang belanja Anda masih kosong!");
-        return;
-    }
 
-    // 1. Ambil data transaksi yang sudah ada, atau buat array baru jika belum ada
-    let transactions = JSON.parse(localStorage.getItem('segari_transactions')) || [];
+        function renderCartItems() {
+            const act = document.getElementById('cart-active-state'); const emp = document.getElementById('empty-cart-state');
+            const container = document.getElementById('cart-items-list');
+            if (cart.length === 0) { act.classList.add('hidden'); emp.classList.remove('hidden'); return; }
+            emp.classList.add('hidden'); act.classList.remove('hidden'); container.innerHTML = '';
+            
+            let sub = 0;
+            cart.forEach((item, index) => {
+                sub += item.price * item.qty;
+                const div = document.createElement('div');
+                div.className = "flex items-center gap-3 bg-white p-3 rounded-2xl border border-gray-100";
+                div.innerHTML = `
+                    <img src="${item.img}" class="w-12 h-12 object-cover rounded-xl">
+                    <div class="flex-grow"><h4 class="text-xs font-bold text-gray-800">${item.name}</h4><p class="text-xs font-black text-green-600">Rp${(item.price * item.qty).toLocaleString('id-ID')}</p></div>
+                    <div class="flex items-center gap-2 bg-gray-50 p-1 rounded-xl">
+                        <button onclick="changeQty(${index}, -1)" class="w-5 h-5 bg-white rounded font-bold text-xs">-</button>
+                        <span class="text-xs font-bold">${item.qty}</span>
+                        <button onclick="changeQty(${index}, 1)" class="w-5 h-5 bg-white rounded font-bold text-xs">+</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
 
-    // 2. Hitung total pembayaran untuk log transaksi
-    let totalPayment = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-
-    // 3. Buat objek struktur data transaksi baru
-    const newTransaction = {
-        transactionId: "TRX-" + Date.now(),
-        date: new Date().toLocaleString('id-ID'),
-        items: cart.map(item => ({
-            id: item.id,
-            name: item.name,
-            price: item.price,
-            qty: item.qty // Jumlah yang dibeli
-        })),
-        total: totalPayment
-    };
-
-    // 4. Masukkan ke dalam database transaksi
-    transactions.push(newTransaction);
-    localStorage.setItem('segari_transactions', JSON.stringify(transactions));
-
-    // 5. Jalankan fungsi sinkronisasi angka terjual berdasarkan seluruh data transaksi
-    syncSoldFromTransactions();
-
-    // 6. Kosongkan keranjang & refresh tampilan halaman
-    cart = [];
-    if (typeof updateCartCount === "function") updateCartCount();
-    renderCartItems();
-    
-    alert("🎉 Pembayaran Berhasil! Data transaksi telah dicatat dan angka terjual diperbarui.");
-        }
-    
-    function syncSoldFromTransactions() {
-    // 1. Ambil data master produk dari storage, jika belum ada isi dengan data default 'products'
-    let productsFromStorage = JSON.parse(localStorage.getItem('segari_products'));
-    if (!productsFromStorage) {
-        localStorage.setItem('segari_products', JSON.stringify(products));
-        productsFromStorage = products;
-    }
-
-    let transactions = JSON.parse(localStorage.getItem('segari_transactions')) || [];
-    const soldMap = {};
-
-    // 2. Hitung total terjual dari transaksi
-    transactions.forEach(trx => {
-        trx.items.forEach(item => {
-            // PAKSA ID menjadi String agar aman dari perbedaan tipe data
-            const itemId = String(item.id); 
-            if (soldMap[itemId]) {
-                soldMap[itemId] += Number(item.qty);
+            // VALIDASI ULANG VOUCHER SECARA LIVE SAAT JUMLAH ITEM BERUBAH
+            if (activeVoucherCode) {
+                const dbVouchers = JSON.parse(localStorage.getItem('segari_vouchers')) || [];
+                const currentVoucher = dbVouchers.find(v => v.code === activeVoucherCode && v.status === "Aktif");
+                
+                if (currentVoucher && sub >= currentVoucher.minPrice) {
+                    voucherDiscountAmount = currentVoucher.discount;
+                    document.getElementById('discount-row').classList.remove('hidden');
+                    document.getElementById('price-discount').innerText = `-Rp${voucherDiscountAmount.toLocaleString('id-ID')}`;
+                } else {
+                    activeVoucherCode = null;
+                    voucherDiscountAmount = 0;
+                    document.getElementById('discount-row').classList.add('hidden');
+                    document.getElementById('voucher-message').classList.add('hidden');
+                    if (currentVoucher) {
+                        showToast(`Voucher dilepas! Min. belanja kurang dari Rp${currentVoucher.minPrice.toLocaleString('id-ID')}`);
+                    }
+                }
             } else {
-                soldMap[itemId] = Number(item.qty);
+                document.getElementById('discount-row').classList.add('hidden');
             }
-        });
-    });
 
-    // 3. Update properti 'sold' di master produk
-    const updatedProducts = productsFromStorage.map(prod => {
-        const prodId = String(prod.id); // PAKSA ID menjadi String
-        return {
-            ...prod,
-            sold: soldMap[prodId] || 0 // Jika ada di transaksi gunakan nilainya, jika tidak ada set 0
-        };
-    });
+            let finalTotal = Math.max(0, sub - voucherDiscountAmount);
+            document.getElementById('price-subtotal').innerText = `Rp${sub.toLocaleString('id-ID')}`;
+            document.getElementById('price-total').innerText = `Rp${finalTotal.toLocaleString('id-ID')}`;
+        }
 
-    // 4. Simpan kembali ke localStorage
-    localStorage.setItem('segari_products', JSON.stringify(updatedProducts));
-
-    // 5. Render ulang ke layar dengan data terbaru
-    if (typeof renderProducts === "function") {
-        renderProducts(updatedProducts);
-    }
-    }
-        // Jalankan ini di akhir script agar otomatis menghitung data saat web dibuka
-document.addEventListener("DOMContentLoaded", function() {
-    syncSoldFromTransactions(); // Hitung ulang terjual dari histori transaksi
-    
-    // Jika Anda punya fungsi awal untuk menampilkan produk, panggil setelah sync
-    let productsLatest = JSON.parse(localStorage.getItem('segari_products')) || products;
-    renderProducts(productsLatest);
-});
         function changeQty(index, amt) {
             cart[index].qty += amt; if (cart[index].qty <= 0) cart.splice(index, 1);
             renderCartItems(); updateCartCount();
