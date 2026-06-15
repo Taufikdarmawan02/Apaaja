@@ -78,18 +78,18 @@
         </div>
 
         <div id="product-detail-modal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-end sm:items-center justify-center hidden opacity-0 transition-opacity duration-300">
-    <div class="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl p-5 space-y-4 max-h-[85vh] overflow-y-auto transform translate-y-full sm:translate-y-0 transition-transform duration-300 shadow-xl" id="modal-content">
-        <div class="flex justify-between items-center border-b border-gray-100 pb-3">
-            <span class="text-xs font-bold text-gray-400 tracking-wide uppercase" id="detail-category">Kategori</span>
-            <button onclick="closeProductDetail()" class="w-7 h-7 bg-gray-100 text-gray-500 rounded-full flex items-center justify-center hover:bg-gray-200 font-bold transition">✕</button>
-        </div>
+            <div class="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl p-5 space-y-4 max-h-[85vh] overflow-y-auto transform translate-y-full sm:translate-y-0 transition-transform duration-300 shadow-xl" id="modal-content">
+                <div class="flex justify-between items-center border-b border-gray-100 pb-3">
+                    <span class="text-xs font-bold text-gray-400 tracking-wide uppercase" id="detail-category">Kategori</span>
+                    <button onclick="closeProductDetail()" class="w-7 h-7 bg-gray-100 text-gray-500 rounded-full flex items-center justify-center hover:bg-gray-200 font-bold transition">✕</button>
+                </div>
         
-        <div class="relative bg-gray-50 rounded-2xl overflow-hidden aspect-square">
-            <div id="detail-discount-badge"></div>
-            <img id="detail-img" src="" class="w-full h-full object-cover">
-        </div>
+                <div class="relative bg-gray-50 rounded-2xl overflow-hidden aspect-square">
+                    <div id="detail-discount-badge"></div>
+                        <img id="detail-img" src="" class="w-full h-full object-cover">
+                </div>
 
-        <div>
+            <div>
             <h3 class="text-base font-black text-gray-800 leading-tight" id="detail-name">Nama Produk</h3>
             <div class="flex items-center gap-2 mt-2 text-xs text-gray-500">
                 <span id="detail-size" class="bg-gray-100 px-2 py-0.5 rounded-md font-medium text-gray-600">Ukuran</span>
@@ -151,21 +151,21 @@
                 </div>
 
                 <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4 space-y-1.5 text-xs">
-    <div class="flex justify-between text-gray-400">
-        <span>Harga Sebelum Promo (Asli)</span>
-        <span id="price-subtotal" class="line-through font-medium">Rp0</span>
-    </div>
-    <div id="discount-row" class="flex justify-between text-red-500 font-bold hidden">
-        <div class="flex items-center gap-1.5">
-            <span>Total Diskon Toko</span>
-            <span id="discount-percentage-badge" class="bg-rose-100 text-rose-700 text-[10px] px-1.5 py-0.5 rounded font-black tracking-wide animate-pulse">0% OFF</span>
+                    <div class="flex justify-between text-gray-400">
+                        <span>Harga Sebelum Promo (Asli)</span>
+                        <span id="price-subtotal" class="line-through font-medium">Rp0</span>
+                    </div>
+                    <div id="discount-row" class="flex justify-between text-red-500 font-bold hidden">
+                        <div class="flex items-center gap-1.5">
+                            <span>Total Diskon Toko</span>
+                            <span id="discount-percentage-badge" class="bg-rose-100 text-rose-700 text-[10px] px-1.5 py-0.5 rounded font-black tracking-wide animate-pulse">0% OFF</span>
+                        </div>
+                        <span id="price-discount">-Rp0</span>
+                    </div>
+        <div class="flex justify-between text-gray-400">
+            <span>Ongkos Kirim Flat</span>
+            <span class="text-emerald-600 font-bold">Rp0 (Promo Free)</span>
         </div>
-        <span id="price-discount">-Rp0</span>
-    </div>
-    <div class="flex justify-between text-gray-400">
-        <span>Ongkos Kirim Flat</span>
-        <span class="text-emerald-600 font-bold">Rp0 (Promo Free)</span>
-    </div>
     <div class="border-t border-dashed border-gray-200 my-2 pt-2 flex justify-between font-black text-gray-800 text-sm">
         <span>Total Pembayaran</span>
         <span class="text-green-600 text-base" id="price-total">Rp0</span>
@@ -459,6 +459,58 @@
         grid.appendChild(card);
     });
             }
+
+        function renderCartItems() {
+    const act = document.getElementById('cart-active-state');
+    const emp = document.getElementById('empty-cart-state');
+    const container = document.getElementById('cart-items-list');
+    
+    if (cart.length === 0) {
+        act.classList.add('hidden');
+        emp.classList.remove('hidden');
+        return;
+    }
+    
+    emp.classList.add('hidden');
+    act.classList.remove('hidden');
+    container.innerHTML = '';
+    
+    // 1. Hitung Subtotal Asli (sebelum diskon)
+    let subtotalAsli = 0;
+    cart.forEach((item, index) => {
+        subtotalAsli += (item.oldPrice || item.price) * item.qty;
+        
+        // Render item keranjang... (kode rendering item Anda sebelumnya)
+        // ...
+    });
+
+    // 2. Hitung Total setelah harga promo (harga yang dibayar user)
+    let totalBayar = cart.reduce((s, i) => s + (i.price * i.qty), 0);
+    
+    // 3. Logika Diskon Toko (Perhitungan otomatis)
+    const discountRow = document.getElementById('discount-row');
+    const discountBadge = document.getElementById('discount-percentage-badge');
+    const priceDiscount = document.getElementById('price-discount');
+
+    if (subtotalAsli > totalBayar) {
+        let selisih = subtotalAsli - totalBayar;
+        let persen = Math.round((selisih / subtotalAsli) * 100);
+        
+        discountRow.classList.remove('hidden');
+        discountBadge.innerText = `${persen}% OFF`;
+        priceDiscount.innerText = `-Rp${selisih.toLocaleString('id-ID')}`;
+    } else {
+        discountRow.classList.add('hidden');
+    }
+
+    // 4. Update Tampilan Harga
+    document.getElementById('price-subtotal').innerText = `Rp${subtotalAsli.toLocaleString('id-ID')}`;
+    
+    // Total Akhir (setelah dikurangi voucher jika ada)
+    let finalTotal = Math.max(0, totalBayar - voucherDiscountAmount);
+    document.getElementById('price-total').innerText = `Rp${finalTotal.toLocaleString('id-ID')}`;
+}
+        
         // FUNGSI UNTUK MEMBUKA MODAL DETAIL PRODUK
 function openProductDetail(id) {
     const productsFromStorage = JSON.parse(localStorage.getItem('segari_products')) || products;
