@@ -77,22 +77,45 @@
             </div>
         </div>
 
-        <div class="flex items-center justify-between pt-3 border-t border-gray-100 gap-4">
-    <div>
-        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Harga Utama</p>
-        <div class="flex items-baseline flex-wrap">
-            <span id="detail-price" class="text-base font-black text-green-600">Rp0</span>
-            <span id="detail-old-price" class="text-xs text-gray-400 line-through ml-1.5 font-medium hidden">Rp0</span>
+        <div id="product-detail-modal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-end sm:items-center justify-center hidden opacity-0 transition-opacity duration-300">
+    <div class="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl p-5 space-y-4 max-h-[85vh] overflow-y-auto transform translate-y-full sm:translate-y-0 transition-transform duration-300 shadow-xl" id="modal-content">
+        <div class="flex justify-between items-center border-b border-gray-100 pb-3">
+            <span class="text-xs font-bold text-gray-400 tracking-wide uppercase" id="detail-category">Kategori</span>
+            <button onclick="closeProductDetail()" class="w-7 h-7 bg-gray-100 text-gray-500 rounded-full flex items-center justify-center hover:bg-gray-200 font-bold transition">✕</button>
         </div>
-    </div>
-    
-    <div class="flex items-center gap-2 flex-1 justify-end">
-        <button id="detail-chat-btn" class="flex flex-col items-center justify-center border border-gray-200 text-gray-500 h-9 w-12 rounded-xl hover:bg-gray-50 hover:text-green-600 transition shrink-0 shadow-2xs">
-            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            <span class="text-[8px] font-black mt-0.5">Chat</span>
-        </button>
         
-        <div id="detail-action-button" class="w-2/3 sm:w-1/2"></div>
+        <div class="relative bg-gray-50 rounded-2xl overflow-hidden aspect-square">
+            <div id="detail-discount-badge"></div>
+            <img id="detail-img" src="" class="w-full h-full object-cover">
+        </div>
+
+        <div>
+            <h3 class="text-base font-black text-gray-800 leading-tight" id="detail-name">Nama Produk</h3>
+            <div class="flex items-center gap-2 mt-2 text-xs text-gray-500">
+                <span id="detail-size" class="bg-gray-100 px-2 py-0.5 rounded-md font-medium text-gray-600">Ukuran</span>
+                <span>•</span>
+                <span id="detail-stock">Stok: 0</span>
+                <span>•</span>
+                <span id="detail-sold" class="text-amber-600 font-semibold bg-amber-50 px-2 py-0.5 rounded-md">Terjual 0</span>
+            </div>
+        </div>
+
+        <div class="border-t border-b border-gray-50 py-3">
+            <h4 class="text-xs font-black text-gray-800 mb-1">Deskripsi Produk</h4>
+            <p id="detail-desc" class="text-xs text-gray-500 leading-relaxed">Tidak ada deskripsi produk.</p>
+        </div>
+
+        <div class="flex items-center justify-between pt-2 gap-4">
+            <div>
+                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Harga Utama</p>
+                <div class="flex items-baseline flex-wrap">
+                    <span id="detail-price" class="text-base font-black text-green-600">Rp0</span>
+                    <span id="detail-old-price" class="text-xs text-gray-400 line-through ml-1.5 font-medium">Rp0</span>
+                </div>
+            </div>
+            <div id="detail-action-button" class="w-1/2">
+                </div>
+        </div>
     </div>
         </div>
 
