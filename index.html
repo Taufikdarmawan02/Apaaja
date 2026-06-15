@@ -171,8 +171,8 @@
         <span class="text-green-600 text-base" id="price-total">Rp0</span>
     </div>
                 </div>
-                <button onclick="processCheckout()" class="w-full bg-green-600 text-white font-bold py-3 rounded-2xl text-xs transition btn-active shadow-lg shadow-green-100 flex items-center justify-center gap-2">
-                    <i data-lucide="credit-card" class="w-4 h-4"></i> Konfirmasi Pesanan & Bayar
+                <button onclick="handleCheckout()" class="w-full bg-green-500 text-white py-3 rounded-xl font-bold mt-4">
+                Bayar & Selesaikan Pesanan
                 </button>
             </div>
         </div>
@@ -632,125 +632,57 @@ function closeProductDetail() {
     renderCartItems();
     
     alert("🎉 Pembayaran Berhasil! Data transaksi telah dicatat dan angka terjual diperbarui.");
-}
-        function syncSoldFromTransactions() {
-    // 1. Ambil data master produk dan data riwayat transaksi
-    let productsFromStorage = JSON.parse(localStorage.getItem('segari_products')) || products;
-    let transactions = JSON.parse(localStorage.getItem('segari_transactions')) || [];
+        }
+    
+    function syncSoldFromTransactions() {
+    // 1. Ambil data master produk dari storage, jika belum ada isi dengan data default 'products'
+    let productsFromStorage = JSON.parse(localStorage.getItem('segari_products'));
+    if (!productsFromStorage) {
+        localStorage.setItem('segari_products', JSON.stringify(products));
+        productsFromStorage = products;
+    }
 
-    // 2. Buat objek map/kamus kosong untuk menampung hitungan total terjual
-    // Contoh bentuk jadinya nanti: { "1": 12, "2": 5 } (artinya produk ID 1 terjual 12 pcs)
+    let transactions = JSON.parse(localStorage.getItem('segari_transactions')) || [];
     const soldMap = {};
 
-    // 3. Looping semua riwayat transaksi yang pernah ada
+    // 2. Hitung total terjual dari transaksi
     transactions.forEach(trx => {
         trx.items.forEach(item => {
-            if (soldMap[item.id]) {
-                soldMap[item.id] += item.qty; // Jika ID produk sudah ada di kamus, tambahkan qty-nya
+            // PAKSA ID menjadi String agar aman dari perbedaan tipe data
+            const itemId = String(item.id); 
+            if (soldMap[itemId]) {
+                soldMap[itemId] += Number(item.qty);
             } else {
-                soldMap[item.id] = item.qty;  // Jika belum ada, set dengan qty saat ini
+                soldMap[itemId] = Number(item.qty);
             }
         });
     });
 
-    // 4. Perbarui properti 'sold' pada setiap produk di master data berdasarkan map tadi
+    // 3. Update properti 'sold' di master produk
     const updatedProducts = productsFromStorage.map(prod => {
+        const prodId = String(prod.id); // PAKSA ID menjadi String
         return {
             ...prod,
-            // Jika ID produk ada di map transaksi, gunakan angka tersebut. Jika tidak ada, set 0
-            sold: soldMap[prod.id] || 0 
+            sold: soldMap[prodId] || 0 // Jika ada di transaksi gunakan nilainya, jika tidak ada set 0
         };
     });
 
-    // 5. Simpan kembali data produk ter-update ke localStorage agar halaman toko & konsumen sinkron
+    // 4. Simpan kembali ke localStorage
     localStorage.setItem('segari_products', JSON.stringify(updatedProducts));
 
-    // 6. Gambar ulang produk di layar agar angka terjual langsung berubah secara real-time
+    // 5. Render ulang ke layar dengan data terbaru
     if (typeof renderProducts === "function") {
         renderProducts(updatedProducts);
     }
-        }
-        
-      // Letakkan ini di baris paling bawah tag <script> Anda
-// Menjamin setiap kali halaman di-refresh, data terjual dihitung dari transaksi riil
-syncSoldFromTransactions();                   
-        function renderCartItems() {
-    const act = document.getElementById('cart-active-state'); 
-    const emp = document.getElementById('empty-cart-state');
-    const container = document.getElementById('cart-items-list');
-    
-    if (cart.length === 0) { 
-        act.classList.add('hidden'); 
-        emp.classList.remove('hidden'); 
-        return; 
     }
+        // Jalankan ini di akhir script agar otomatis menghitung data saat web dibuka
+document.addEventListener("DOMContentLoaded", function() {
+    syncSoldFromTransactions(); // Hitung ulang terjual dari histori transaksi
     
-    emp.classList.add('hidden'); 
-    act.classList.remove('hidden'); 
-    container.innerHTML = '';
-    
-    let totalOriginal = 0; // Menampung harga asli sebelum promo/diskon toko
-    let totalDiscount = 0; // Menampung nominal uang yang berhasil dihemat
-    let totalPayment = 0;  // Menampung harga promo aktif yang harus dibayar
-    
-    cart.forEach((item, index) => {
-        // Deteksi harga asli sebelum dipotong promo toko (jika tidak ada oldPrice, gunakan price normal)
-        const originalUnitPrice = (item.oldPrice && item.oldPrice > item.price) ? item.oldPrice : item.price;
-        
-        // Akumulasikan total berdasarkan kuantitas (qty) item belanjaan
-        totalOriginal += originalUnitPrice * item.qty;
-        totalDiscount += (originalUnitPrice - item.price) * item.qty;
-        totalPayment += item.price * item.qty;
-        
-        // Tampilan harga coret per item di list barisan produk keranjang
-        let itemOldPriceHtml = '';
-        if (item.oldPrice && item.oldPrice > item.price) {
-            itemOldPriceHtml = `<span class="text-[10px] text-gray-400 line-through">Rp${(item.oldPrice * item.qty).toLocaleString('id-ID')}</span>`;
-        }
-
-        const div = document.createElement('div');
-        div.className = "flex items-center gap-3 bg-white p-3 rounded-2xl border border-gray-100";
-        div.innerHTML = `
-            <img src="${item.img}" class="w-12 h-12 object-cover rounded-xl border border-gray-50">
-            <div class="flex-grow">
-                <h4 class="text-xs font-bold text-gray-800 line-clamp-1">${item.name}</h4>
-                <div class="flex items-center gap-1.5 mt-0.5">
-                    <span class="text-xs font-black text-green-600">Rp${(item.price * item.qty).toLocaleString('id-ID')}</span>
-                    ${itemOldPriceHtml}
-                </div>
-            </div>
-            <div class="flex items-center gap-2 bg-gray-50 p-1 rounded-xl shrink-0">
-                <button onclick="changeQty(${index}, -1)" class="w-5 h-5 bg-white rounded font-bold text-xs btn-active flex items-center justify-center border border-gray-100 shadow-2xs">-</button>
-                <span class="text-xs font-bold px-0.5">${item.qty}</span>
-                <button onclick="changeQty(${index}, 1)" class="w-5 h-5 bg-white rounded font-bold text-xs btn-active flex items-center justify-center border border-gray-100 shadow-2xs">+</button>
-            </div>
-        `;
-        container.appendChild(div);
-    });
-    
-    // 1. Suntikkan Data Harga Sebelum Promo ke UI HTML
-    document.getElementById('price-subtotal').innerText = `Rp${totalOriginal.toLocaleString('id-ID')}`;
-    
-    // 2. Suntikkan Data & Hitung Persentase Diskon Gabungan Keranjang
-    const discountRow = document.getElementById('discount-row');
-    const discountBadge = document.getElementById('discount-percentage-badge');
-    
-    if (totalDiscount > 0) {
-        discountRow.classList.remove('hidden');
-        document.getElementById('price-discount').innerText = `-Rp${totalDiscount.toLocaleString('id-ID')}`;
-        
-        // Rumus matematika mencari rata-rata % diskon total isi keranjang: (Total Diskon / Total Harga Asli) * 100
-        const totalPercent = Math.round((totalDiscount / totalOriginal) * 100);
-        if (discountBadge) {
-            discountBadge.innerText = `${totalPercent}% OFF`;
-        }
-    } else {
-        discountRow.classList.add('hidden'); // Sembunyikan baris diskon jika produk tidak ada yang promo
-    }
-    
-    // 3. Suntikkan Uang Akhir Net yang Wajib Dibayar Konsumen
-    document.getElementById('price-total').innerText = `Rp${totalPayment.toLocaleString('id-ID')}`;
-}
+    // Jika Anda punya fungsi awal untuk menampilkan produk, panggil setelah sync
+    let productsLatest = JSON.parse(localStorage.getItem('segari_products')) || products;
+    renderProducts(productsLatest);
+});
         function changeQty(index, amt) {
             cart[index].qty += amt; if (cart[index].qty <= 0) cart.splice(index, 1);
             renderCartItems(); updateCartCount();
