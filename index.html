@@ -752,51 +752,105 @@ function closeProductDetail() {
             }
         }
 
-        function processCheckout() {
-            if (!activeUser || (activeUser.role !== 'Pembeli' && activeUser.role !== 'Konsumen')) { 
-                alert("Wajib login akun Pembeli untuk memesan!"); redirectToLogin(); return; 
+          function processCheckout() {
+    if (!activeUser || (activeUser.role !== 'Pembeli' && activeUser.role !== 'Konsumen')) { 
+        alert("Wajib login akun Pembeli untuk memesan!"); redirectToLogin(); return; 
+    }
+    if (cart.length === 0) return;
+    
+    // 1. KURANGI STOK PRODUK (DENGAN PROTEKSI TIPE DATA ID)
+    let masterProducts = JSON.parse(localStorage.getItem('segari_products')) || defaultProducts;
+    cart.forEach(item => { 
+        // Menggunakan String() agar pencarian ID antara teks dan angka tidak miss (menghindari bug angka 0)
+        let p = masterProducts.find(mp => String(mp.id) === String(item.id)); 
+        if(p) p.stock = Math.max(0, p.stock - Number(item.qty)); 
+    });
+    localStorage.setItem('segari_products', JSON.stringify(masterProducts));
+
+    // 2. PROSES PENCATATAN TRANSAKSI BARU
+    const currentOrders = JSON.parse(localStorage.getItem('segari_orders')) || [];
+    const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
+    const chosenSlot = document.querySelector('input[name="shipping-slot"]:checked')?.value || "Pagi (06:00 - 09:00)";
+    const currentAddress = localStorage.getItem('segari_address') || "Rumah Utama";
+    
+    let finalPayment = Math.max(0, subtotal - voucherDiscountAmount);
+
+    const newOrder = {
+        id: "SGR-" + Math.floor(1000 + Math.random() * 9000),
+        user: activeUser.username,
+        items: [...cart], 
+        subtotal: subtotal,
+        discount: voucherDiscountAmount,
+        voucherUsed: activeVoucherCode,
+        total: finalPayment,
+        slot: chosenSlot,
+        address: currentAddress,
+        status: "Diproses",
+        date: new Date().toLocaleDateString('id-ID')
+    };
+    
+    currentOrders.push(newOrder);
+    localStorage.setItem('segari_orders', JSON.stringify(currentOrders));
+    
+    // 3. REKAP TOTAL TERJUAL LANGSUNG DARI SELURUH TRANSAKSI
+    syncSoldFromOrders();
+    
+    // RESET SETELAH ORDER
+    cart = []; activeVoucherCode = null; voucherDiscountAmount = 0;
+    if(document.getElementById('voucher-input')) document.getElementById('voucher-input').value = '';
+    if(document.getElementById('voucher-message')) document.getElementById('voucher-message').classList.add('hidden');
+    
+    updateCartCount(); 
+    showToast("Pesanan berhasil diproses!"); 
+    switchTab('tracking');
+          }
+        
+        function syncSoldFromOrders() {
+    // Ambil database produk dan database order/transaksi
+    let masterProducts = JSON.parse(localStorage.getItem('segari_products')) || defaultProducts;
+    let currentOrders = JSON.parse(localStorage.getItem('segari_orders')) || [];
+    
+    // Buat objek kamus kosong untuk memetakan hitungan: { "ID_PRODUK": TOTAL_TERJUAL }
+    const soldMap = {};
+    
+    // Iterasi/Looping setiap struk transaksi yang ada
+    currentOrders.forEach(order => {
+        // Abaikan transaksi jika statusnya "Dibatalkan" (Opsional, jika Anda punya fitur cancel)
+        if (order.status === "Dibatalkan") return;
+
+        order.items.forEach(item => {
+            const itemId = String(item.id); // Paksa ID menjadi String demi keamanan data
+            if (soldMap[itemId]) {
+                soldMap[itemId] += Number(item.qty);
+            } else {
+                soldMap[itemId] = Number(item.qty);
             }
-            if (cart.length === 0) return;
-            
-            let masterProducts = JSON.parse(localStorage.getItem('segari_products')) || defaultProducts;
-            cart.forEach(item => { 
-                let p = masterProducts.find(mp => mp.id === item.id); 
-                if(p) p.stock = Math.max(0, p.stock - item.qty); 
-            });
-            localStorage.setItem('segari_products', JSON.stringify(masterProducts));
-
-            const currentOrders = JSON.parse(localStorage.getItem('segari_orders')) || [];
-            const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
-            const chosenSlot = document.querySelector('input[name="shipping-slot"]:checked')?.value || "Pagi (06:00 - 09:00)";
-            const currentAddress = localStorage.getItem('segari_address') || "Rumah Utama";
-            
-            let finalPayment = Math.max(0, subtotal - voucherDiscountAmount);
-
-            const newOrder = {
-                id: "SGR-" + Math.floor(1000 + Math.random() * 9000),
-                user: activeUser.username,
-                items: [...cart], 
-                subtotal: subtotal,
-                discount: voucherDiscountAmount,
-                voucherUsed: activeVoucherCode,
-                total: finalPayment,
-                slot: chosenSlot,
-                address: currentAddress,
-                status: "Diproses",
-                date: new Date().toLocaleDateString('id-ID')
-            };
-            
-            currentOrders.push(newOrder);
-            localStorage.setItem('segari_orders', JSON.stringify(currentOrders));
-            
-            // RESET SETELAH ORDER
-            cart = []; activeVoucherCode = null; voucherDiscountAmount = 0;
-            if(document.getElementById('voucher-input')) document.getElementById('voucher-input').value = '';
-            if(document.getElementById('voucher-message')) document.getElementById('voucher-message').classList.add('hidden');
-            
-            updateCartCount(); showToast("Pesanan berhasil diproses!"); switchTab('tracking');
+        });
+    });
+    
+    // Masukkan hasil hitungan rekap transaksi ke dalam master data produk
+    const updatedProducts = masterProducts.map(p => {
+        const pId = String(p.id);
+        return {
+            ...p,
+            sold: soldMap[pId] || 0 // Jika ada di histori transaksi pasang nilainya, jika tidak ada set ke 0
+        };
+    });
+    
+    // Simpan kembali database produk terbaru ke localStorage
+    localStorage.setItem('segari_products', JSON.stringify(updatedProducts));
+    
+    // Segarkan tampilan produk di screen pembeli secara real-time
+    if (typeof renderProducts === "function") {
+        renderProducts(updatedProducts);
+    }
         }
 
+        // Memastikan data terjual langsung dihitung berdasarkan histori transaksi saat web dibuka
+document.addEventListener("DOMContentLoaded", function() {
+    syncSoldFromOrders(); 
+});
+        
         function startFlashSaleTimer() {
             let hours = 2, minutes = 14, seconds = 45;
             setInterval(() => {
