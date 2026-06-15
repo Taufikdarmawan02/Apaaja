@@ -466,87 +466,6 @@
     });
          }
 
-        // Variabel state global untuk memantau toko mana yang sedang aktif di-chat
-let activeChatShop = null;
-
-function openProductDetail(id) {
-    const productsFromStorage = JSON.parse(localStorage.getItem('segari_products')) || products;
-    const prod = productsFromStorage.find(p => p.id === id);
-    if (!prod) return;
-
-    // Hitung Skema Harga Diskon Toko vs Bawaan
-    let hargaAktif = prod.price;
-    let hargaCoret = null;
-    if (prod.promoPrice && Number(prod.promoPrice) < Number(prod.price)) {
-        hargaAktif = Number(prod.promoPrice);
-        hargaCoret = Number(prod.price);
-    } else if (prod.oldPrice && Number(prod.oldPrice) > Number(prod.price)) {
-        hargaAktif = Number(prod.price);
-        hargaCoret = Number(prod.oldPrice);
-    }
-
-    // Suntik Data ke Elemen Modal HTML
-    document.getElementById('detail-category').innerText = prod.category || 'Sayur';
-    document.getElementById('detail-img').src = prod.img;
-    document.getElementById('detail-name').innerText = prod.name;
-    document.getElementById('detail-size').innerText = prod.size || 'Pak';
-    document.getElementById('detail-stock').innerText = `Stok: ${prod.stock}`;
-    document.getElementById('detail-sold').innerText = `Terjual ${prod.sold || 0}+ produk`;
-    document.getElementById('detail-desc').innerText = prod.desc || `Dapatkan kualitas ${prod.name} terbaik dan segar langsung dari mitra tani terpercaya kami.`;
-    document.getElementById('detail-price').innerText = `Rp${hargaAktif.toLocaleString('id-ID')}`;
-
-    // Atur Badge & Harga Coret Modal
-    const badgeContainer = document.getElementById('detail-discount-badge');
-    const oldPriceEl = document.getElementById('detail-old-price');
-    
-    if (hargaCoret) {
-        const percent = Math.round(((hargaCoret - hargaAktif) / hargaCoret) * 100);
-        badgeContainer.innerHTML = `<span class="absolute top-3 left-3 bg-red-500 text-white text-[11px] font-black px-2 py-0.5 rounded-md shadow z-10">${percent}% OFF</span>`;
-        oldPriceEl.innerText = `Rp${hargaCoret.toLocaleString('id-ID')}`;
-        oldPriceEl.classList.remove('hidden');
-    } else {
-        badgeContainer.innerHTML = '';
-        oldPriceEl.classList.add('hidden');
-    }
-
-    // --- INTEGRASI HUBUNGKAN CHAT KE PEMILIK TOKO ---
-    const namaTokoPemilik = prod.shop || "Toko Segari Pusat"; 
-    const chatBtn = document.getElementById('detail-chat-btn');
-    if (chatBtn) {
-        chatBtn.onclick = function() {
-            inisialisasiChatProduk(namaTokoPemilik, prod.name);
-            closeProductDetail();
-        };
-    }
-    // ------------------------------------------------
-
-    // Atur Tombol Eksekusi "Beli"
-    const actionBtnContainer = document.getElementById('detail-action-button');
-    const isOut = prod.stock <= 0;
-    if (isOut) {
-        actionBtnContainer.innerHTML = `<button disabled class="w-full bg-gray-200 text-gray-400 py-2 rounded-xl text-xs font-bold cursor-not-allowed">Habis</button>`;
-    } else {
-        actionBtnContainer.innerHTML = `<button onclick="handleAddToCart(${prod.id}); closeProductDetail();" class="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded-xl text-xs font-bold btn-active transition shadow-md shadow-green-100">Beli Sekarang</button>`;
-    }
-
-    // Tampilkan Modal
-    const modal = document.getElementById('product-detail-modal');
-    const content = document.getElementById('modal-content');
-    modal.classList.remove('hidden');
-    setTimeout(() => {
-        modal.classList.remove('opacity-0');
-        content.classList.remove('translate-y-full');
-    }, 10);
-}
-
-function closeProductDetail() {
-    const modal = document.getElementById('product-detail-modal');
-    const content = document.getElementById('modal-content');
-    modal.classList.add('opacity-0');
-    content.classList.add('translate-y-full');
-    setTimeout(() => modal.classList.add('hidden'), 300);
-}
-
         function filterCategory(cat) {
             selectedCategory = cat;
             document.querySelectorAll('.category-btn').forEach(btn => {
@@ -920,7 +839,268 @@ document.addEventListener("DOMContentLoaded", function() {
         }
          
 
+      // 1. STATE GLOBAL (Pastikan ditaruh di bagian paling atas script Anda)
+let activeChatShop = null;
+
+// 2. FUNGSI UTAMA DETAIL PRODUK (Membaca nama toko milik produk)
+function openProductDetail(id) {
+    const productsFromStorage = JSON.parse(localStorage.getItem('segari_products')) || products;
+    const prod = productsFromStorage.find(p => p.id === id);
+    if (!prod) return;
+
+    // Hitung Skema Harga Diskon Toko vs Bawaan
+    let hargaAktif = prod.price;
+    let hargaCoret = null;
+    if (prod.promoPrice && Number(prod.promoPrice) < Number(prod.price)) {
+        hargaAktif = Number(prod.promoPrice);
+        hargaCoret = Number(prod.price);
+    } else if (prod.oldPrice && Number(prod.oldPrice) > Number(prod.price)) {
+        hargaAktif = Number(prod.price);
+        hargaCoret = Number(prod.oldPrice);
+    }
+
+    // Suntik Data ke Elemen Modal HTML
+    document.getElementById('detail-category').innerText = prod.category || 'Sayur';
+    document.getElementById('detail-img').src = prod.img;
+    document.getElementById('detail-name').innerText = prod.name;
+    document.getElementById('detail-size').innerText = prod.size || 'Pak';
+    document.getElementById('detail-stock').innerText = `Stok: ${prod.stock}`;
+    document.getElementById('detail-sold').innerText = `Terjual ${prod.sold || 0}+ produk`;
+    document.getElementById('detail-desc').innerText = prod.desc || `Dapatkan kualitas ${prod.name} terbaik dan segar langsung dari mitra tani terpercaya kami.`;
+    document.getElementById('detail-price').innerText = `Rp${hargaAktif.toLocaleString('id-ID')}`;
+
+    // Atur Badge & Harga Coret Modal
+    const badgeContainer = document.getElementById('detail-discount-badge');
+    const oldPriceEl = document.getElementById('detail-old-price');
     
+    if (hargaCoret) {
+        const percent = Math.round(((hargaCoret - hargaAktif) / hargaCoret) * 100);
+        badgeContainer.innerHTML = `<span class="absolute top-3 left-3 bg-red-500 text-white text-[11px] font-black px-2 py-0.5 rounded-md shadow z-10">${percent}% OFF</span>`;
+        oldPriceEl.innerText = `Rp${hargaCoret.toLocaleString('id-ID')}`;
+        oldPriceEl.classList.remove('hidden');
+    } else {
+        badgeContainer.innerHTML = '';
+        oldPriceEl.classList.add('hidden');
+    }
+
+    // --- INTEGRASI CHAT KE PEMILIK TOKO SPESIFIK ---
+    const namaTokoPemilik = prod.shop || "Toko Segari Pusat"; 
+    const chatBtn = document.getElementById('detail-chat-btn');
+    if (chatBtn) {
+        chatBtn.onclick = function() {
+            inisialisasiChatProduk(namaTokoPemilik, prod.name);
+            closeProductDetail();
+        };
+    }
+
+    // Atur Tombol Eksekusi "Beli"
+    const actionBtnContainer = document.getElementById('detail-action-button');
+    const isOut = prod.stock <= 0;
+    if (isOut) {
+        actionBtnContainer.innerHTML = `<button disabled class="w-full bg-gray-200 text-gray-400 py-2 rounded-xl text-xs font-bold cursor-not-allowed">Habis</button>`;
+    } else {
+        actionBtnContainer.innerHTML = `<button onclick="handleAddToCart(${prod.id}); closeProductDetail();" class="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded-xl text-xs font-bold btn-active transition shadow-md shadow-green-100">Beli Sekarang</button>`;
+    }
+
+    // Tampilkan Modal
+    const modal = document.getElementById('product-detail-modal');
+    const content = document.getElementById('modal-content');
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        content.classList.remove('translate-y-full');
+    }, 10);
+}
+
+function closeProductDetail() {
+    const modal = document.getElementById('product-detail-modal');
+    const content = document.getElementById('modal-content');
+    modal.classList.add('opacity-0');
+    content.classList.add('translate-y-full');
+    setTimeout(() => modal.classList.add('hidden'), 300);
+}
+
+// 3. FUNGSI JEMBATAN (Membuka Chat Room Langsung dari Produk)
+function inisialisasiChatProduk(namaToko, namaProduk) {
+    if (!activeUser) {
+        alert("Silakan login terlebih dahulu untuk memulai chat dengan toko!");
+        if (typeof switchTab === "function") switchTab('profile');
+        return;
+    }
+    
+    activeChatShop = namaToko; // Kunci target toko aktif
+    
+    if (typeof switchTab === "function") {
+        switchTab('chat');
+    }
+    
+    // Tulis otomatis draf pesan produk terpilih
+    setTimeout(() => {
+        const inputField = document.getElementById('chat-text-input');
+        if (inputField) {
+            inputField.value = `Halo ${namaToko}, apakah produk *${namaProduk}* ready?`;
+            inputField.focus();
+        }
+    }, 50);
+    
+    renderChatView();
+}
+
+// 4. FUNGSI UTAMA RENDER CHAT VIEW (DENGAN PEMISAH LOGIKA INBOX VS ROOM)
+function renderChatView() {
+    const loggedOut = document.getElementById('chat-logged-out'); 
+    const loggedIn = document.getElementById('chat-logged-in');
+    if (!loggedOut || !loggedIn) return;
+    
+    if (!activeUser) { 
+        loggedOut.classList.remove('hidden'); 
+        loggedIn.classList.add('hidden'); 
+        return; 
+    }
+    loggedOut.classList.add('hidden'); 
+    loggedIn.classList.remove('hidden');
+
+    const chatBox = document.getElementById('chat-box'); 
+    if (!chatBox) return;
+    chatBox.innerHTML = '';
+    
+    const chats = JSON.parse(localStorage.getItem('segari_chats')) || [];
+    const inputBar = document.getElementById('chat-text-input')?.parentElement;
+
+    // ================= MODE A: TAMPILKAN INBOX (Jika belum memilih Toko tujuan) =================
+    if (!activeChatShop) {
+        if (inputBar) inputBar.classList.add('hidden'); // Sembunyikan kolom input ketik pesan
+
+        const chatTitleEl = document.getElementById('chat-header-title');
+        if (chatTitleEl) chatTitleEl.innerText = "Kotak Masuk Chat";
+
+        // Filter riwayat obrolan pembeli aktif ini saja
+        const userChats = chats.filter(c => c.user === activeUser.username);
+        
+        // Ambil nama-nama Toko unik yang pernah berinteraksi
+        const daftarTokoUnik = [...new Set(userChats.map(c => c.shop))];
+
+        if (daftarTokoUnik.length === 0) {
+            chatBox.innerHTML = `
+                <div class="flex flex-col items-center justify-center h-48 text-center p-4 my-auto">
+                    <p class="text-xs text-gray-400 font-medium">Belum ada obrolan</p>
+                    <p class="text-[10px] text-gray-300 mt-1">Silakan cari produk lalu tekan tombol 'Chat' untuk mulai mengobrol dengan toko.</p>
+                </div>`;
+            return;
+        }
+
+        // Render List Card Toko di halaman muka Inbox
+        daftarTokoUnik.forEach(namaToko => {
+            const chatPerToko = userChats.filter(c => c.shop === namaToko);
+            const pesanTerakhir = chatPerToko[chatPerToko.length - 1];
+            const pengirim = pesanTerakhir.sender === 'user' ? 'Anda: ' : 'Toko: ';
+
+            const row = document.createElement('div');
+            row.className = "p-3 bg-gray-50 border border-gray-100 rounded-xl flex items-center justify-between hover:bg-green-50 transition cursor-pointer mb-2";
+            row.onclick = function() {
+                activeChatShop = namaToko; // Pilih toko tersebut
+                renderChatView(); // Render masuk ke Room Chat
+            };
+            row.innerHTML = `
+                <div class="flex items-center gap-2.5 min-w-0 flex-1">
+                    <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-xs font-bold text-green-700 shrink-0">🏪</div>
+                    <div class="min-w-0 flex-1">
+                        <h4 class="text-xs font-black text-gray-800 truncate">${namaToko}</h4>
+                        <p class="text-[10px] text-gray-400 truncate mt-0.5">${pengirim}${pesanTerakhir.text}</p>
+                    </div>
+                </div>
+                <span class="text-xs text-green-600 font-bold ml-2 shrink-0">&rarr;</span>
+            `;
+            chatBox.appendChild(row);
+        });
+    } 
+    // ================= MODE B: TAMPILKAN RUANG CHAT (Jika Toko sudah dipilih) =================
+    else {
+        if (inputBar) {
+            inputBar.classList.remove('hidden');
+            inputBar.classList.add('flex');
+        }
+
+        // Tampilkan Header Nama Toko Aktif + Tombol Kembali ke Inbox
+        const chatTitleEl = document.getElementById('chat-header-title');
+        if (chatTitleEl) {
+            chatTitleEl.innerHTML = `
+                <div class="flex items-center justify-between w-full">
+                    <span class="truncate">🏪 ${activeChatShop}</span>
+                    <button onclick="kembaliKeInboxChat()" class="text-[9px] font-bold text-gray-400 hover:text-gray-600 bg-gray-100 px-2 py-0.5 rounded transition ml-2">Kembali</button>
+                </div>
+            `;
+        }
+
+        // Kunci filter pesan: Harus milik user aktif AND harus sesuai .shop target
+        const filteredChats = chats.filter(c => c.user === activeUser.username && c.shop === activeChatShop);
+        
+        if (filteredChats.length === 0) {
+            chatBox.innerHTML = `
+                <div class="my-auto text-center p-4">
+                    <p class="text-[11px] text-gray-400">Belum ada obrolan dengan <b>${activeChatShop}</b>.</p>
+                    <p class="text-[10px] text-gray-300 mt-1">Ketik pesan di bawah untuk memulai percakapan.</p>
+                </div>`;
+        } else {
+            filteredChats.forEach(c => {
+                const div = document.createElement('div');
+                div.className = c.sender === 'user' ? 
+                    "bg-green-500 text-white rounded-xl p-2.5 text-xs self-end max-w-[80%] my-0.5 shadow-xs break-words" : 
+                    "bg-white border border-gray-100 rounded-xl p-2.5 text-xs self-start max-w-[80%] text-gray-800 shadow-xs my-0.5 break-words";
+                div.innerText = c.text; 
+                chatBox.appendChild(div);
+            });
+        }
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+}
+
+// 5. NAVIGASI UTILITY: Keluar dari Room Chat kembali ke halaman depan Inbox
+function kembaliKeInboxChat() {
+    activeChatShop = null;
+    renderChatView();
+}
+
+// 6. EKSEKUSI PENGIRIMAN PESAN (Mengunci Properti .shop secara ketat)
+function sendChatToMerchant() {
+    const input = document.getElementById('chat-text-input'); 
+    const text = input.value.trim(); 
+    if (!text || !activeUser) return;
+    
+    if (!activeChatShop) activeChatShop = "Toko Segari Pusat";
+
+    const chats = JSON.parse(localStorage.getItem('segari_chats')) || [];
+    
+    // Simpan pesan baru terikat ke toko tujuan (.shop)
+    chats.push({ 
+        user: activeUser.username, 
+        shop: activeChatShop, 
+        sender: 'user', 
+        text: text 
+    });
+    
+    localStorage.setItem('segari_chats', JSON.stringify(chats)); 
+    input.value = ''; 
+    renderChatView();
+    
+    // Simulasi Balasan Otomatis Terpisah (Hanya membalas atas nama toko yang sedang dibuka saja)
+    const currentShopResponding = activeChatShop;
+    setTimeout(() => {
+        const updatedChats = JSON.parse(localStorage.getItem('segari_chats')) || [];
+        updatedChats.push({ 
+            user: activeUser.username, 
+            shop: currentShopResponding, 
+            sender: 'merchant', 
+            text: `Halo! Terima kasih telah menghubungi ${currentShopResponding}. Pesan Anda telah kami terima, mohon tunggu sebentar ya.` 
+        });
+        localStorage.setItem('segari_chats', JSON.stringify(updatedChats)); 
+        
+        // Render ulang ruang obrolan hanya jika konsumen masih menetap di toko yang sama
+        if (activeChatShop === currentShopResponding) {
+            renderChatView();
+        }
+    }, 1200);
+    }
             
 
         function renderTrackingView() {
