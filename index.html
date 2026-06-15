@@ -110,12 +110,25 @@
                 </div>
 
                 <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4 space-y-1.5 text-xs">
-                    <div class="flex justify-between text-gray-400"><span>Subtotal Item</span><span id="price-subtotal">Rp0</span></div>
-                    <div id="discount-row" class="flex justify-between text-red-500 font-bold hidden"><span>Potongan Voucher</span><span id="price-discount">-Rp0</span></div>
-                    <div class="flex justify-between text-gray-400"><span>Ongkos Kirim Flat</span><span>Rp0 (Promo)</span></div>
-                    <div class="border-t border-dashed border-gray-200 my-2 pt-2 flex justify-between font-black text-gray-800 text-sm">
-                        <span>Total Pembayaran</span><span class="text-green-600" id="price-total">Rp0</span>
-                    </div>
+    <div class="flex justify-between text-gray-400">
+        <span>Harga Sebelum Promo (Asli)</span>
+        <span id="price-subtotal" class="line-through font-medium">Rp0</span>
+    </div>
+    <div id="discount-row" class="flex justify-between text-red-500 font-bold hidden">
+        <div class="flex items-center gap-1.5">
+            <span>Total Diskon Toko</span>
+            <span id="discount-percentage-badge" class="bg-rose-100 text-rose-700 text-[10px] px-1.5 py-0.5 rounded font-black tracking-wide animate-pulse">0% OFF</span>
+        </div>
+        <span id="price-discount">-Rp0</span>
+    </div>
+    <div class="flex justify-between text-gray-400">
+        <span>Ongkos Kirim Flat</span>
+        <span class="text-emerald-600 font-bold">Rp0 (Promo Free)</span>
+    </div>
+    <div class="border-t border-dashed border-gray-200 my-2 pt-2 flex justify-between font-black text-gray-800 text-sm">
+        <span>Total Pembayaran</span>
+        <span class="text-green-600 text-base" id="price-total">Rp0</span>
+    </div>
                 </div>
                 <button onclick="processCheckout()" class="w-full bg-green-600 text-white font-bold py-3 rounded-2xl text-xs transition btn-active shadow-lg shadow-green-100 flex items-center justify-center gap-2">
                     <i data-lucide="credit-card" class="w-4 h-4"></i> Konfirmasi Pesanan & Bayar
