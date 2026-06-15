@@ -77,6 +77,48 @@
             </div>
         </div>
 
+        <div id="product-detail-modal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-end sm:items-center justify-center hidden opacity-0 transition-opacity duration-300">
+    <div class="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl p-5 space-y-4 max-h-[85vh] overflow-y-auto transform translate-y-full sm:translate-y-0 transition-transform duration-300 shadow-xl" id="modal-content">
+        <div class="flex justify-between items-center border-b border-gray-100 pb-3">
+            <span class="text-xs font-bold text-gray-400 tracking-wide uppercase" id="detail-category">Kategori</span>
+            <button onclick="closeProductDetail()" class="w-7 h-7 bg-gray-100 text-gray-500 rounded-full flex items-center justify-center hover:bg-gray-200 font-bold transition">✕</button>
+        </div>
+        
+        <div class="relative bg-gray-50 rounded-2xl overflow-hidden aspect-square">
+            <div id="detail-discount-badge"></div>
+            <img id="detail-img" src="" class="w-full h-full object-cover">
+        </div>
+
+        <div>
+            <h3 class="text-base font-black text-gray-800 leading-tight" id="detail-name">Nama Produk</h3>
+            <div class="flex items-center gap-2 mt-2 text-xs text-gray-500">
+                <span id="detail-size" class="bg-gray-100 px-2 py-0.5 rounded-md font-medium text-gray-600">Ukuran</span>
+                <span>•</span>
+                <span id="detail-stock">Stok: 0</span>
+                <span>•</span>
+                <span id="detail-sold" class="text-amber-600 font-semibold bg-amber-50 px-2 py-0.5 rounded-md">Terjual 0</span>
+            </div>
+        </div>
+
+        <div class="border-t border-b border-gray-50 py-3">
+            <h4 class="text-xs font-black text-gray-800 mb-1">Deskripsi Produk</h4>
+            <p id="detail-desc" class="text-xs text-gray-500 leading-relaxed">Tidak ada deskripsi produk.</p>
+        </div>
+
+        <div class="flex items-center justify-between pt-2 gap-4">
+            <div>
+                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Harga Utama</p>
+                <div class="flex items-baseline flex-wrap">
+                    <span id="detail-price" class="text-base font-black text-green-600">Rp0</span>
+                    <span id="detail-old-price" class="text-xs text-gray-400 line-through ml-1.5 font-medium">Rp0</span>
+                </div>
+            </div>
+            <div id="detail-action-button" class="w-1/2">
+                </div>
+        </div>
+    </div>
+        </div>
+
         <div id="cart-page" class="hidden p-4 space-y-4">
             <h2 class="text-base font-black text-gray-800 border-b border-gray-100 pb-2 flex items-center gap-2"><i data-lucide="shopping-cart" class="text-green-600 w-5 h-5"></i> Keranjang Belanja Anda</h2>
             <div id="empty-cart-state" class="text-center py-12 space-y-2 hidden">
@@ -426,6 +468,85 @@
         grid.appendChild(card);
     });
         }
+
+        // FUNGSI UNTUK MEMBUKA MODAL DETAIL PRODUK
+function openProductDetail(id) {
+    const productsFromStorage = JSON.parse(localStorage.getItem('segari_products')) || products;
+    const prod = productsFromStorage.find(p => p.id === id);
+    if (!prod) return;
+
+    // Hitung Skema Harga Diskon Toko vs Bawaan
+    let hargaAktif = prod.price;
+    let hargaCoret = null;
+    if (prod.promoPrice && Number(prod.promoPrice) < Number(prod.price)) {
+        hargaAktif = Number(prod.promoPrice);
+        hargaCoret = Number(prod.price);
+    } else if (prod.oldPrice && Number(prod.oldPrice) > Number(prod.price)) {
+        hargaAktif = Number(prod.price);
+        hargaCoret = Number(prod.oldPrice);
+    }
+
+    // Suntik Data ke Elemen Modal HTML
+    document.getElementById('detail-category').innerText = prod.category || 'Sayur';
+    document.getElementById('detail-img').src = prod.img;
+    document.getElementById('detail-name').innerText = prod.name;
+    document.getElementById('detail-size').innerText = prod.size || 'Pak';
+    document.getElementById('detail-stock').innerText = `Stok: ${prod.stock}`;
+    
+    // Tampilkan data barang terjual
+    document.getElementById('detail-sold').innerText = `Terjual ${prod.sold || 0}+ produk`;
+    
+    // Tampilkan Deskripsi Produk (Gunakan properti .desc atau teks bawaan jika kosong)
+    document.getElementById('detail-desc').innerText = prod.desc || `Dapatkan kualitas ${prod.name} terbaik dan segar langsung dari mitra tani terpercaya kami. Dikemas dengan higienis dan standar mutu tinggi.`;
+    
+    document.getElementById('detail-price').innerText = `Rp${hargaAktif.toLocaleString('id-ID')}`;
+
+    // Atur Badge & Harga Coret Modal
+    const badgeContainer = document.getElementById('detail-discount-badge');
+    const oldPriceEl = document.getElementById('detail-old-price');
+    
+    if (hargaCoret) {
+        const percent = Math.round(((hargaCoret - hargaAktif) / hargaCoret) * 100);
+        badgeContainer.innerHTML = `<span class="absolute top-3 left-3 bg-red-500 text-white text-[11px] font-black px-2 py-0.5 rounded-md shadow z-10">${percent}% OFF</span>`;
+        oldPriceEl.innerText = `Rp${hargaCoret.toLocaleString('id-ID')}`;
+        oldPriceEl.classList.remove('hidden');
+    } else {
+        badgeContainer.innerHTML = '';
+        oldPriceEl.classList.add('hidden');
+    }
+
+    // Atur Tombol Eksekusi "Beli" di dalam modal detail
+    const actionBtnContainer = document.getElementById('detail-action-button');
+    const isOut = prod.stock <= 0;
+    if (isOut) {
+        actionBtnContainer.innerHTML = `<button disabled class="w-full bg-gray-200 text-gray-400 py-2 rounded-xl text-xs font-bold cursor-not-allowed">Habis</button>`;
+    } else {
+        actionBtnContainer.innerHTML = `<button onclick="handleAddToCart(${prod.id}); closeProductDetail();" class="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded-xl text-xs font-bold btn-active transition shadow-md shadow-green-100">Beli Sekarang</button>`;
+    }
+
+    // Tampilkan Modal dengan Animasi Smooth
+    const modal = document.getElementById('product-detail-modal');
+    const content = document.getElementById('modal-content');
+    
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        content.classList.remove('translate-y-full');
+    }, 10);
+}
+
+// FUNGSI UNTUK MENUTUP MODAL DETAIL PRODUK
+function closeProductDetail() {
+    const modal = document.getElementById('product-detail-modal');
+    const content = document.getElementById('modal-content');
+    
+    modal.classList.add('opacity-0');
+    content.classList.add('translate-y-full');
+    
+    setTimeout(() => {
+        modal.classList.add('hidden');
+    }, 300); // Sesuai dengan durasi transition-opacity duration-300
+}
 
         function filterCategory(cat) {
             selectedCategory = cat;
