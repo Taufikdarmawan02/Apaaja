@@ -363,64 +363,55 @@
                 switchTab('home');
             }
         }
-
          function renderProducts(filterData = null) {
-    const grid = document.getElementById('product-grid'); 
-    if (!grid) return; 
-    grid.innerHTML = '';
+    const grid = document.getElementById('product-grid'); if (!grid) return; grid.innerHTML = '';
     
-    // Selalu ambil data produk terbaru dari localStorage agar sinkron dengan toko
     let productsFromStorage = JSON.parse(localStorage.getItem('segari_products')) || products;
     let list = filterData || productsFromStorage;
-    
-    if (selectedCategory !== 'semua' && !filterData) {
-        list = list.filter(p => p.category === selectedCategory);
-    }
+    if (selectedCategory !== 'semua' && !filterData) list = list.filter(p => p.category === selectedCategory);
     
     list.forEach(p => {
         const isOut = p.stock <= 0;
-        let discountBadge = ''; 
-        let oldPriceHtml = '';
+        let discountBadge = ''; let oldPriceHtml = '';
         
-        // --- LOGIKA PENYELARASAN HARGA DISKON ---
-        let hargaAktif = p.price; // Harga asli default
-        let hargaCoret = null;    // Tidak ada harga coret default
+        let hargaAktif = p.price;
+        let hargaCoret = null;
 
         if (p.promoPrice && Number(p.promoPrice) < Number(p.price)) {
-            // Jika ada diskon dinamis yang dibuat dari toko.html
             hargaAktif = Number(p.promoPrice);
             hargaCoret = Number(p.price);
         } else if (p.oldPrice && Number(p.oldPrice) > Number(p.price)) {
-            // Kompatibilitas dengan data tiruan (defaultProducts) bawaan awal
             hargaAktif = Number(p.price);
             hargaCoret = Number(p.oldPrice);
         }
 
-        // Jika produk terdeteksi memiliki diskon, buat badge & komponen teks coret
         if (hargaCoret) {
             const discountPercent = Math.round(((hargaCoret - hargaAktif) / hargaCoret) * 100);
             discountBadge = `<span class="absolute top-2 left-2 bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-md shadow-sm z-10">${discountPercent}% OFF</span>`;
             oldPriceHtml = `<span class="text-[10px] text-gray-400 line-through ml-1.5">Rp${hargaCoret.toLocaleString('id-ID')}</span>`;
         }
-        // ----------------------------------------
 
         const card = document.createElement('div');
         card.className = "bg-white border border-gray-100 rounded-2xl p-3 flex flex-col justify-between shadow-sm relative";
         card.innerHTML = `
             <div>
-                <div class="relative mb-2 bg-gray-50 rounded-xl overflow-hidden aspect-square">
+                <div onclick="openProductDetail(${p.id})" class="relative mb-2 bg-gray-50 rounded-xl overflow-hidden aspect-square cursor-pointer hover:scale-[1.02] transition duration-200">
                     ${discountBadge}
-                    <img src="${p.img || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=300'}" class="w-full h-full object-cover ${isOut ? 'grayscale opacity-50':''}">
+                    <img src="${p.img}" class="w-full h-full object-cover ${isOut ? 'grayscale opacity-50':''}">
                 </div>
-                <h4 class="text-xs font-bold text-gray-800 line-clamp-2">${p.name}</h4>
-                <p class="text-[10px] text-gray-400 mt-0.5">${p.size || 'Pak'} | Stok: ${p.stock}</p>
+                <h4 onclick="openProductDetail(${p.id})" class="text-xs font-bold text-gray-800 line-clamp-2 cursor-pointer hover:text-green-600 transition">${p.name}</h4>
+                
+                <div class="flex flex-wrap items-center justify-between gap-1 mt-1 text-[10px] text-gray-400">
+                    <span>${p.size || 'Pak'} | Stok: ${p.stock}</span>
+                    <span class="text-gray-500 font-medium bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100">Terjual ${p.sold || 0}+</span>
+                </div>
             </div>
             <div class="mt-2">
                 <div class="flex items-center flex-wrap">
                     <span class="text-xs font-extrabold text-green-600">Rp${hargaAktif.toLocaleString('id-ID')}</span>
                     ${oldPriceHtml}
-                </div>
-                <button onclick="handleAddToCart(${p.id})" ${isOut ? 'disabled class="w-full mt-1 bg-gray-200 text-gray-400 py-1.5 rounded-xl text-[11px] font-bold cursor-not-allowed"' : 'class="w-full mt-1 bg-green-500 hover:bg-green-600 text-white py-1.5 rounded-xl text-[11px] font-bold btn-active transition"'}>Beli</button>
+                </div> 
+                <button onclick="handleAddToCart(${p.id})" ${isOut ? 'disabled class="w-full mt-1 bg-gray-200 text-gray-400 py-1.5 rounded-xl text-[11px] font-bold cursor-not-allowed"':'class="w-full mt-1 bg-green-500 hover:bg-green-600 text-white py-1.5 rounded-xl text-[11px] font-bold btn-active transition"'}>Beli</button>
             </div>
         `;
         grid.appendChild(card);
@@ -691,6 +682,50 @@
     showToast("Pesanan berhasil diproses!"); 
     switchTab('tracking');
 }
+        function syncSoldFromOrders() {
+    // Ambil database produk dan database order/transaksi
+    let masterProducts = JSON.parse(localStorage.getItem('segari_products')) || defaultProducts;
+    let currentOrders = JSON.parse(localStorage.getItem('segari_orders')) || [];
+    
+    // Buat objek kamus kosong untuk memetakan hitungan: { "ID_PRODUK": TOTAL_TERJUAL }
+    const soldMap = {};
+    
+    // Iterasi/Looping setiap struk transaksi yang ada
+    currentOrders.forEach(order => {
+        // Abaikan transaksi jika statusnya "Dibatalkan" (Opsional, jika Anda punya fitur cancel)
+        if (order.status === "Dibatalkan") return;
+
+        order.items.forEach(item => {
+            const itemId = String(item.id); // Paksa ID menjadi String demi keamanan data
+            if (soldMap[itemId]) {
+                soldMap[itemId] += Number(item.qty);
+            } else {
+                soldMap[itemId] = Number(item.qty);
+            }
+        });
+    });
+    
+    // Masukkan hasil hitungan rekap transaksi ke dalam master data produk
+    const updatedProducts = masterProducts.map(p => {
+        const pId = String(p.id);
+        return {
+            ...p,
+            sold: soldMap[pId] || 0 // Jika ada di histori transaksi pasang nilainya, jika tidak ada set ke 0
+        };
+    });
+    
+    // Simpan kembali database produk terbaru ke localStorage
+    localStorage.setItem('segari_products', JSON.stringify(updatedProducts));
+    
+    // Segarkan tampilan produk di screen pembeli secara real-time
+    if (typeof renderProducts === "function") {
+        renderProducts(updatedProducts);
+    }
+        }
+        // Memastikan data terjual langsung dihitung berdasarkan histori transaksi saat web dibuka
+document.addEventListener("DOMContentLoaded", function() {
+    syncSoldFromOrders(); 
+});
 
         function startFlashSaleTimer() {
             let hours = 2, minutes = 14, seconds = 45;
