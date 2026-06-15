@@ -351,43 +351,68 @@
             }
         }
 
-        function renderProducts(filterData = null) {
-            const grid = document.getElementById('product-grid'); if (!grid) return; grid.innerHTML = '';
-            let list = filterData || products;
-            if (selectedCategory !== 'semua' && !filterData) list = list.filter(p => p.category === selectedCategory);
-            
-            list.forEach(p => {
-                const isOut = p.stock <= 0;
-                let discountBadge = ''; let oldPriceHtml = '';
-                
-                if (p.oldPrice && p.oldPrice > p.price) {
-                    const discountPercent = Math.round(((p.oldPrice - p.price) / p.oldPrice) * 100);
-                    discountBadge = `<span class="absolute top-2 left-2 bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-md shadow-sm z-10">${discountPercent}% OFF</span>`;
-                    oldPriceHtml = `<span class="text-[10px] text-gray-400 line-through ml-1.5">Rp${p.oldPrice.toLocaleString('id-ID')}</span>`;
-                }
+         function renderProducts(filterData = null) {
+    const grid = document.getElementById('product-grid'); 
+    if (!grid) return; 
+    grid.innerHTML = '';
+    
+    // Selalu ambil data produk terbaru dari localStorage agar sinkron dengan toko
+    let productsFromStorage = JSON.parse(localStorage.getItem('segari_products')) || products;
+    let list = filterData || productsFromStorage;
+    
+    if (selectedCategory !== 'semua' && !filterData) {
+        list = list.filter(p => p.category === selectedCategory);
+    }
+    
+    list.forEach(p => {
+        const isOut = p.stock <= 0;
+        let discountBadge = ''; 
+        let oldPriceHtml = '';
+        
+        // --- LOGIKA PENYELARASAN HARGA DISKON ---
+        let hargaAktif = p.price; // Harga asli default
+        let hargaCoret = null;    // Tidak ada harga coret default
 
-                const card = document.createElement('div');
-                card.className = "bg-white border border-gray-100 rounded-2xl p-3 flex flex-col justify-between shadow-sm relative";
-                card.innerHTML = `
-                    <div>
-                        <div class="relative mb-2 bg-gray-50 rounded-xl overflow-hidden aspect-square">
-                            ${discountBadge}
-                            <img src="${p.img}" class="w-full h-full object-cover ${isOut ? 'grayscale opacity-50':''}">
-                        </div>
-                        <h4 class="text-xs font-bold text-gray-800 line-clamp-2">${p.name}</h4>
-                        <p class="text-[10px] text-gray-400 mt-0.5">${p.size} | Stok: ${p.stock}</p>
-                    </div>
-                    <div class="mt-2">
-                        <div class="flex items-center flex-wrap">
-                            <span class="text-xs font-extrabold text-green-600">Rp${p.price.toLocaleString('id-ID')}</span>
-                            ${oldPriceHtml}
-                        </div>
-                        <button onclick="handleAddToCart(${p.id})" ${isOut ? 'disabled class="w-full mt-1 bg-gray-200 text-gray-400 py-1.5 rounded-xl text-[11px] font-bold cursor-not-allowed"':'class="w-full mt-1 bg-green-500 hover:bg-green-600 text-white py-1.5 rounded-xl text-[11px] font-bold btn-active transition"'}>Beli</button>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
+        if (p.promoPrice && Number(p.promoPrice) < Number(p.price)) {
+            // Jika ada diskon dinamis yang dibuat dari toko.html
+            hargaAktif = Number(p.promoPrice);
+            hargaCoret = Number(p.price);
+        } else if (p.oldPrice && Number(p.oldPrice) > Number(p.price)) {
+            // Kompatibilitas dengan data tiruan (defaultProducts) bawaan awal
+            hargaAktif = Number(p.price);
+            hargaCoret = Number(p.oldPrice);
         }
+
+        // Jika produk terdeteksi memiliki diskon, buat badge & komponen teks coret
+        if (hargaCoret) {
+            const discountPercent = Math.round(((hargaCoret - hargaAktif) / hargaCoret) * 100);
+            discountBadge = `<span class="absolute top-2 left-2 bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-md shadow-sm z-10">${discountPercent}% OFF</span>`;
+            oldPriceHtml = `<span class="text-[10px] text-gray-400 line-through ml-1.5">Rp${hargaCoret.toLocaleString('id-ID')}</span>`;
+        }
+        // ----------------------------------------
+
+        const card = document.createElement('div');
+        card.className = "bg-white border border-gray-100 rounded-2xl p-3 flex flex-col justify-between shadow-sm relative";
+        card.innerHTML = `
+            <div>
+                <div class="relative mb-2 bg-gray-50 rounded-xl overflow-hidden aspect-square">
+                    ${discountBadge}
+                    <img src="${p.img || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=300'}" class="w-full h-full object-cover ${isOut ? 'grayscale opacity-50':''}">
+                </div>
+                <h4 class="text-xs font-bold text-gray-800 line-clamp-2">${p.name}</h4>
+                <p class="text-[10px] text-gray-400 mt-0.5">${p.size || 'Pak'} | Stok: ${p.stock}</p>
+            </div>
+            <div class="mt-2">
+                <div class="flex items-center flex-wrap">
+                    <span class="text-xs font-extrabold text-green-600">Rp${hargaAktif.toLocaleString('id-ID')}</span>
+                    ${oldPriceHtml}
+                </div>
+                <button onclick="handleAddToCart(${p.id})" ${isOut ? 'disabled class="w-full mt-1 bg-gray-200 text-gray-400 py-1.5 rounded-xl text-[11px] font-bold cursor-not-allowed"' : 'class="w-full mt-1 bg-green-500 hover:bg-green-600 text-white py-1.5 rounded-xl text-[11px] font-bold btn-active transition"'}>Beli</button>
+            </div>
+        `;
+        grid.appendChild(card);
+    });
+         }
 
         function filterCategory(cat) {
             selectedCategory = cat;
@@ -408,10 +433,37 @@
         }
 
         function handleAddToCart(id) {
-            const prod = products.find(p => p.id === id); if (!prod || prod.stock <= 0) return;
-            const idx = cart.findIndex(i => i.id === id);
-            if (idx > -1) { if (cart[idx].qty >= prod.stock) return; cart[idx].qty++; } else { cart.push({ ...prod, qty: 1 }); }
-            showToast(`${prod.name} masuk keranjang!`); updateCartCount();
+    // Ambil data produk langsung dari localStorage database agar akurat
+    const productsFromStorage = JSON.parse(localStorage.getItem('segari_products')) || products;
+    const prod = productsFromStorage.find(p => p.id === id); 
+    
+    if (!prod || prod.stock <= 0) return;
+    
+    // Tentukan harga final & harga coret untuk disuntikkan ke keranjang konsumen
+    let hargaFinal = prod.price;
+    let hargaCoretAsli = prod.oldPrice || null;
+
+    if (prod.promoPrice && Number(prod.promoPrice) < Number(prod.price)) {
+        hargaFinal = Number(prod.promoPrice);
+        hargaCoretAsli = Number(prod.price);
+    }
+
+    const idx = cart.findIndex(i => i.id === id);
+    if (idx > -1) { 
+        if (cart[idx].qty >= prod.stock) return; 
+        cart[idx].qty++; 
+    } else { 
+        // Masukkan item dengan struktur harga diskon toko ter-update
+        cart.push({ 
+            ...prod, 
+            price: hargaFinal, 
+            oldPrice: hargaCoretAsli, 
+            qty: 1 
+        }); 
+    }
+    
+    showToast(`${prod.name} masuk keranjang!`); 
+    updateCartCount();
         }
 
         function updateCartCount() {
