@@ -941,233 +941,195 @@ function closeProductDetail() {
     }, 300);
 }
 
-           // ================= STATE GLOBAL APPLIKASI =================
+ 
+
+// ================= STATE GLOBAL (Kunci Utama Ruang Obrolan) =================
+// Mengasumsikan data user yang sedang login (Sesuaikan dengan sistem login Anda)
+const activeUser = { username: "pembeli_setia" }; 
+
+// Akan berisi "Toko A" atau "Toko B" secara dinamis berdasarkan toko yang dipilih
 let activeChatShop = null; 
 
 /**
- * UTILITY KUNCI: Membersihkan nama toko dari spasi liar di awal/akhir
- * untuk mencegah "Toko A " dan "Toko A" dianggap sebagai toko yang berbeda.
+ * FUNCTION 1: MEMBUKA ROOM TOKO SPESIFIK (Pemisah Gerbang Utama)
+ * Fungsi ini dipanggil saat konsumen klik "Chat Toko" pada halaman Toko A atau Toko B
  */
-function bersihkanNamaToko(nama) {
-    if (!nama) return "Toko Segari Pusat";
-    return nama.trim(); // Menghapus spasi gaib di depan dan belakang string
-}
-
-/**
- * 1. FUNGSI JEMBATAN: Dipicu saat konsumen klik "Chat" di Modal Detail Produk
- */
-function inisialisasiChatProduk(namaToko, namaProduk) {
+function bukaChatTokoSpesifik(namaToko) {
     if (!activeUser) {
-        alert("Silakan login terlebih dahulu untuk memulai chat dengan toko!");
-        if (typeof switchTab === "function") switchTab('profile');
+        alert("Silakan login terlebih dahulu!");
         return;
     }
     
-    // Kunci target toko dengan aman (sudah dibersihkan)
-    activeChatShop = bersihkanNamaToko(namaToko);
+    // MENGUNCI STATE: Memastikan aplikasi hanya memproses toko tujuan yang dipilih
+    // Contoh jika memilih Toko A: activeChatShop = "Toko A"
+    activeChatShop = namaToko.trim(); 
     
-    // Alihkan halaman ke tab chat bawaan aplikasi Anda
-    if (typeof switchTab === "function") {
-        switchTab('chat');
-    }
+    // Alihkan tab aplikasi ke halaman/view chat (jika fungsi navigasi Anda tersedia)
+    if (typeof switchTab === "function") switchTab('chat');
     
-    // Isi otomatis kotak input dengan draf teks produk terkait
-    setTimeout(() => {
-        const inputField = document.getElementById('chat-text-input');
-        if (inputField) {
-            inputField.value = `Halo ${activeChatShop}, apakah produk *${namaProduk}* ready?`;
-            inputField.focus();
-        }
-    }, 50);
-    
-    renderChatView();
+    // Render ruangan chat khusus toko ini secara terisolasi
+    renderTimelineChatTerpisah();
 }
 
 /**
- * 2. FUNGSI UTAMA: Render Tampilan Chat (Pemisah Mode Inbox & Ruang Chat Toko)
+ * FUNCTION 2: RENDER TIMELINE CHAT (Dinding Pembatas Antar Toko)
+ * Fungsi ini bertugas memisahkan data Toko A dan Toko B secara mutlak berdasarkan pilihan
  */
-function renderChatView() {
-    const loggedOut = document.getElementById('chat-logged-out'); 
-    const loggedIn = document.getElementById('chat-logged-in');
-    if (!loggedOut || !loggedIn) return;
-    
-    if (!activeUser) { 
-        loggedOut.classList.remove('hidden'); 
-        loggedIn.classList.add('hidden'); 
-        return; 
-    }
-    loggedOut.classList.add('hidden'); 
-    loggedIn.classList.remove('hidden');
-
-    const chatBox = document.getElementById('chat-box'); 
+function renderTimelineChatTerpisah() {
+    const chatBox = document.getElementById('chat-box');
     if (!chatBox) return;
-    
-    // Ambil data mentah dari localStorage
-    const rawChats = JSON.parse(localStorage.getItem('segari_chats')) || [];
-    
-    // VALIDASI PERTAMA: Pastikan semua data memiliki format toko yang bersih
-    const chats = rawChats.map(c => ({
-        ...c,
-        shop: bersihkanNamaToko(c.shop)
-    }));
 
-    // ================= KONDISI A: MODE INBOX (Daftar Semua Toko) =================
+    // Ambil seluruh database chat dari LocalStorage
+    const semuaChat = JSON.parse(localStorage.getItem('segari_chats')) || [];
+
+    // ================= SEKAT KONDISI A: MODE LIST INBOX =================
+    // Jika tidak ada toko yang dipilih (activeChatShop kosong), tampilkan semua daftar obrolan
     if (!activeChatShop) {
-        aturVisibilitasInputChat(false);
-
-        const chatTitleEl = document.getElementById('chat-header-title');
-        if (chatTitleEl) {
-            chatTitleEl.innerText = "📥 Kotak Masuk Chat";
-        }
-
-        // FILTER 1: Hanya ambil chat milik user yang sedang aktif login saat ini
-        const userChats = chats.filter(c => c.user === activeUser.username);
+        const headerTitle = document.getElementById('chat-header-title');
+        if (headerTitle) headerTitle.innerText = "📥 Kotak Masuk Chat";
         
-        // FILTER 2: Dapatkan list nama-nama toko unik secara presisi
-        const daftarTokoUnik = [...new Set(userChats.map(c => c.shop))].filter(Boolean);
+        aturInputChatSesuaiRoom(false); // Sembunyikan input pengetikan teks
 
-        if (daftarTokoUnik.length === 0) {
-            chatBox.innerHTML = `
-                <div class="flex flex-col justify-center items-center h-48 text-center p-4">
-                    <p class="text-xs text-gray-400 font-medium">Belum ada riwayat obrolan</p>
-                    <p class="text-[10px] text-gray-300 mt-1">Silakan klik tombol Chat pada detail produk toko untuk memulai pesan.</p>
-                </div>`;
+        // Hanya ambil chat milik user yang sedang login
+        const chatSaya = semuaChat.filter(c => c.user === activeUser.username);
+        
+        // Dapatkan list toko unik yang pernah dichat (Toko A, Toko B, dst)
+        const daftarToko = [...new Set(chatSaya.map(c => c.shop))].filter(Boolean);
+
+        if (daftarToko.length === 0) {
+            chatBox.innerHTML = `<p class="text-xs text-gray-400 text-center py-12">Belum ada obrolan.</p>`;
             return;
         }
 
-        // Render daftar list inbox toko
-        chatBox.innerHTML = daftarTokoUnik.map(namaToko => {
-            // Tarik baris pesan khusus toko ini saja untuk mencari baris pesan terakhir
-            const chatPerToko = userChats.filter(c => c.shop === namaToko);
-            const pesanTerakhir = chatPerToko[chatPerToko.length - 1];
-            const awalan = pesanTerakhir.sender === 'user' ? 'Anda: ' : 'Toko: ';
-
+        // Tampilkan daftar toko di halaman depan kotak masuk chat
+        chatBox.innerHTML = daftarToko.map(toko => {
+            const chatTokoIni = chatSaya.filter(c => c.shop === toko);
+            const pesanTerakhir = chatTokoIni[chatTokoIni.length - 1];
             return `
-                <div onclick="bukaRuangChatSpesifik('${namaToko}')" class="p-3 bg-gray-50 border border-gray-100 rounded-xl flex items-center justify-between hover:bg-green-50 transition cursor-pointer mb-2">
-                    <div class="flex items-center gap-2.5 min-w-0 flex-1">
-                        <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-xs font-bold text-green-700 shrink-0">🏪</div>
-                        <div class="min-w-0 flex-1">
-                            <h4 class="text-xs font-black text-gray-800 truncate">${namaToko}</h4>
-                            <p class="text-[10px] text-gray-400 truncate mt-0.5">${awalan}${pesanTerakhir.text}</p>
-                        </div>
+                <div onclick="bukaChatTokoSpesifik('${toko}')" class="p-3 bg-white border-b border-gray-100 flex justify-between items-center cursor-pointer hover:bg-gray-50 transition">
+                    <div>
+                        <h4 class="text-xs font-bold text-gray-800">🏪 ${toko}</h4>
+                        <p class="text-[11px] text-gray-400 truncate mt-0.5">
+                            ${pesanTerakhir.sender === 'user' ? 'Anda: ' : ''}${pesanTerakhir.text}
+                        </p>
                     </div>
-                    <span class="text-[10px] text-green-600 font-bold ml-2 shrink-0">&rarr;</span>
+                    <span class="text-xs text-gray-300">&rarr;</span>
                 </div>`;
         }).join('');
     } 
-    // ================= KONDISI B: MODE ROOM CHAT (Obrolan Toko Terpilih) =================
+    // ================= SEKAT KONDISI B: MODE RUANG CHAT INTERNAL =================
+    // Jika pembeli sudah memilih toko tujuan (e.g., "Toko A")
     else {
-        aturVisibilitasInputChat(true);
+        const headerTitle = document.getElementById('chat-header-title');
+        if (headerTitle) headerTitle.innerText = `🏪 ${activeChatShop}`;
+        
+        aturInputChatSesuaiRoom(true); // Tampilkan input pengetikan teks
 
-        const chatTitleEl = document.getElementById('chat-header-title');
-        if (chatTitleEl) {
-            chatTitleEl.innerText = `🏪 ${activeChatShop}`;
-        }
-
-        // FILTER TOTAL: Hanya tampilkan jika (.user MATCH) DAN (.shop MATCH) secara absolut
-        const filteredChats = chats.filter(c => 
+        // INDIKATOR FILTER MUTLAK:
+        // Memastikan pesan yang keluar HANYA yang (.user cocok) DAN (.shop cocok dengan pilihan saat ini)
+        const chatSpesifikTokoIni = semuaChat.filter(c => 
             c.user === activeUser.username && 
             c.shop === activeChatShop
         );
-        
-        let roomHTML = `
-            <div class="flex items-center justify-between border-b border-gray-100 pb-2 mb-3 bg-white sticky top-0 z-10">
-                <div class="flex items-center gap-1.5">
-                    <span class="text-xs font-black text-gray-700">Room: ${activeChatShop}</span>
-                </div>
-                <button onclick="kembaliKeInboxToko()" class="text-[9px] font-bold text-gray-400 hover:text-gray-600 bg-gray-100 px-2 py-0.5 rounded-md transition">&larr; Kembali</button>
+
+        let htmlMadingChat = `
+            <div class="flex items-center justify-between border-b border-gray-100 pb-2 mb-2 bg-white sticky top-0 z-10">
+                <span class="text-[11px] font-bold text-gray-500">Target Toko: ${activeChatShop}</span>
+                <button onclick="keluarKeInboxToko()" class="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-md hover:bg-green-100 transition">← Kembali</button>
             </div>`;
 
-        if (filteredChats.length === 0) {
-            roomHTML += `<p class="text-[11px] text-gray-400 text-center my-auto py-8">Kirim pesan untuk memulai obrolan dengan ${activeChatShop}</p>`;
+        if (chatSpesifikTokoIni.length === 0) {
+            htmlMadingChat += `<p class="text-[11px] text-gray-400 text-center py-12">Belum ada percakapan dengan ${activeChatShop}.</p>`;
         } else {
-            roomHTML += filteredChats.map(c => {
+            htmlMadingChat += chatSpesifikTokoIni.map(c => {
                 const isMe = c.sender === 'user';
                 return `
-                    <div class="flex ${isMe ? 'justify-end' : 'justify-start'} mb-1">
-                        <div class="${isMe ? 'bg-green-500 text-white rounded-br-none' : 'bg-white border border-gray-100 text-gray-800 rounded-bl-none'} max-w-[80%] p-2.5 rounded-xl text-xs shadow-2xs break-words">
+                    <div class="flex ${isMe ? 'justify-end' : 'justify-start'} mb-1.5">
+                        <div class="${isMe ? 'bg-green-500 text-white rounded-br-none' : 'bg-white border border-gray-100 text-gray-800 rounded-bl-none'} max-w-[80%] p-2.5 rounded-xl text-xs break-words shadow-sm">
                             ${c.text}
                         </div>
                     </div>`;
             }).join('');
         }
 
-        chatBox.innerHTML = roomHTML;
-        chatBox.scrollTop = chatBox.scrollHeight;
+        chatBox.innerHTML = htmlMadingChat;
+        chatBox.scrollTop = chatBox.scrollHeight; // Otomatis scroll ke pesan paling bawah
     }
 }
 
 /**
- * 3. FUNGSI EKSEKUSI: Kirim Chat ke Pemilik Toko Tertentu
+ * FUNCTION 3: EKSEKUSI KIRIM CHAT (Penguncian Label Toko Tujuan)
+ * Memastikan pesan dikirim ke toko yang sedang dipilih & dibuka saja
  */
-function sendChatToMerchant() {
-    const input = document.getElementById('chat-text-input'); 
-    const text = input.value.trim(); 
-    if (!text || !activeUser) return;
+function kirimPesanKeTokoAktif() {
+    const input = document.getElementById('chat-text-input');
+    if (!input) return;
     
-    if (!activeChatShop) {
-        alert("Silakan pilih toko terlebih dahulu melalui produk atau kotak masuk!");
-        return;
-    }
+    const teksPesan = input.value.trim();
+    
+    // VALIDASI KETAT: Cegah pengiriman jika teks kosong, user belum login, atau toko tujuan tidak dipilih
+    if (!teksPesan || !activeUser || !activeChatShop) return;
 
-    const chats = JSON.parse(localStorage.getItem('segari_chats')) || [];
-    const tokoTerkunci = bersihkanNamaToko(activeChatShop);
+    // Ambil data dari LocalStorage
+    const databaseChat = JSON.parse(localStorage.getItem('segari_chats')) || [];
     
-    // Rekam data baru dengan properti toko yang sudah dibersihkan
-    chats.push({ 
-        user: activeUser.username, 
-        shop: tokoTerkunci, 
-        sender: 'user', 
-        text: text 
+    // Kunci target toko ke dalam variabel lokal konstan (Mencegah bug tumpang tindih chat)
+    const tokoTujuanKirim = activeChatShop;
+
+    // Menyimpan chat baru dengan pelabelan toko tujuan yang jelas
+    databaseChat.push({
+        user: activeUser.username,
+        shop: tokoTujuanKirim, // Hasil penentuan pilihan: "Toko A" atau "Toko B"
+        sender: 'user',
+        text: teksPesan
     });
+
+    // Simpan kembali ke LocalStorage
+    localStorage.setItem('segari_chats', JSON.stringify(databaseChat));
+    input.value = ''; // Reset form input teks
     
-    localStorage.setItem('segari_chats', JSON.stringify(chats)); 
-    input.value = ''; 
-    renderChatView();
-    
-    // Simulasi Balasan Bot yang terkunci erat pada Toko terkait
+    renderTimelineChatTerpisah(); // Refresh tampilan chat di sisi pembeli
+
+    // SIMULASI AUTO-REPLY MERCHANT (Terisolasi per masing-masing toko)
     setTimeout(() => {
-        const updatedChats = JSON.parse(localStorage.getItem('segari_chats')) || [];
-        updatedChats.push({ 
-            user: activeUser.username, 
-            shop: tokoTerkunci, 
-            sender: 'merchant', 
-            text: `Halo! Terima kasih telah menghubungi ${tokoTerkunci}. Pesan Anda sudah kami terima.` 
-        });
-        localStorage.setItem('segari_chats', JSON.stringify(updatedChats)); 
+        const databaseTerbaru = JSON.parse(localStorage.getItem('segari_chats')) || [];
         
-        // Jaminan Keamanan visual: Jangan render ulang jika konsumen sudah pindah toko/keluar room
-        if (activeChatShop === tokoTerkunci) {
-            renderChatView();
+        databaseTerbaru.push({
+            user: activeUser.username,
+            shop: tokoTujuanKirim, // Membalas valid atas nama toko yang dipilih sebelumnya
+            sender: 'merchant',
+            text: `Halo, terima kasih telah menghubungi *${tokoTujuanKirim}*. Pesan Anda telah kami terima, mohon tunggu sebentar ya Kak! 🙏`
+        });
+
+        localStorage.setItem('segari_chats', JSON.stringify(databaseTerbaru));
+
+        // Pengaman Tampilan: Balon respons bot hanya dicetak ke layar JIKA pembeli masih membuka toko yang sama
+        if (activeChatShop === tokoTujuanKirim) {
+            renderTimelineChatTerpisah();
         }
-    }, 1200);
+    }, 1000);
 }
 
 /**
- * 4. UTILITY NAVIGASI HELPERS
+ * UTILITY HELPERS (Fungsi Pembantu Navigasi)
  */
-function kembaliKeInboxToko() {
-    activeChatShop = null; // Menghapus kunci toko mengembalikan view ke mode List Inbox
-    renderChatView();
+function keluarKeInboxToko() {
+    activeChatShop = null; // Menghapus kunci toko aktif (Kembali ke mode list inbox utama)
+    renderTimelineChatTerpisah();
 }
 
-function bukaRuangChatSpesifik(namaToko) {
-    activeChatShop = bersihkanNamaToko(namaToko); // Kunci toko pilihan dari list inbox
-    renderChatView();
-}
-
-function aturVisibilitasInputChat(tampilkan) {
-    const inputField = document.getElementById('chat-text-input');
-    if (inputField && inputField.parentElement) {
+function aturInputChatSesuaiRoom(tampilkan) {
+    const inputBar = document.getElementById('chat-text-input')?.parentElement;
+    if (inputBar) {
         if (tampilkan) {
-            inputField.parentElement.classList.remove('hidden');
-            inputField.parentElement.classList.add('flex');
+            inputBar.classList.remove('hidden');
+            inputBar.classList.add('flex');
         } else {
-            inputField.parentElement.classList.remove('flex');
-            inputField.parentElement.classList.add('hidden');
+            inputBar.classList.remove('flex');
+            inputBar.classList.add('hidden');
         }
     }
-        } 
+}
 
 
         function renderTrackingView() {
