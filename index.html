@@ -941,25 +941,26 @@ function closeProductDetail() {
     }, 300);
 }
 
-       // ================= STATE GLOBAL APLIKASI =================
-let activeChatShop = null; 
+// ================= STATE GLOBAL APLIKASI =================
+let activeChatShop = null; // Menyimpan toko yang sedang dibuka (e.g., "Toko A" atau "Toko B")
 let pendingProductContext = null; // Menyimpan data produk sementara ala Shopee
 
 // Helper mendapatkan waktu saat ini (Format HH:MM)
 function dapatkanWaktuSekarang() {
     const sekarang = new Date();
-    const jam = Stringsekarang.getHours()).padStart(2, '0');
+    const jam = String(sekarang.getHours()).padStart(2, '0'); // Perbaikan sytax error String(sekarang...)
     const menit = String(sekarang.getMinutes()).padStart(2, '0');
     return `${jam}:${menit}`;
 }
 
+// Menghindari duplikasi room akibat spasi liar (e.g., "Toko A " vs "Toko A")
 function bersihkanNamaToko(nama) {
     if (!nama) return "Toko Segari Pusat";
     return nama.trim();
 }
 
 /**
- * 1. FUNGSI JEMBATAN SHOPEE: Membawa konteks produk lengkap ke dalam chat
+ * 1. FUNGSI JEMBATAN SHOPEE: Membawa konteks produk lengkap ke dalam chat toko spesifik
  */
 function inisialisasiChatProduk(namaToko, produkObj) {
     if (!activeUser) {
@@ -968,13 +969,13 @@ function inisialisasiChatProduk(namaToko, produkObj) {
         return;
     }
     
+    // KUNCI PERTAMA: Tetapkan target toko secara terisolasi sebelum masuk room
     activeChatShop = bersihkanNamaToko(namaToko);
-    // Simpan data produk untuk fitur "Kirim Produk" ala Shopee
     pendingProductContext = produkObj; 
     
     if (typeof switchTab === "function") switchTab('chat');
     
-    // Set draf teks otomatis di input field
+    // Set draf teks otomatis di input field room tersebut
     setTimeout(() => {
         const inputField = document.getElementById('chat-text-input');
         if (inputField) {
@@ -987,7 +988,7 @@ function inisialisasiChatProduk(namaToko, produkObj) {
 }
 
 /**
- * 2. FUNGSI UTAMA: Render Tampilan Chat dengan Fitur Shopee (Badge & Product Card)
+ * 2. FUNGSI UTAMA: Render Tampilan Chat (Pemisah Struktur Toko A & Toko B)
  */
 function renderChatView() {
     const loggedOut = document.getElementById('chat-logged-out'); 
@@ -1007,7 +1008,7 @@ function renderChatView() {
     
     let chats = JSON.parse(localStorage.getItem('segari_chats')) || [];
 
-    // Jika masuk ke room tertentu, otomatis tandai semua pesan dari toko tersebut sebagai "READ"
+    // FITUR SHOPEE: Jika masuk ke room toko tertentu, baca hanya pesan milik toko tersebut
     if (activeChatShop) {
         let adaPerubahan = false;
         chats = chats.map(c => {
@@ -1020,13 +1021,15 @@ function renderChatView() {
         if (adaPerubahan) localStorage.setItem('segari_chats', JSON.stringify(chats));
     }
 
-    // ================= KONDISI A: MODE INBOX (Daftar Chat Ala Shopee) =================
+    // ================= KONDISI A: MODE INBOX (Mengelompokkan Chat per Toko) =================
     if (!activeChatShop) {
         aturVisibilitasInputChat(false);
         document.getElementById('chat-header-title').innerText = "📥 Kotak Masuk Chat";
 
+        // Filter chat hanya milik user yang sedang login
         const userChats = chats.filter(c => c.user === activeUser.username);
-        const daftarTokoUnik = [...new Set(userChats.map(c => c.shop))].filter(Boolean);
+        // Pecah daftar toko menjadi entitas mandiri yang terpisah
+        const daftarTokoUnik = [...new Set(userChats.map(c => bersihkanNamaToko(c.shop)))].filter(Boolean);
 
         if (daftarTokoUnik.length === 0) {
             chatBox.innerHTML = `
@@ -1038,10 +1041,11 @@ function renderChatView() {
         }
 
         chatBox.innerHTML = daftarTokoUnik.map(namaToko => {
-            const chatPerToko = userChats.filter(c => c.shop === namaToko);
+            // Isolasi data chat khusus untuk toko ini saja di halaman depan inbox
+            const chatPerToko = userChats.filter(c => bersihkanNamaToko(c.shop) === namaToko);
             const pesanTerakhir = chatPerToko[chatPerToko.length - 1];
             
-            // Hitung jumlah pesan merchant yang belum dibaca pembeli
+            // Hitung badge unread khusus toko ini (Tidak mencampur dengan toko lain)
             const unreadCount = chatPerToko.filter(c => c.sender === 'merchant' && !c.isRead).length;
             const awalan = pesanTerakhir.sender === 'user' ? 'Anda: ' : '';
             const isiPesan = pesanTerakhir.isProductCard ? '📂 [Tautan Produk]' : pesanTerakhir.text;
@@ -1064,24 +1068,27 @@ function renderChatView() {
                 </div>`;
         }).join('');
     } 
-    // ================= KONDISI B: MODE ROOM CHAT (Obrolan Toko Terpilih Ala Shopee) =================
+    // ================= KONDISI B: MODE ROOM CHAT (Filter Ketat Toko Terpilih) =================
     else {
         aturVisibilitasInputChat(true);
         document.getElementById('chat-header-title').innerText = `🏪 ${activeChatShop}`;
 
-        const filteredChats = chats.filter(c => c.user === activeUser.username && c.shop === activeChatShop);
+        // PROTEKSI ABSOLUT: Hanya tampilkan chat jika user cocok DAN nama toko COCOK PERSIS
+        const filteredChats = chats.filter(c => 
+            c.user === activeUser.username && 
+            bersihkanNamaToko(c.shop) === activeChatShop
+        );
         
-        // Buat Template Header Room Chat
         let roomHTML = `
             <div class="flex items-center justify-between border-b border-gray-100 pb-2 mb-2 bg-white sticky top-0 z-10">
                 <span class="text-xs font-bold text-gray-700">Toko: ${activeChatShop}</span>
                 <button onclick="kembaliKeInboxToko()" class="text-[10px] font-bold text-orange-500 hover:text-orange-600 bg-orange-50 px-2 py-1 rounded-lg transition">&larr; Keluar</button>
             </div>`;
 
-        // FLOATING CONTEXT BAR (Shopee Style: Panel tumpang penawaran produk)
+        // Floating Bar Produk Toko yang sedang aktif
         if (pendingProductContext) {
             roomHTML += `
-                <div id="shopee-product-bar" class="flex items-center justify-between p-2 bg-orange-50/70 border border-orange-100 rounded-xl mb-3 gap-2 animate-fade-in shadow-2xs">
+                <div id="shopee-product-bar" class="flex items-center justify-between p-2 bg-orange-50/70 border border-orange-100 rounded-xl mb-3 gap-2 shadow-2xs">
                     <div class="flex items-center gap-2 min-w-0">
                         <img src="${pendingProductContext.img}" class="w-8 h-8 object-cover rounded-md bg-white border border-gray-100 shrink-0">
                         <div class="min-w-0">
@@ -1094,12 +1101,11 @@ function renderChatView() {
         }
 
         if (filteredChats.length === 0) {
-            roomHTML += `<p class="text-[11px] text-gray-400 text-center my-auto py-12">Belum ada obrolan. Kirim pesan pertama Anda!</p>`;
+            roomHTML += `<p class="text-[11px] text-gray-400 text-center my-auto py-12">Belum ada obrolan dengan ${activeChatShop}. Kirim pesan pertama Anda!</p>`;
         } else {
             roomHTML += filteredChats.map(c => {
                 const isMe = c.sender === 'user';
                 
-                // Jika baris chat berisi kiriman KARTU PRODUK
                 if (c.isProductCard && c.product) {
                     return `
                         <div class="flex ${isMe ? 'justify-end' : 'justify-start'} mb-2">
@@ -1119,7 +1125,6 @@ function renderChatView() {
                         </div>`;
                 }
 
-                // Jika baris chat berisi TEKS BIASA
                 return `
                     <div class="flex ${isMe ? 'justify-end' : 'justify-start'} mb-1.5 items-end gap-1">
                         ${!isMe ? `<span class="text-[8px] text-gray-300 mb-0.5 order-2">${c.time || ''}</span>` : ''}
@@ -1137,39 +1142,37 @@ function renderChatView() {
 }
 
 /**
- * 3. FUNGSI SHOPEE: Mengeksekusi pengiriman Kartu Tautan Produk ke dalam chat timeline
+ * 3. KIRIM PRODUK: Mengunci lampiran kartu produk ke Toko yang aktif saja
  */
 function kirimKartuProdukShopee() {
     if (!pendingProductContext || !activeChatShop || !activeUser) return;
 
     const chats = JSON.parse(localStorage.getItem('segari_chats')) || [];
-    const jamSekarang = dapatkanWaktuSekarang();
+    const targetTokoSaatIni = activeChatShop; // Kunci variabel lokal
 
     chats.push({
         user: activeUser.username,
-        shop: activeChatShop,
+        shop: targetTokoSaatIni, // Disimpan eksklusif untuk Toko A / B
         sender: 'user',
-        isProductCard: true, // Marker bahwa ini bertipe produk kartu
+        isProductCard: true,
         product: {
             id: pendingProductContext.id,
             name: pendingProductContext.name,
             img: pendingProductContext.img,
             price: pendingProductContext.price
         },
-        time: jamSekarang,
+        time: dapatkanWaktuSekarang(),
         isRead: false
     });
 
     localStorage.setItem('segari_chats', JSON.stringify(chats));
-    pendingProductContext = null; // Reset context karena sudah dikirim
+    pendingProductContext = null; 
     renderChatView();
-    
-    // Trigger simulasi balasan merchant setelah kirim produk
-    pemicuBalasanOtomatisMerchant();
+    pemicuBalasanOtomatisMerchant(targetTokoSaatIni);
 }
 
 /**
- * 4. FUNGSI EKSEKUSI: Kirim Chat Teks Biasa
+ * 4. KIRIM TEKS: Mengunci pengiriman chat ke Toko yang aktif saja
  */
 function sendChatToMerchant() {
     const input = document.getElementById('chat-text-input'); 
@@ -1177,47 +1180,47 @@ function sendChatToMerchant() {
     if (!text || !activeUser || !activeChatShop) return;
 
     const chats = JSON.parse(localStorage.getItem('segari_chats')) || [];
-    const jamSekarang = dapatkanWaktuSekarang();
+    const targetTokoSaatIni = activeChatShop; // Kunci variabel lokal
     
     chats.push({ 
         user: activeUser.username, 
-        shop: activeChatShop, 
+        shop: targetTokoSaatIni, // Disimpan eksklusif untuk Toko A / B
         sender: 'user', 
         text: text,
-        time: jamSekarang,
+        time: dapatkanWaktuSekarang(),
         isRead: false
     });
     
     localStorage.setItem('segari_chats', JSON.stringify(chats)); 
     input.value = ''; 
-    pendingProductContext = null; // Menghilangkan bar floating jika user memilih mengetik manual
+    pendingProductContext = null; 
     renderChatView();
-    pemicuBalasanOtomatisMerchant();
+    pemicuBalasanOtomatisMerchant(targetTokoSaatIni);
 }
 
 /**
- * 5. SIMULASI MERCHANT BOT ENGINE (Mendukung Sistem Shopee)
+ * 5. BALASAN OTOMATIS: Bot merespons menggunakan identitas Toko asal secara aman
  */
-function pemicuBalasanOtomatisMerchant() {
-    const tokoMerespons = activeChatShop;
+function pemicuBalasanOtomatisMerchant(tokoMerespons) {
     setTimeout(() => {
         const updatedChats = JSON.parse(localStorage.getItem('segari_chats')) || [];
+        
         updatedChats.push({ 
             user: activeUser.username, 
-            shop: tokoMerespons, 
+            shop: tokoMerespons, // Bot membalas atas nama toko tujuan kirim semula
             sender: 'merchant', 
-            text: `Halo Kak! Terima kasih sudah menghubungi ${tokoMerespons}. Produk kami dipastikan segar. Ada lagi yang bisa kami bantu?`,
+            text: `Halo Kak! Terima kasih sudah menghubungi ${tokoMerespons}. Ada yang bisa kami bantu untuk pesanan Anda?`,
             time: dapatkanWaktuSekarang(),
-            isRead: (activeChatShop === tokoMerespons) // Otomatis true jika user masih standby membuka chat toko tersebut
+            isRead: (activeChatShop === tokoMerespons) // Tetap Unread jika pembeli sudah pindah ke toko lain
         });
         localStorage.setItem('segari_chats', JSON.stringify(updatedChats)); 
         
-        renderChatView(); // Selalu panggil untuk update badge merah di inbox meskipun user di luar room
-    }, 1200);
+        renderChatView(); 
+    }, 1000);
 }
 
 /**
- * 6. UTILITY HELPERS
+ * 6. UTILITY NAVIGASI
  */
 function kembaliKeInboxToko() {
     activeChatShop = null; 
@@ -1239,7 +1242,8 @@ function aturVisibilitasInputChat(tampilkan) {
             inputField.parentElement.classList.replace('flex', 'hidden');
         }
     }
-                }
+    }
+
 
         function renderTrackingView() {
             const noOrder = document.getElementById('no-order-state'); const activeOrder = document.getElementById('active-order-state');
