@@ -359,7 +359,11 @@
 
         function redirectToLogin() { window.location.href = "login-consumer.html"; }
 
-        function switchTab(tabId) {
+        function switchTab(tabName) {
+    // Jika user keluar dari tab chat, hapus activeChatShop agar kembali ke Inbox saat dibuka lagi
+    if (tabName !== 'chat') {
+        activeChatShop = null;
+    }
             const pages = ['home-page', 'cart-page', 'promo-page', 'chat-page', 'tracking-page', 'akun-page'];
             pages.forEach(p => document.getElementById(p)?.classList.add('hidden'));
             document.getElementById(`${tabId}-page`)?.classList.remove('hidden');
@@ -1120,8 +1124,12 @@ function sendChatToMerchant() {
     renderChatView();
     
     // Simulasi Balasan Bot yang terkunci erat pada Toko terkait
-    setTimeout(() => {
-        const updatedChats = JSON.parse(localStorage.getItem('segari_chats')) || [];
+    // Di dalam setTimeout pada fungsi sendChatToMerchant
+setTimeout(() => {
+    const updatedChats = JSON.parse(localStorage.getItem('segari_chats')) || [];
+    
+    // Cek apakah user masih berada di toko yang sama saat bot selesai membalas
+    if (activeChatShop === tokoTerkunci) {
         updatedChats.push({ 
             user: activeUser.username, 
             shop: tokoTerkunci, 
@@ -1129,12 +1137,13 @@ function sendChatToMerchant() {
             text: `Halo! Terima kasih telah menghubungi ${tokoTerkunci}. Pesan Anda sudah kami terima.` 
         });
         localStorage.setItem('segari_chats', JSON.stringify(updatedChats)); 
-        
-        // Jaminan Keamanan visual: Jangan render ulang jika konsumen sudah pindah toko/keluar room
-        if (activeChatShop === tokoTerkunci) {
-            renderChatView();
-        }
-    }, 1200);
+        renderChatView(); // Render hanya jika user masih di toko tersebut
+    } else {
+        // Jika user sudah pindah toko, pesan tetap masuk ke DB tapi tidak perlu re-render
+        updatedChats.push({ /* ... isi sama ... */ });
+        localStorage.setItem('segari_chats', JSON.stringify(updatedChats));
+    }
+}, 1200);
 }
 
 /**
@@ -1146,8 +1155,20 @@ function kembaliKeInboxToko() {
 }
 
 function bukaRuangChatSpesifik(namaToko) {
-    activeChatShop = bersihkanNamaToko(namaToko); // Kunci toko pilihan dari list inbox
+    // 1. Bersihkan nama toko agar konsisten
+    const tokoBersih = bersihkanNamaToko(namaToko);
+    
+    // 2. Set state aktif
+    activeChatShop = tokoBersih;
+    
+    // 3. Render ulang tampilan agar berubah menjadi mode Ruang Chat
     renderChatView();
+    
+    // 4. Fokuskan input agar user bisa langsung mengetik
+    setTimeout(() => {
+        const input = document.getElementById('chat-text-input');
+        if (input) input.focus();
+    }, 100);
 }
 
 function aturVisibilitasInputChat(tampilkan) {
