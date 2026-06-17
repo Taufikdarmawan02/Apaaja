@@ -971,7 +971,11 @@ function renderChatView() {
             
             setTimeout(() => {
 
-
+          const updatedChats = JSON.parse(localStorage.getItem('segari_chats')) || [];
+                updatedChats.push({ user: activeUser.username, sender: 'merchant', text: "Halo! Toko kami sedang menyiapkan produk pesanan Anda." });
+                localStorage.setItem('segari_chats', JSON.stringify(updatedChats)); renderChatView();
+            }, 1500);
+        }
 
         function renderTrackingView() {
             const noOrder = document.getElementById('no-order-state'); const activeOrder = document.getElementById('active-order-state');
