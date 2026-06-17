@@ -941,7 +941,35 @@ function closeProductDetail() {
     }, 300);
 }
 
+function renderChatView() {
+            const loggedOut = document.getElementById('chat-logged-out'); const loggedIn = document.getElementById('chat-logged-in');
+            if (!loggedOut || !loggedIn) return;
+            if (!activeUser) { loggedOut.classList.remove('hidden'); loggedIn.classList.add('hidden'); return; }
+            loggedOut.classList.add('hidden'); loggedIn.classList.remove('hidden');
 
+            const chatBox = document.getElementById('chat-box'); chatBox.innerHTML = '';
+            const chats = JSON.parse(localStorage.getItem('segari_chats')) || [];
+            const userChats = chats.filter(c => c.user === activeUser.username);
+            
+            if(userChats.length === 0) {
+                chatBox.innerHTML = `<p class="text-[11px] text-gray-400 text-center my-auto">Belum ada pesan. Kirim pesan ke penjual...</p>`;
+                return;
+            }
+            userChats.forEach(c => {
+                const div = document.createElement('div');
+                div.className = c.sender === 'user' ? "bg-green-500 text-white rounded-xl p-2.5 text-xs self-end max-w-[80%] my-0.5" : "bg-white border border-gray-100 rounded-xl p-2.5 text-xs self-start max-w-[80%] text-gray-800 shadow-sm my-0.5";
+                div.innerText = c.text; chatBox.appendChild(div);
+            });
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function sendChatToMerchant() {
+            const input = document.getElementById('chat-text-input'); const text = input.value.trim(); if (!text || !activeUser) return;
+            const chats = JSON.parse(localStorage.getItem('segari_chats')) || [];
+            chats.push({ user: activeUser.username, sender: 'user', text: text });
+            localStorage.setItem('segari_chats', JSON.stringify(chats)); input.value = ''; renderChatView();
+            
+            setTimeout(() => {
 
 
 
