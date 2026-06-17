@@ -77,54 +77,6 @@
             </div>
         </div>
 
-        <div id="product-detail-modal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-end sm:items-center justify-center hidden opacity-0 transition-opacity duration-300">
-    <div class="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl p-5 space-y-4 max-h-[85vh] overflow-y-auto transform translate-y-full sm:translate-y-0 transition-transform duration-300 shadow-xl" id="modal-content">
-        <div class="flex justify-between items-center border-b border-gray-100 pb-3">
-            <span class="text-xs font-bold text-gray-400 tracking-wide uppercase" id="detail-category">Kategori</span>
-            <button onclick="closeProductDetail()" class="w-7 h-7 bg-gray-100 text-gray-500 rounded-full flex items-center justify-center hover:bg-gray-200 font-bold transition">✕</button>
-        </div>
-        
-        <div class="relative bg-gray-50 rounded-2xl overflow-hidden aspect-square">
-            <div id="detail-discount-badge"></div>
-            <img id="detail-img" src="" class="w-full h-full object-cover">
-        </div>
-
-        <div>
-            <h3 class="text-base font-black text-gray-800 leading-tight" id="detail-name">Nama Produk</h3>
-            <div class="flex items-center gap-2 mt-2 text-xs text-gray-500">
-                <span id="detail-size" class="bg-gray-100 px-2 py-0.5 rounded-md font-medium text-gray-600">Ukuran</span>
-                <span>•</span>
-                <span id="detail-stock">Stok: 0</span>
-                <span>•</span>
-                <span id="detail-sold" class="text-amber-600 font-semibold bg-amber-50 px-2 py-0.5 rounded-md">Terjual 0</span>
-            </div>
-        </div>
-
-        <div class="border-t border-b border-gray-50 py-3">
-            <h4 class="text-xs font-black text-gray-800 mb-1">Deskripsi Produk</h4>
-            <p id="detail-desc" class="text-xs text-gray-500 leading-relaxed">Tidak ada deskripsi produk.</p>
-        </div>
-
-        <div class="flex items-center justify-between pt-3 border-t border-gray-100 gap-4">
-            <div>
-                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Harga Utama</p>
-                <div class="flex items-baseline flex-wrap">
-                    <span id="detail-price" class="text-base font-black text-green-600">Rp0</span>
-                    <span id="detail-old-price" class="text-xs text-gray-400 line-through ml-1.5 font-medium">Rp0</span>
-                </div>
-            </div>
-            <div class="flex items-center gap-2 flex-1 justify-end">
-        <button id="detail-chat-btn" class="flex flex-col items-center justify-center border border-gray-200 text-gray-500 h-9 w-12 rounded-xl hover:bg-gray-50 hover:text-green-600 transition shrink-0 shadow-2xs">
-            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            <span class="text-[8px] font-black mt-0.5">Chat</span>
-        </button>
-        
-        <div id="detail-action-button" class="w-2/3 sm:w-1/2"></div>
-            </div>
-        </div>
-    </div>
-        </div>
-
         <div id="cart-page" class="hidden p-4 space-y-4">
             <h2 class="text-base font-black text-gray-800 border-b border-gray-100 pb-2 flex items-center gap-2"><i data-lucide="shopping-cart" class="text-green-600 w-5 h-5"></i> Keranjang Belanja Anda</h2>
             <div id="empty-cart-state" class="text-center py-12 space-y-2 hidden">
@@ -158,25 +110,12 @@
                 </div>
 
                 <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4 space-y-1.5 text-xs">
-    <div class="flex justify-between text-gray-400">
-        <span>Harga Sebelum Promo (Asli)</span>
-        <span id="price-subtotal" class="line-through font-medium">Rp0</span>
-    </div>
-    <div id="discount-row" class="flex justify-between text-red-500 font-bold hidden">
-        <div class="flex items-center gap-1.5">
-            <span>Total Diskon Toko</span>
-            <span id="discount-percentage-badge" class="bg-rose-100 text-rose-700 text-[10px] px-1.5 py-0.5 rounded font-black tracking-wide animate-pulse">0% OFF</span>
-        </div>
-        <span id="price-discount">-Rp0</span>
-    </div>
-    <div class="flex justify-between text-gray-400">
-        <span>Ongkos Kirim Flat</span>
-        <span class="text-emerald-600 font-bold">Rp0 (Promo Free)</span>
-    </div>
-    <div class="border-t border-dashed border-gray-200 my-2 pt-2 flex justify-between font-black text-gray-800 text-sm">
-        <span>Total Pembayaran</span>
-        <span class="text-green-600 text-base" id="price-total">Rp0</span>
-    </div>
+                    <div class="flex justify-between text-gray-400"><span>Subtotal Item</span><span id="price-subtotal">Rp0</span></div>
+                    <div id="discount-row" class="flex justify-between text-red-500 font-bold hidden"><span>Potongan Voucher</span><span id="price-discount">-Rp0</span></div>
+                    <div class="flex justify-between text-gray-400"><span>Ongkos Kirim Flat</span><span>Rp0 (Promo)</span></div>
+                    <div class="border-t border-dashed border-gray-200 my-2 pt-2 flex justify-between font-black text-gray-800 text-sm">
+                        <span>Total Pembayaran</span><span class="text-green-600" id="price-total">Rp0</span>
+                    </div>
                 </div>
                 <button onclick="processCheckout()" class="w-full bg-green-600 text-white font-bold py-3 rounded-2xl text-xs transition btn-active shadow-lg shadow-green-100 flex items-center justify-center gap-2">
                     <i data-lucide="credit-card" class="w-4 h-4"></i> Konfirmasi Pesanan & Bayar
@@ -359,11 +298,7 @@
 
         function redirectToLogin() { window.location.href = "login-consumer.html"; }
 
-        function switchTab(tabName) {
-    // Jika user keluar dari tab chat, hapus activeChatShop agar kembali ke Inbox saat dibuka lagi
-    if (tabName !== 'chat') {
-        activeChatShop = null;
-    }
+        function switchTab(tabId) {
             const pages = ['home-page', 'cart-page', 'promo-page', 'chat-page', 'tracking-page', 'akun-page'];
             pages.forEach(p => document.getElementById(p)?.classList.add('hidden'));
             document.getElementById(`${tabId}-page`)?.classList.remove('hidden');
@@ -415,60 +350,44 @@
                 switchTab('home');
             }
         }
-         function renderProducts(filterData = null) {
-    const grid = document.getElementById('product-grid'); if (!grid) return; grid.innerHTML = '';
-    
-    let productsFromStorage = JSON.parse(localStorage.getItem('segari_products')) || products;
-    let list = filterData || productsFromStorage;
-    if (selectedCategory !== 'semua' && !filterData) list = list.filter(p => p.category === selectedCategory);
-    
-    list.forEach(p => {
-        const isOut = p.stock <= 0;
-        let discountBadge = ''; let oldPriceHtml = '';
-        
-        let hargaAktif = p.price;
-        let hargaCoret = null;
 
-        if (p.promoPrice && Number(p.promoPrice) < Number(p.price)) {
-            hargaAktif = Number(p.promoPrice);
-            hargaCoret = Number(p.price);
-        } else if (p.oldPrice && Number(p.oldPrice) > Number(p.price)) {
-            hargaAktif = Number(p.price);
-            hargaCoret = Number(p.oldPrice);
-        }
-
-        if (hargaCoret) {
-            const discountPercent = Math.round(((hargaCoret - hargaAktif) / hargaCoret) * 100);
-            discountBadge = `<span class="absolute top-2 left-2 bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-md shadow-sm z-10">${discountPercent}% OFF</span>`;
-            oldPriceHtml = `<span class="text-[10px] text-gray-400 line-through ml-1.5">Rp${hargaCoret.toLocaleString('id-ID')}</span>`;
-        }
-
-        const card = document.createElement('div');
-        card.className = "bg-white border border-gray-100 rounded-2xl p-3 flex flex-col justify-between shadow-sm relative";
-        card.innerHTML = `
-            <div>
-                <div onclick="openProductDetail(${p.id})" class="relative mb-2 bg-gray-50 rounded-xl overflow-hidden aspect-square cursor-pointer hover:scale-[1.02] transition duration-200">
-                    ${discountBadge}
-                    <img src="${p.img}" class="w-full h-full object-cover ${isOut ? 'grayscale opacity-50':''}">
-                </div>
-                <h4 onclick="openProductDetail(${p.id})" class="text-xs font-bold text-gray-800 line-clamp-2 cursor-pointer hover:text-green-600 transition">${p.name}</h4>
+        function renderProducts(filterData = null) {
+            const grid = document.getElementById('product-grid'); if (!grid) return; grid.innerHTML = '';
+            let list = filterData || products;
+            if (selectedCategory !== 'semua' && !filterData) list = list.filter(p => p.category === selectedCategory);
+            
+            list.forEach(p => {
+                const isOut = p.stock <= 0;
+                let discountBadge = ''; let oldPriceHtml = '';
                 
-                <div class="flex flex-wrap items-center justify-between gap-1 mt-1 text-[10px] text-gray-400">
-                    <span>${p.size || 'Pak'} | Stok: ${p.stock}</span>
-                    <span class="text-gray-500 font-medium bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100">Terjual ${p.sold || 0}+</span>
-                </div>
-            </div>
-            <div class="mt-2">
-                <div class="flex items-center flex-wrap">
-                    <span class="text-xs font-extrabold text-green-600">Rp${hargaAktif.toLocaleString('id-ID')}</span>
-                    ${oldPriceHtml}
-                </div> 
-                <button onclick="handleAddToCart(${p.id})" ${isOut ? 'disabled class="w-full mt-1 bg-gray-200 text-gray-400 py-1.5 rounded-xl text-[11px] font-bold cursor-not-allowed"':'class="w-full mt-1 bg-green-500 hover:bg-green-600 text-white py-1.5 rounded-xl text-[11px] font-bold btn-active transition"'}>Beli</button>
-            </div>
-        `;
-        grid.appendChild(card);
-    });
-         }
+                if (p.oldPrice && p.oldPrice > p.price) {
+                    const discountPercent = Math.round(((p.oldPrice - p.price) / p.oldPrice) * 100);
+                    discountBadge = `<span class="absolute top-2 left-2 bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-md shadow-sm z-10">${discountPercent}% OFF</span>`;
+                    oldPriceHtml = `<span class="text-[10px] text-gray-400 line-through ml-1.5">Rp${p.oldPrice.toLocaleString('id-ID')}</span>`;
+                }
+
+                const card = document.createElement('div');
+                card.className = "bg-white border border-gray-100 rounded-2xl p-3 flex flex-col justify-between shadow-sm relative";
+                card.innerHTML = `
+                    <div>
+                        <div class="relative mb-2 bg-gray-50 rounded-xl overflow-hidden aspect-square">
+                            ${discountBadge}
+                            <img src="${p.img}" class="w-full h-full object-cover ${isOut ? 'grayscale opacity-50':''}">
+                        </div>
+                        <h4 class="text-xs font-bold text-gray-800 line-clamp-2">${p.name}</h4>
+                        <p class="text-[10px] text-gray-400 mt-0.5">${p.size} | Stok: ${p.stock}</p>
+                    </div>
+                    <div class="mt-2">
+                        <div class="flex items-center flex-wrap">
+                            <span class="text-xs font-extrabold text-green-600">Rp${p.price.toLocaleString('id-ID')}</span>
+                            ${oldPriceHtml}
+                        </div>
+                        <button onclick="handleAddToCart(${p.id})" ${isOut ? 'disabled class="w-full mt-1 bg-gray-200 text-gray-400 py-1.5 rounded-xl text-[11px] font-bold cursor-not-allowed"':'class="w-full mt-1 bg-green-500 hover:bg-green-600 text-white py-1.5 rounded-xl text-[11px] font-bold btn-active transition"'}>Beli</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
 
         function filterCategory(cat) {
             selectedCategory = cat;
@@ -489,37 +408,10 @@
         }
 
         function handleAddToCart(id) {
-    // Ambil data produk langsung dari localStorage database agar akurat
-    const productsFromStorage = JSON.parse(localStorage.getItem('segari_products')) || products;
-    const prod = productsFromStorage.find(p => p.id === id); 
-    
-    if (!prod || prod.stock <= 0) return;
-    
-    // Tentukan harga final & harga coret untuk disuntikkan ke keranjang konsumen
-    let hargaFinal = prod.price;
-    let hargaCoretAsli = prod.oldPrice || null;
-
-    if (prod.promoPrice && Number(prod.promoPrice) < Number(prod.price)) {
-        hargaFinal = Number(prod.promoPrice);
-        hargaCoretAsli = Number(prod.price);
-    }
-
-    const idx = cart.findIndex(i => i.id === id);
-    if (idx > -1) { 
-        if (cart[idx].qty >= prod.stock) return; 
-        cart[idx].qty++; 
-    } else { 
-        // Masukkan item dengan struktur harga diskon toko ter-update
-        cart.push({ 
-            ...prod, 
-            price: hargaFinal, 
-            oldPrice: hargaCoretAsli, 
-            qty: 1 
-        }); 
-    }
-    
-    showToast(`${prod.name} masuk keranjang!`); 
-    updateCartCount();
+            const prod = products.find(p => p.id === id); if (!prod || prod.stock <= 0) return;
+            const idx = cart.findIndex(i => i.id === id);
+            if (idx > -1) { if (cart[idx].qty >= prod.stock) return; cart[idx].qty++; } else { cart.push({ ...prod, qty: 1 }); }
+            showToast(`${prod.name} masuk keranjang!`); updateCartCount();
         }
 
         function updateCartCount() {
@@ -528,81 +420,53 @@
         }
 
         function renderCartItems() {
-    const act = document.getElementById('cart-active-state'); 
-    const emp = document.getElementById('empty-cart-state');
-    const container = document.getElementById('cart-items-list');
-    
-    if (cart.length === 0) { 
-        act.classList.add('hidden'); 
-        emp.classList.remove('hidden'); 
-        return; 
-    }
-    
-    emp.classList.add('hidden'); 
-    act.classList.remove('hidden'); 
-    container.innerHTML = '';
-    
-    let totalOriginal = 0; // Menampung harga asli sebelum promo/diskon toko
-    let totalDiscount = 0; // Menampung nominal uang yang berhasil dihemat
-    let totalPayment = 0;  // Menampung harga promo aktif yang harus dibayar
-    
-    cart.forEach((item, index) => {
-        // Deteksi harga asli sebelum dipotong promo toko (jika tidak ada oldPrice, gunakan price normal)
-        const originalUnitPrice = (item.oldPrice && item.oldPrice > item.price) ? item.oldPrice : item.price;
-        
-        // Akumulasikan total berdasarkan kuantitas (qty) item belanjaan
-        totalOriginal += originalUnitPrice * item.qty;
-        totalDiscount += (originalUnitPrice - item.price) * item.qty;
-        totalPayment += item.price * item.qty;
-        
-        // Tampilan harga coret per item di list barisan produk keranjang
-        let itemOldPriceHtml = '';
-        if (item.oldPrice && item.oldPrice > item.price) {
-            itemOldPriceHtml = `<span class="text-[10px] text-gray-400 line-through">Rp${(item.oldPrice * item.qty).toLocaleString('id-ID')}</span>`;
-        }
+            const act = document.getElementById('cart-active-state'); const emp = document.getElementById('empty-cart-state');
+            const container = document.getElementById('cart-items-list');
+            if (cart.length === 0) { act.classList.add('hidden'); emp.classList.remove('hidden'); return; }
+            emp.classList.add('hidden'); act.classList.remove('hidden'); container.innerHTML = '';
+            
+            let sub = 0;
+            cart.forEach((item, index) => {
+                sub += item.price * item.qty;
+                const div = document.createElement('div');
+                div.className = "flex items-center gap-3 bg-white p-3 rounded-2xl border border-gray-100";
+                div.innerHTML = `
+                    <img src="${item.img}" class="w-12 h-12 object-cover rounded-xl">
+                    <div class="flex-grow"><h4 class="text-xs font-bold text-gray-800">${item.name}</h4><p class="text-xs font-black text-green-600">Rp${(item.price * item.qty).toLocaleString('id-ID')}</p></div>
+                    <div class="flex items-center gap-2 bg-gray-50 p-1 rounded-xl">
+                        <button onclick="changeQty(${index}, -1)" class="w-5 h-5 bg-white rounded font-bold text-xs">-</button>
+                        <span class="text-xs font-bold">${item.qty}</span>
+                        <button onclick="changeQty(${index}, 1)" class="w-5 h-5 bg-white rounded font-bold text-xs">+</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
 
-        const div = document.createElement('div');
-        div.className = "flex items-center gap-3 bg-white p-3 rounded-2xl border border-gray-100";
-        div.innerHTML = `
-            <img src="${item.img}" class="w-12 h-12 object-cover rounded-xl border border-gray-50">
-            <div class="flex-grow">
-                <h4 class="text-xs font-bold text-gray-800 line-clamp-1">${item.name}</h4>
-                <div class="flex items-center gap-1.5 mt-0.5">
-                    <span class="text-xs font-black text-green-600">Rp${(item.price * item.qty).toLocaleString('id-ID')}</span>
-                    ${itemOldPriceHtml}
-                </div>
-            </div>
-            <div class="flex items-center gap-2 bg-gray-50 p-1 rounded-xl shrink-0">
-                <button onclick="changeQty(${index}, -1)" class="w-5 h-5 bg-white rounded font-bold text-xs btn-active flex items-center justify-center border border-gray-100 shadow-2xs">-</button>
-                <span class="text-xs font-bold px-0.5">${item.qty}</span>
-                <button onclick="changeQty(${index}, 1)" class="w-5 h-5 bg-white rounded font-bold text-xs btn-active flex items-center justify-center border border-gray-100 shadow-2xs">+</button>
-            </div>
-        `;
-        container.appendChild(div);
-    });
-    
-    // 1. Suntikkan Data Harga Sebelum Promo ke UI HTML
-    document.getElementById('price-subtotal').innerText = `Rp${totalOriginal.toLocaleString('id-ID')}`;
-    
-    // 2. Suntikkan Data & Hitung Persentase Diskon Gabungan Keranjang
-    const discountRow = document.getElementById('discount-row');
-    const discountBadge = document.getElementById('discount-percentage-badge');
-    
-    if (totalDiscount > 0) {
-        discountRow.classList.remove('hidden');
-        document.getElementById('price-discount').innerText = `-Rp${totalDiscount.toLocaleString('id-ID')}`;
-        
-        // Rumus matematika mencari rata-rata % diskon total isi keranjang: (Total Diskon / Total Harga Asli) * 100
-        const totalPercent = Math.round((totalDiscount / totalOriginal) * 100);
-        if (discountBadge) {
-            discountBadge.innerText = `${totalPercent}% OFF`;
-        }
-    } else {
-        discountRow.classList.add('hidden'); // Sembunyikan baris diskon jika produk tidak ada yang promo
-    }
-    
-    // 3. Suntikkan Uang Akhir Net yang Wajib Dibayar Konsumen
-    document.getElementById('price-total').innerText = `Rp${totalPayment.toLocaleString('id-ID')}`;
+            // VALIDASI ULANG VOUCHER SECARA LIVE SAAT JUMLAH ITEM BERUBAH
+            if (activeVoucherCode) {
+                const dbVouchers = JSON.parse(localStorage.getItem('segari_vouchers')) || [];
+                const currentVoucher = dbVouchers.find(v => v.code === activeVoucherCode && v.status === "Aktif");
+                
+                if (currentVoucher && sub >= currentVoucher.minPrice) {
+                    voucherDiscountAmount = currentVoucher.discount;
+                    document.getElementById('discount-row').classList.remove('hidden');
+                    document.getElementById('price-discount').innerText = `-Rp${voucherDiscountAmount.toLocaleString('id-ID')}`;
+                } else {
+                    activeVoucherCode = null;
+                    voucherDiscountAmount = 0;
+                    document.getElementById('discount-row').classList.add('hidden');
+                    document.getElementById('voucher-message').classList.add('hidden');
+                    if (currentVoucher) {
+                        showToast(`Voucher dilepas! Min. belanja kurang dari Rp${currentVoucher.minPrice.toLocaleString('id-ID')}`);
+                    }
+                }
+            } else {
+                document.getElementById('discount-row').classList.add('hidden');
+            }
+
+            let finalTotal = Math.max(0, sub - voucherDiscountAmount);
+            document.getElementById('price-subtotal').innerText = `Rp${sub.toLocaleString('id-ID')}`;
+            document.getElementById('price-total').innerText = `Rp${finalTotal.toLocaleString('id-ID')}`;
         }
 
         function changeQty(index, amt) {
@@ -683,101 +547,49 @@
         }
 
         function processCheckout() {
-    if (!activeUser || (activeUser.role !== 'Pembeli' && activeUser.role !== 'Konsumen')) { 
-        alert("Wajib login akun Pembeli untuk memesan!"); redirectToLogin(); return; 
-    }
-    if (cart.length === 0) return;
-    
-    // 1. KURANGI STOK PRODUK (DENGAN PROTEKSI TIPE DATA ID)
-    let masterProducts = JSON.parse(localStorage.getItem('segari_products')) || defaultProducts;
-    cart.forEach(item => { 
-        // Menggunakan String() agar pencarian ID antara teks dan angka tidak miss (menghindari bug angka 0)
-        let p = masterProducts.find(mp => String(mp.id) === String(item.id)); 
-        if(p) p.stock = Math.max(0, p.stock - Number(item.qty)); 
-    });
-    localStorage.setItem('segari_products', JSON.stringify(masterProducts));
-
-    // 2. PROSES PENCATATAN TRANSAKSI BARU
-    const currentOrders = JSON.parse(localStorage.getItem('segari_orders')) || [];
-    const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
-    const chosenSlot = document.querySelector('input[name="shipping-slot"]:checked')?.value || "Pagi (06:00 - 09:00)";
-    const currentAddress = localStorage.getItem('segari_address') || "Rumah Utama";
-    
-    let finalPayment = Math.max(0, subtotal - voucherDiscountAmount);
-
-    const newOrder = {
-        id: "SGR-" + Math.floor(1000 + Math.random() * 9000),
-        user: activeUser.username,
-        items: [...cart], 
-        subtotal: subtotal,
-        discount: voucherDiscountAmount,
-        voucherUsed: activeVoucherCode,
-        total: finalPayment,
-        slot: chosenSlot,
-        address: currentAddress,
-        status: "Diproses",
-        date: new Date().toLocaleDateString('id-ID')
-    };
-    
-    currentOrders.push(newOrder);
-    localStorage.setItem('segari_orders', JSON.stringify(currentOrders));
-    
-    // 3. REKAP TOTAL TERJUAL LANGSUNG DARI SELURUH TRANSAKSI
-    syncSoldFromOrders();
-    
-    // RESET SETELAH ORDER
-    cart = []; activeVoucherCode = null; voucherDiscountAmount = 0;
-    if(document.getElementById('voucher-input')) document.getElementById('voucher-input').value = '';
-    if(document.getElementById('voucher-message')) document.getElementById('voucher-message').classList.add('hidden');
-    
-    updateCartCount(); 
-    showToast("Pesanan berhasil diproses!"); 
-    switchTab('tracking');
-}
-        function syncSoldFromOrders() {
-    // Ambil database produk dan database order/transaksi
-    let masterProducts = JSON.parse(localStorage.getItem('segari_products')) || defaultProducts;
-    let currentOrders = JSON.parse(localStorage.getItem('segari_orders')) || [];
-    
-    // Buat objek kamus kosong untuk memetakan hitungan: { "ID_PRODUK": TOTAL_TERJUAL }
-    const soldMap = {};
-    
-    // Iterasi/Looping setiap struk transaksi yang ada
-    currentOrders.forEach(order => {
-        // Abaikan transaksi jika statusnya "Dibatalkan" (Opsional, jika Anda punya fitur cancel)
-        if (order.status === "Dibatalkan") return;
-
-        order.items.forEach(item => {
-            const itemId = String(item.id); // Paksa ID menjadi String demi keamanan data
-            if (soldMap[itemId]) {
-                soldMap[itemId] += Number(item.qty);
-            } else {
-                soldMap[itemId] = Number(item.qty);
+            if (!activeUser || (activeUser.role !== 'Pembeli' && activeUser.role !== 'Konsumen')) { 
+                alert("Wajib login akun Pembeli untuk memesan!"); redirectToLogin(); return; 
             }
-        });
-    });
-    
-    // Masukkan hasil hitungan rekap transaksi ke dalam master data produk
-    const updatedProducts = masterProducts.map(p => {
-        const pId = String(p.id);
-        return {
-            ...p,
-            sold: soldMap[pId] || 0 // Jika ada di histori transaksi pasang nilainya, jika tidak ada set ke 0
-        };
-    });
-    
-    // Simpan kembali database produk terbaru ke localStorage
-    localStorage.setItem('segari_products', JSON.stringify(updatedProducts));
-    
-    // Segarkan tampilan produk di screen pembeli secara real-time
-    if (typeof renderProducts === "function") {
-        renderProducts(updatedProducts);
-    }
+            if (cart.length === 0) return;
+            
+            let masterProducts = JSON.parse(localStorage.getItem('segari_products')) || defaultProducts;
+            cart.forEach(item => { 
+                let p = masterProducts.find(mp => mp.id === item.id); 
+                if(p) p.stock = Math.max(0, p.stock - item.qty); 
+            });
+            localStorage.setItem('segari_products', JSON.stringify(masterProducts));
+
+            const currentOrders = JSON.parse(localStorage.getItem('segari_orders')) || [];
+            const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
+            const chosenSlot = document.querySelector('input[name="shipping-slot"]:checked')?.value || "Pagi (06:00 - 09:00)";
+            const currentAddress = localStorage.getItem('segari_address') || "Rumah Utama";
+            
+            let finalPayment = Math.max(0, subtotal - voucherDiscountAmount);
+
+            const newOrder = {
+                id: "SGR-" + Math.floor(1000 + Math.random() * 9000),
+                user: activeUser.username,
+                items: [...cart], 
+                subtotal: subtotal,
+                discount: voucherDiscountAmount,
+                voucherUsed: activeVoucherCode,
+                total: finalPayment,
+                slot: chosenSlot,
+                address: currentAddress,
+                status: "Diproses",
+                date: new Date().toLocaleDateString('id-ID')
+            };
+            
+            currentOrders.push(newOrder);
+            localStorage.setItem('segari_orders', JSON.stringify(currentOrders));
+            
+            // RESET SETELAH ORDER
+            cart = []; activeVoucherCode = null; voucherDiscountAmount = 0;
+            if(document.getElementById('voucher-input')) document.getElementById('voucher-input').value = '';
+            if(document.getElementById('voucher-message')) document.getElementById('voucher-message').classList.add('hidden');
+            
+            updateCartCount(); showToast("Pesanan berhasil diproses!"); switchTab('tracking');
         }
-        // Memastikan data terjual langsung dihitung berdasarkan histori transaksi saat web dibuka
-document.addEventListener("DOMContentLoaded", function() {
-    syncSoldFromOrders(); 
-});
 
         function startFlashSaleTimer() {
             let hours = 2, minutes = 14, seconds = 45;
@@ -842,349 +654,40 @@ document.addEventListener("DOMContentLoaded", function() {
             }, 1000);
         }
 
+        function renderChatView() {
+            const loggedOut = document.getElementById('chat-logged-out'); const loggedIn = document.getElementById('chat-logged-in');
+            if (!loggedOut || !loggedIn) return;
+            if (!activeUser) { loggedOut.classList.remove('hidden'); loggedIn.classList.add('hidden'); return; }
+            loggedOut.classList.add('hidden'); loggedIn.classList.remove('hidden');
 
-/**
- * 1. FUNGSI UTAMA: Membuka Detail Produk & Menghubungkan ke Toko Pemilik
- */
-function openProductDetail(id) {
-    // Ambil data produk dari localStorage atau fallback ke array master 'products'
-    const productsFromStorage = JSON.parse(localStorage.getItem('segari_products')) || (typeof products !== 'undefined' ? products : []);
-    const prod = productsFromStorage.find(p => p.id === id);
-    if (!prod) return;
-
-    // Skema Perhitungan Harga Aktif vs Harga Coret (Diskon)
-    let hargaAktif = prod.price;
-    let hargaCoret = null;
-    if (prod.promoPrice && Number(prod.promoPrice) < Number(prod.price)) {
-        hargaAktif = Number(prod.promoPrice);
-        hargaCoret = Number(prod.price);
-    } else if (prod.oldPrice && Number(prod.oldPrice) > Number(prod.price)) {
-        hargaAktif = Number(prod.price);
-        hargaCoret = Number(prod.oldPrice);
-    }
-
-    // Suntik Data Utama ke Elemen Modal HTML sesuai ID Anda
-    document.getElementById('detail-category').innerText = prod.category || 'Sayur';
-    document.getElementById('detail-img').src = prod.img;
-    document.getElementById('detail-name').innerText = prod.name;
-    document.getElementById('detail-size').innerText = prod.size || 'Pak';
-    document.getElementById('detail-stock').innerText = `Stok: ${prod.stock}`;
-    document.getElementById('detail-sold').innerText = `Terjual ${prod.sold || 0}+ produk`;
-    document.getElementById('detail-desc').innerText = prod.desc || `Dapatkan kualitas ${prod.name} terbaik dan segar langsung dari mitra tani terpercaya kami.`;
-    document.getElementById('detail-price').innerText = `Rp${hargaAktif.toLocaleString('id-ID')}`;
-
-    // Atur Badge Diskon Red % OFF & Harga Coret
-    const badgeContainer = document.getElementById('detail-discount-badge');
-    const oldPriceEl = document.getElementById('detail-old-price');
-    
-    if (hargaCoret) {
-        const percent = Math.round(((hargaCoret - hargaAktif) / hargaCoret) * 100);
-        badgeContainer.innerHTML = `<span class="absolute top-3 left-3 bg-red-500 text-white text-[11px] font-black px-2 py-0.5 rounded-md shadow z-10">${percent}% OFF</span>`;
-        oldPriceEl.innerText = `Rp${hargaCoret.toLocaleString('id-ID')}`;
-        oldPriceEl.classList.remove('hidden');
-    } else {
-        badgeContainer.innerHTML = '';
-        oldPriceEl.classList.add('hidden');
-    }
-
-    // --- INTEGRASI CHAT ROOM TERISOLASI KE TOKO PEMILIK ---
-    const namaTokoPemilik = prod.shop || "Toko Segari Pusat"; 
-    const chatBtn = document.getElementById('detail-chat-btn');
-    if (chatBtn) {
-        chatBtn.onclick = function() {
-            inisialisasiChatProduk(namaTokoPemilik, prod.name);
-            closeProductDetail(); // Tutup modal setelah berpindah halaman
-        };
-    }
-
-    // Atur Tombol Aksi Dinamis (Beli vs Habis) di bagian Kanan Bawah
-    const actionBtnContainer = document.getElementById('detail-action-button');
-    const isOut = prod.stock <= 0;
-    if (isOut) {
-        actionBtnContainer.innerHTML = `
-            <button disabled class="w-full bg-gray-200 text-gray-400 py-2 rounded-xl text-xs font-bold cursor-not-allowed">
-                Habis
-            </button>`;
-    } else {
-        actionBtnContainer.innerHTML = `
-            <button onclick="handleAddToCart(${prod.id}); closeProductDetail();" class="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded-xl text-xs font-bold btn-active transition shadow-md shadow-green-100">
-                Beli Sekarang
-            </button>`;
-    }
-
-    // Eksekusi Efek Animasi Fade-In & Slide-Up Modal (Sesuai utility class CSS Anda)
-    const modal = document.getElementById('product-detail-modal');
-    const content = document.getElementById('modal-content');
-    
-    modal.classList.remove('hidden');
-    setTimeout(() => {
-        modal.classList.remove('opacity-0');
-        content.classList.remove('translate-y-full');
-    }, 10);
-}
-
-/**
- * 2. FUNGSI UTAMA: Menutup Detail Produk dengan Animasi Smooth Smooth Fade-Out
- */
-function closeProductDetail() {
-    const modal = document.getElementById('product-detail-modal');
-    const content = document.getElementById('modal-content');
-    
-    modal.classList.add('opacity-0');
-    content.classList.add('translate-y-full');
-    
-    // Tunggu durasi transisi (300ms) selesai baru sembunyikan total dari layar display
-    setTimeout(() => {
-        modal.classList.add('hidden');
-    }, 300);
-}
-
-// ================= STATE GLOBAL APPLIKASI =================
-let activeChatShop = null; 
-
-/**
- * UTILITY KUNCI: Membersihkan nama toko dari spasi liar di awal/akhir
- * untuk mencegah "Toko A " dan "Toko A" dianggap sebagai toko yang berbeda.
- */
-function bersihkanNamaToko(nama) {
-    if (!nama) return "Toko Segari Pusat";
-    return nama.trim(); // Menghapus spasi gaib di depan dan belakang string
-}
-
-/**
- * 1. FUNGSI JEMBATAN: Dipicu saat konsumen klik "Chat" di Modal Detail Produk
- */
-function inisialisasiChatProduk(namaToko, namaProduk) {
-    if (!activeUser) {
-        alert("Silakan login terlebih dahulu untuk memulai chat dengan toko!");
-        if (typeof switchTab === "function") switchTab('profile');
-        return;
-    }
-    
-    // Kunci target toko dengan aman (sudah dibersihkan)
-    activeChatShop = bersihkanNamaToko(namaToko);
-    
-    // Alihkan halaman ke tab chat bawaan aplikasi Anda
-    if (typeof switchTab === "function") {
-        switchTab('chat');
-    }
-    
-    // Isi otomatis kotak input dengan draf teks produk terkait
-    setTimeout(() => {
-        const inputField = document.getElementById('chat-text-input');
-        if (inputField) {
-            inputField.value = `Halo ${activeChatShop}, apakah produk *${namaProduk}* ready?`;
-            inputField.focus();
-        }
-    }, 50);
-    
-    renderChatView();
-}
-
-/**
- * 2. FUNGSI UTAMA: Render Tampilan Chat (Pemisah Mode Inbox & Ruang Chat Toko)
- */
-function renderChatView() {
-    const loggedOut = document.getElementById('chat-logged-out'); 
-    const loggedIn = document.getElementById('chat-logged-in');
-    if (!loggedOut || !loggedIn) return;
-    
-    if (!activeUser) { 
-        loggedOut.classList.remove('hidden'); 
-        loggedIn.classList.add('hidden'); 
-        return; 
-    }
-    loggedOut.classList.add('hidden'); 
-    loggedIn.classList.remove('hidden');
-
-    const chatBox = document.getElementById('chat-box'); 
-    if (!chatBox) return;
-    
-    // Ambil data mentah dari localStorage
-    const rawChats = JSON.parse(localStorage.getItem('segari_chats')) || [];
-    
-    // VALIDASI PERTAMA: Pastikan semua data memiliki format toko yang bersih
-    const chats = rawChats.map(c => ({
-        ...c,
-        shop: bersihkanNamaToko(c.shop)
-    }));
-
-    // ================= KONDISI A: MODE INBOX (Daftar Semua Toko) =================
-    if (!activeChatShop) {
-        aturVisibilitasInputChat(false);
-
-        const chatTitleEl = document.getElementById('chat-header-title');
-        if (chatTitleEl) {
-            chatTitleEl.innerText = "📥 Kotak Masuk Chat";
-        }
-
-        // FILTER 1: Hanya ambil chat milik user yang sedang aktif login saat ini
-        const userChats = chats.filter(c => c.user === activeUser.username);
-        
-        // FILTER 2: Dapatkan list nama-nama toko unik secara presisi
-        const daftarTokoUnik = [...new Set(userChats.map(c => c.shop))].filter(Boolean);
-
-        if (daftarTokoUnik.length === 0) {
-            chatBox.innerHTML = `
-                <div class="flex flex-col justify-center items-center h-48 text-center p-4">
-                    <p class="text-xs text-gray-400 font-medium">Belum ada riwayat obrolan</p>
-                    <p class="text-[10px] text-gray-300 mt-1">Silakan klik tombol Chat pada detail produk toko untuk memulai pesan.</p>
-                </div>`;
-            return;
-        }
-
-        // Render daftar list inbox toko
-        chatBox.innerHTML = daftarTokoUnik.map(namaToko => {
-            // Tarik baris pesan khusus toko ini saja untuk mencari baris pesan terakhir
-            const chatPerToko = userChats.filter(c => c.shop === namaToko);
-            const pesanTerakhir = chatPerToko[chatPerToko.length - 1];
-            const awalan = pesanTerakhir.sender === 'user' ? 'Anda: ' : 'Toko: ';
-
-            return `
-                <div onclick="bukaRuangChatSpesifik('${namaToko}')" class="p-3 bg-gray-50 border border-gray-100 rounded-xl flex items-center justify-between hover:bg-green-50 transition cursor-pointer mb-2">
-                    <div class="flex items-center gap-2.5 min-w-0 flex-1">
-                        <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-xs font-bold text-green-700 shrink-0">🏪</div>
-                        <div class="min-w-0 flex-1">
-                            <h4 class="text-xs font-black text-gray-800 truncate">${namaToko}</h4>
-                            <p class="text-[10px] text-gray-400 truncate mt-0.5">${awalan}${pesanTerakhir.text}</p>
-                        </div>
-                    </div>
-                    <span class="text-[10px] text-green-600 font-bold ml-2 shrink-0">&rarr;</span>
-                </div>`;
-        }).join('');
-    } 
-    // ================= KONDISI B: MODE ROOM CHAT (Obrolan Toko Terpilih) =================
-    else {
-        aturVisibilitasInputChat(true);
-
-        const chatTitleEl = document.getElementById('chat-header-title');
-        if (chatTitleEl) {
-            chatTitleEl.innerText = `🏪 ${activeChatShop}`;
-        }
-
-        // FILTER TOTAL: Hanya tampilkan jika (.user MATCH) DAN (.shop MATCH) secara absolut
-        const filteredChats = chats.filter(c => 
-            c.user === activeUser.username && 
-            c.shop === activeChatShop
-        );
-        
-        let roomHTML = `
-            <div class="flex items-center justify-between border-b border-gray-100 pb-2 mb-3 bg-white sticky top-0 z-10">
-                <div class="flex items-center gap-1.5">
-                    <span class="text-xs font-black text-gray-700">Room: ${activeChatShop}</span>
-                </div>
-                <button onclick="kembaliKeInboxToko()" class="text-[9px] font-bold text-gray-400 hover:text-gray-600 bg-gray-100 px-2 py-0.5 rounded-md transition">&larr; Kembali</button>
-            </div>`;
-
-        if (filteredChats.length === 0) {
-            roomHTML += `<p class="text-[11px] text-gray-400 text-center my-auto py-8">Kirim pesan untuk memulai obrolan dengan ${activeChatShop}</p>`;
-        } else {
-            roomHTML += filteredChats.map(c => {
-                const isMe = c.sender === 'user';
-                return `
-                    <div class="flex ${isMe ? 'justify-end' : 'justify-start'} mb-1">
-                        <div class="${isMe ? 'bg-green-500 text-white rounded-br-none' : 'bg-white border border-gray-100 text-gray-800 rounded-bl-none'} max-w-[80%] p-2.5 rounded-xl text-xs shadow-2xs break-words">
-                            ${c.text}
-                        </div>
-                    </div>`;
-            }).join('');
-        }
-
-        chatBox.innerHTML = roomHTML;
-        chatBox.scrollTop = chatBox.scrollHeight;
-    }
-}
-
-/**
- * 3. FUNGSI EKSEKUSI: Kirim Chat ke Pemilik Toko Tertentu
- */
-function sendChatToMerchant() {
-    const input = document.getElementById('chat-text-input'); 
-    const text = input.value.trim(); 
-    if (!text || !activeUser) return;
-    
-    if (!activeChatShop) {
-        alert("Silakan pilih toko terlebih dahulu melalui produk atau kotak masuk!");
-        return;
-    }
-
-    const chats = JSON.parse(localStorage.getItem('segari_chats')) || [];
-    const tokoTerkunci = bersihkanNamaToko(activeChatShop);
-    
-    // Rekam data baru dengan properti toko yang sudah dibersihkan
-    chats.push({ 
-        user: activeUser.username, 
-        shop: tokoTerkunci, 
-        sender: 'user', 
-        text: text 
-    });
-    
-    localStorage.setItem('segari_chats', JSON.stringify(chats)); 
-    input.value = ''; 
-    renderChatView();
-    
-    // Simulasi Balasan Bot yang terkunci erat pada Toko terkait
-    // Di dalam setTimeout pada fungsi sendChatToMerchant
-setTimeout(() => {
-    const updatedChats = JSON.parse(localStorage.getItem('segari_chats')) || [];
-    
-    // Cek apakah user masih berada di toko yang sama saat bot selesai membalas
-    if (activeChatShop === tokoTerkunci) {
-        updatedChats.push({ 
-            user: activeUser.username, 
-            shop: tokoTerkunci, 
-            sender: 'merchant', 
-            text: `Halo! Terima kasih telah menghubungi ${tokoTerkunci}. Pesan Anda sudah kami terima.` 
-        });
-        localStorage.setItem('segari_chats', JSON.stringify(updatedChats)); 
-        renderChatView(); // Render hanya jika user masih di toko tersebut
-    } else {
-        // Jika user sudah pindah toko, pesan tetap masuk ke DB tapi tidak perlu re-render
-        updatedChats.push({ /* ... isi sama ... */ });
-        localStorage.setItem('segari_chats', JSON.stringify(updatedChats));
-    }
-}, 1200);
-}
-
-/**
- * 4. UTILITY NAVIGASI HELPERS
- */
-function kembaliKeInboxToko() {
-    activeChatShop = null; // Menghapus kunci toko mengembalikan view ke mode List Inbox
-    renderChatView();
-}
-
-function bukaRuangChatSpesifik(namaToko) {
-    // 1. Bersihkan nama toko agar konsisten
-    const tokoBersih = bersihkanNamaToko(namaToko);
-    
-    // 2. Set state aktif
-    activeChatShop = tokoBersih;
-    
-    // 3. Render ulang tampilan agar berubah menjadi mode Ruang Chat
-    renderChatView();
-    
-    // 4. Fokuskan input agar user bisa langsung mengetik
-    setTimeout(() => {
-        const input = document.getElementById('chat-text-input');
-        if (input) input.focus();
-    }, 100);
-}
-
-function aturVisibilitasInputChat(tampilkan) {
-    const inputField = document.getElementById('chat-text-input');
-    if (inputField && inputField.parentElement) {
-        if (tampilkan) {
-            inputField.parentElement.classList.remove('hidden');
-            inputField.parentElement.classList.add('flex');
-        } else {
-            inputField.parentElement.classList.remove('flex');
-            inputField.parentElement.classList.add('hidden');
-        }
-    }
-}
-    
+            const chatBox = document.getElementById('chat-box'); chatBox.innerHTML = '';
+            const chats = JSON.parse(localStorage.getItem('segari_chats')) || [];
+            const userChats = chats.filter(c => c.user === activeUser.username);
             
+            if(userChats.length === 0) {
+                chatBox.innerHTML = `<p class="text-[11px] text-gray-400 text-center my-auto">Belum ada pesan. Kirim pesan ke penjual...</p>`;
+                return;
+            }
+            userChats.forEach(c => {
+                const div = document.createElement('div');
+                div.className = c.sender === 'user' ? "bg-green-500 text-white rounded-xl p-2.5 text-xs self-end max-w-[80%] my-0.5" : "bg-white border border-gray-100 rounded-xl p-2.5 text-xs self-start max-w-[80%] text-gray-800 shadow-sm my-0.5";
+                div.innerText = c.text; chatBox.appendChild(div);
+            });
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function sendChatToMerchant() {
+            const input = document.getElementById('chat-text-input'); const text = input.value.trim(); if (!text || !activeUser) return;
+            const chats = JSON.parse(localStorage.getItem('segari_chats')) || [];
+            chats.push({ user: activeUser.username, sender: 'user', text: text });
+            localStorage.setItem('segari_chats', JSON.stringify(chats)); input.value = ''; renderChatView();
+            
+            setTimeout(() => {
+                const updatedChats = JSON.parse(localStorage.getItem('segari_chats')) || [];
+                updatedChats.push({ user: activeUser.username, sender: 'merchant', text: "Halo! Toko kami sedang menyiapkan produk pesanan Anda." });
+                localStorage.setItem('segari_chats', JSON.stringify(updatedChats)); renderChatView();
+            }, 1500);
+        }
 
         function renderTrackingView() {
             const noOrder = document.getElementById('no-order-state'); const activeOrder = document.getElementById('active-order-state');
