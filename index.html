@@ -1134,50 +1134,28 @@ function aturVisibilitasInputChat(tampilkan) {
 /**
  * Pastikan saat kirim pesan, chat tersimpan dengan benar
  */
-function sendChatToMerchant() {
-    const input = document.getElementById('chat-text-input'); 
-    const text = input.value.trim(); 
-    
-    // Validasi ketat
-    if (!text || !activeUser || !activeChatShop) return;
-    
-    const rawChats = localStorage.getItem('segari_chats');
-    const chats = rawChats ? JSON.parse(rawChats) : [];
-    
-    // Tambah pesan baru
-    chats.push({ 
-        user: activeUser.username, 
-        shop: activeChatShop, // Menggunakan variabel global yang sudah dibersihkan
-        sender: 'user', 
-        text: text,
-        timestamp: new Date().toISOString() // Sangat disarankan menambah timestamp
-    });
-    
-    localStorage.setItem('segari_chats', JSON.stringify(chats)); 
-    input.value = ''; 
-    
-    // Refresh tampilan
-    renderChatView();
-    
-    // Simulasi Balasan Bot
-    setTimeout(() => {
-        const currentChats = JSON.parse(localStorage.getItem('segari_chats') || '[]');
-        currentChats.push({ 
-            user: activeUser.username, 
-            shop: activeChatShop, 
-            sender: 'merchant', 
-            text: `Halo! Kami dari ${activeChatShop}, pesan Anda sudah diterima.`,
-            timestamp: new Date().toISOString()
-        });
-        localStorage.setItem('segari_chats', JSON.stringify(currentChats)); 
-        
-        // Cek apakah user masih di room yang sama sebelum render ulang
-        if (activeChatShop) {
-            renderChatView();
-        }
-    }, 1000);
-}
 
+// Pastikan activeChatShop sudah terisi nama toko yang diklik
+function sendChatToMerchant() {
+    const input = document.getElementById('chat-text-input');
+    const text = input.value.trim();
+    if (!text || !activeUser || !activeChatShop) return;
+
+    let chats = JSON.parse(localStorage.getItem('segari_chats')) || [];
+    
+    // Simpan pesan dengan properti 'shop' yang konsisten
+    chats.push({
+        user: activeUser.username,
+        shop: activeChatShop, // Kunci toko yang dituju
+        sender: 'user',
+        text: text,
+        time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+    });
+
+    localStorage.setItem('segari_chats', JSON.stringify(chats));
+    input.value = '';
+    renderChatView(); // Render ulang tampilan chat pembeli
+}
 
         function renderTrackingView() {
             const noOrder = document.getElementById('no-order-state'); const activeOrder = document.getElementById('active-order-state');
