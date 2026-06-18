@@ -199,9 +199,10 @@
                 </div>
                 <button onclick="redirectToLogin()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2.5 rounded-xl text-xs transition btn-active">Masuk / Daftar Akun</button>
             </div>
-            <div id="chat-logged-in" class="space-y-4 hidden flex flex-col">
-                <div id="chat-box" class="space-y-3 max-h-[50vh] overflow-y-auto no-scrollbar border border-gray-50 rounded-2xl bg-gray-50 p-3 min-h-[320px] flex flex-col"></div>
-                <div class="flex gap-2 pt-2 border-t border-gray-100">
+            <div id="chat-logged-in" class="space-y-4 hidden flex flex-col h-full">
+                <div id="chat-box" class="space-y-3 flex-grow max-h-[50vh] overflow-y-auto no-scrollbar border border-gray-50 rounded-2xl bg-gray-50 p-3 min-h-[320px] flex flex-col"></div>
+                
+                <div id="chat-input-container" class="flex gap-2 pt-2 border-t border-gray-100 hidden">
                     <input type="text" id="chat-text-input" onkeydown="if(event.key === 'Enter') sendChatToMerchant()" placeholder="Tulis pesan ke penjual..." class="flex-grow px-3 py-2 bg-gray-50 text-xs rounded-xl border-none text-gray-800 focus:outline-none focus:ring-1 focus:ring-green-500">
                     <button onclick="sendChatToMerchant()" class="bg-green-600 text-white p-2 rounded-xl btn-active flex items-center justify-center"><i data-lucide="send" class="w-4 h-4"></i></button>
                 </div>
@@ -1101,48 +1102,7 @@ function renderChatView() {
 /**
  * 3. FUNGSI EKSEKUSI: Kirim Chat ke Pemilik Toko Tertentu
  */
-function sendChatToMerchant() {
-    const input = document.getElementById('chat-text-input'); 
-    const text = input.value.trim(); 
-    if (!text || !activeUser) return;
-    
-    if (!activeChatShop) {
-        alert("Silakan pilih toko terlebih dahulu melalui produk atau kotak masuk!");
-        return;
-    }
 
-    const chats = JSON.parse(localStorage.getItem('segari_chats')) || [];
-    const tokoTerkunci = bersihkanNamaToko(activeChatShop);
-    
-    // Rekam data baru dengan properti toko yang sudah dibersihkan
-    chats.push({ 
-        user: activeUser.username, 
-        shop: tokoTerkunci, 
-        sender: 'user', 
-        text: text 
-    });
-    
-    localStorage.setItem('segari_chats', JSON.stringify(chats)); 
-    input.value = ''; 
-    renderChatView();
-    
-    // Simulasi Balasan Bot yang terkunci erat pada Toko terkait
-    setTimeout(() => {
-        const updatedChats = JSON.parse(localStorage.getItem('segari_chats')) || [];
-        updatedChats.push({ 
-            user: activeUser.username, 
-            shop: tokoTerkunci, 
-            sender: 'merchant', 
-            text: `Halo! Terima kasih telah menghubungi ${tokoTerkunci}. Pesan Anda sudah kami terima.` 
-        });
-        localStorage.setItem('segari_chats', JSON.stringify(updatedChats)); 
-        
-        // Jaminan Keamanan visual: Jangan render ulang jika konsumen sudah pindah toko/keluar room
-        if (activeChatShop === tokoTerkunci) {
-            renderChatView();
-        }
-    }, 1200);
-}
 
 /**
  * 4. UTILITY NAVIGASI HELPERS
@@ -1157,18 +1117,66 @@ function bukaRuangChatSpesifik(namaToko) {
     renderChatView();
 }
 
+/**
+ * Memperbaiki fungsi toggle input agar lebih konsisten
+ */
 function aturVisibilitasInputChat(tampilkan) {
-    const inputField = document.getElementById('chat-text-input');
-    if (inputField && inputField.parentElement) {
-        if (tampilkan) {
-            inputField.parentElement.classList.remove('hidden');
-            inputField.parentElement.classList.add('flex');
-        } else {
-            inputField.parentElement.classList.remove('flex');
-            inputField.parentElement.classList.add('hidden');
-        }
+    const container = document.getElementById('chat-input-container');
+    if (!container) return;
+    
+    if (tampilkan) {
+        container.classList.remove('hidden');
+    } else {
+        container.classList.add('hidden');
     }
-                }
+}
+
+/**
+ * Pastikan saat kirim pesan, chat tersimpan dengan benar
+ */
+function sendChatToMerchant() {
+    const input = document.getElementById('chat-text-input'); 
+    const text = input.value.trim(); 
+    
+    // Validasi ketat
+    if (!text || !activeUser || !activeChatShop) return;
+    
+    const rawChats = localStorage.getItem('segari_chats');
+    const chats = rawChats ? JSON.parse(rawChats) : [];
+    
+    // Tambah pesan baru
+    chats.push({ 
+        user: activeUser.username, 
+        shop: activeChatShop, // Menggunakan variabel global yang sudah dibersihkan
+        sender: 'user', 
+        text: text,
+        timestamp: new Date().toISOString() // Sangat disarankan menambah timestamp
+    });
+    
+    localStorage.setItem('segari_chats', JSON.stringify(chats)); 
+    input.value = ''; 
+    
+    // Refresh tampilan
+    renderChatView();
+    
+    // Simulasi Balasan Bot
+    setTimeout(() => {
+        const currentChats = JSON.parse(localStorage.getItem('segari_chats') || '[]');
+        currentChats.push({ 
+            user: activeUser.username, 
+            shop: activeChatShop, 
+            sender: 'merchant', 
+            text: `Halo! Kami dari ${activeChatShop}, pesan Anda sudah diterima.`,
+            timestamp: new Date().toISOString()
+        });
+        localStorage.setItem('segari_chats', JSON.stringify(currentChats)); 
+        
+        // Cek apakah user masih di room yang sama sebelum render ulang
+        if (activeChatShop) {
+            renderChatView();
+        }
+    }, 1000);
+}
 
 
         function renderTrackingView() {
