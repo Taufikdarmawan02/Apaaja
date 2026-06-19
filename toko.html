@@ -396,10 +396,11 @@
             });
     });
 
-        function getActiveMerchant() {
-            const session = JSON.parse(localStorage.getItem('segari_session'));
-            return session ? session.username : null;
-        }
+        // Di toko.html, fungsi untuk mendapatkan username toko yang sedang aktif
+function getActiveMerchant() {
+    // Asumsi: Anda menyimpan data login toko di variabel 'activeMerchant'
+    return activeMerchant.username; 
+}
 
         function loadMerchantSession() {
             const session = JSON.parse(localStorage.getItem('segari_session'));
@@ -1010,30 +1011,19 @@
             renderChatsPanel();
         }
 
-        // 1. Mengambil pesan untuk toko yang sedang login
+        // Filter chat di toko.html harus mencocokkan 'shop' dengan 'username'
 function renderChatHistory() {
-    if (!activeChatUser) return;
-    const currentMerchant = getActiveMerchant(); // Misal: "Toko A"
+    if(!activeChatUser) return;
+    const currentMerchantUsername = getActiveMerchant(); 
     const allChats = JSON.parse(localStorage.getItem('segari_chats')) || [];
-
-    // FILTER: Hanya ambil chat yang shop-nya cocok dengan toko ini
-    // DAN user-nya adalah pembeli yang sedang dipilih di sidebar
+    
+    // Kunci penyaringan: chat.shop harus sama dengan username pemilik toko
     const activeMessages = allChats.filter(c => 
-        c.shop === currentMerchant && 
+        c.shop === currentMerchantUsername && 
         c.user === activeChatUser
     );
-
-    const msgContainer = document.getElementById('chat-messages-container');
-    msgContainer.innerHTML = activeMessages.map(m => {
-        const isMerchant = m.sender === 'merchant';
-        return `
-            <div class="flex ${isMerchant ? 'justify-end' : 'justify-start'} mb-2">
-                <div class="${isMerchant ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-800'} p-2 rounded-lg text-xs">
-                    <p>${m.text}</p>
-                </div>
-            </div>
-        `;
-    }).join('');
+    
+    // ... rendering ke HTML
 }
 
 // 2. Fungsi Balas Chat dari Toko
