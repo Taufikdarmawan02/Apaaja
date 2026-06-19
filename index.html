@@ -891,7 +891,7 @@ function openProductDetail(id) {
     }
 
     // --- INTEGRASI CHAT ROOM TERISOLASI KE TOKO PEMILIK ---
-    const namaTokoPemilik = prod.shop || ""; 
+    const namaTokoPemilik = prod.shop || "Toko Segari Pusat"; 
     const chatBtn = document.getElementById('detail-chat-btn');
     if (chatBtn) {
         chatBtn.onclick = function() {
@@ -951,7 +951,7 @@ let activeChatShop = null;
  * untuk mencegah "Toko A " dan "Toko A" dianggap sebagai toko yang berbeda.
  */
 function bersihkanNamaToko(nama) {
-    if (!nama) return "Toko Segari Pusat";
+    if (!nama) return "";
     return nama.trim(); // Menghapus spasi gaib di depan dan belakang string
 }
 
