@@ -942,7 +942,7 @@ function closeProductDetail() {
     }, 300);
 }
 
-// ================= STATE GLOBAL APPLIKASI =================
+ // ================= STATE GLOBAL APPLIKASI =================
 let activeChatShop = null; 
 
 /**
@@ -957,22 +957,32 @@ function bersihkanNamaToko(nama) {
 /**
  * 1. FUNGSI JEMBATAN: Dipicu saat konsumen klik "Chat" di Modal Detail Produk
  */
-
-        // Di index.html, saat tombol chat ditekan:
-function inisialisasiChatProduk(namaToko, namaProduk, merchantUsername) {
-    // merchantUsername didapat dari data produk di database Anda
-    if (!activeUser) {
-        alert("Silakan login!");
-        return;
-    }
-    
-    // Simpan username pemilik toko ke variabel global
-    activeChatShop = merchantUsername; 
-    
-    // ... sisa kode lainnya
-    renderChatView();
+function inisialisasiChatProduk(namaToko, namaProduk) {
+    if (!activeUser) {
+        alert("Silakan login terlebih dahulu untuk memulai chat dengan toko!");
+        if (typeof switchTab === "function") switchTab('profile');
+        return;
+    }
+    
+    // Kunci target toko dengan aman (sudah dibersihkan)
+    activeChatShop = bersihkanNamaToko(namaToko);
+    
+    // Alihkan halaman ke tab chat bawaan aplikasi Anda
+    if (typeof switchTab === "function") {
+        switchTab('chat');
+    }
+    
+    // Isi otomatis kotak input dengan draf teks produk terkait
+    setTimeout(() => {
+        const inputField = document.getElementById('chat-text-input');
+        if (inputField) {
+            inputField.value = `Halo ${activeChatShop}, apakah produk *${namaProduk}* ready?`;
+            inputField.focus();
+        }
+    }, 50);
+    
+    renderChatView();
 }
-
 
 /**
  * 2. FUNGSI UTAMA: Render Tampilan Chat (Pemisah Mode Inbox & Ruang Chat Toko)
@@ -1126,23 +1136,24 @@ function aturVisibilitasInputChat(tampilkan) {
 
 // Pastikan activeChatShop sudah terisi nama toko yang diklik
 function sendChatToMerchant() {
-    const input = document.getElementById('chat-text-input');
-    const text = input.value.trim();
-    if (!text || !activeUser || !activeChatShop) return;
+    const input = document.getElementById('chat-text-input');
+    const text = input.value.trim();
+    if (!text || !activeUser || !activeChatShop) return;
 
-    let chats = JSON.parse(localStorage.getItem('segari_chats')) || [];
-    
-    chats.push({
-        user: activeUser.username,
-        shop: activeChatShop, // INI ADALAH USERNAME PEMILIK TOKO
-        sender: 'user',
-        text: text,
-        timestamp: new Date().toISOString() // Gunakan ISO agar mudah diurutkan
-    });
+    let chats = JSON.parse(localStorage.getItem('segari_chats')) || [];
+    
+    // Simpan pesan dengan properti 'shop' yang konsisten
+    chats.push({
+        user: activeUser.username,
+        shop: activeChatShop, // Kunci toko yang dituju
+        sender: 'user',
+        text: text,
+        time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+    });
 
-    localStorage.setItem('segari_chats', JSON.stringify(chats));
-    input.value = '';
-    renderChatView();
+    localStorage.setItem('segari_chats', JSON.stringify(chats));
+    input.value = '';
+    renderChatView(); // Render ulang tampilan chat pembeli
 }
       
 
