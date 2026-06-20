@@ -1007,18 +1007,7 @@
             renderChatsPanel();
         }
 
-       // 1. STATE GLOBAL MITRA
-// Pastikan ini diset saat mitra login (misal: localStorage.setItem('merchant_username'))
-const MY_USERNAME = localStorage.getItem('merchant_username'); 
-let activeChatUser = null; // Menampung username pembeli yang dipilih
-
-document.addEventListener('DOMContentLoaded', () => {
-    if (!MY_USERNAME) {
-        alert("Sesi login berakhir. Silakan login kembali.");
-        return;
-    }
-    renderDaftarPembeli();
-});
+       
 
 /**
  * 2. RENDER SIDEBAR: Menampilkan pembeli yang pernah chat dengan toko ini
