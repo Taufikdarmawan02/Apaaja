@@ -1007,64 +1007,53 @@
             renderChatsPanel();
         }
 
-        function renderChatHistory() {
-            if(!activeChatUser) return;
-            const currentMerchant = getActiveMerchant();
-            const allChats = JSON.parse(localStorage.getItem('segari_chats')) || [];
-            
-            // Menyaring pesan yang valid antara merchant ini dan pembeli terpilih
-            const activeMessages = allChats.filter(c => c.merchant === currentMerchant && c.user === activeChatUser);
-            const msgContainer = document.getElementById('chat-messages-container');
-            if(!msgContainer) return;
+        /**
+ * Mitra hanya melihat pesan yang shop-nya sesuai dengan username mereka
+ */
+function renderChatHistory() {
+    if (!activeChatUser) return;
+    
+    // Asumsi: getActiveMerchant() mengambil username mitra yang sedang login
+    const currentMerchantUsername = getActiveMerchant(); 
+    const allChats = JSON.parse(localStorage.getItem('segari_chats')) || [];
+    
+    // Filter berdasarkan username mitra yang login
+    const activeMessages = allChats.filter(c => 
+        c.shop === currentMerchantUsername && 
+        c.user === activeChatUser
+    );
 
-            if(activeMessages.length === 0) {
-                msgContainer.innerHTML = `<div class="text-center text-gray-400 italic text-[11px] py-12">Belum ada riwayat pesan. Kirim pesan pertama untuk menyapa pembeli!</div>`;
-                return;
-            }
+    const msgContainer = document.getElementById('chat-messages-container');
+    msgContainer.innerHTML = activeMessages.map(m => `
+        <div class="flex ${m.sender === 'merchant' ? 'justify-end' : 'justify-start'} mb-2">
+            <div class="p-2.5 rounded-2xl text-[11px] ${m.sender === 'merchant' ? 'bg-emerald-600 text-white' : 'bg-gray-100'}">
+                ${m.text}
+            </div>
+        </div>
+    `).join('');
+}
+        /**
+ * Balas pesan (Mitra)
+ */
+function sendMerchantMessage() {
+    const input = document.getElementById('chat-input-field');
+    const text = input.value.trim();
+    if (!text || !activeChatUser) return;
 
-            msgContainer.innerHTML = activeMessages.map(m => {
-                const isMerchant = m.sender === 'merchant';
-                const alignClass = isMerchant ? 'justify-end text-right' : 'justify-start text-left';
-                const bubbleClass = isMerchant ? 'bg-emerald-600 text-white rounded-br-none' : 'bg-gray-100 text-gray-800 rounded-bl-none';
-                return `
-                    <div class="flex ${alignClass} mb-2">
-                        <div class="max-w-[80%] p-2.5 rounded-2xl shadow-sm text-[11px] font-medium ${bubbleClass}">
-                            <p class="leading-relaxed text-left">${m.text}</p>
-                            <span class="block text-[8px] opacity-70 mt-1 font-mono text-right">${m.time || 'Baru'}</span>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            
-            msgContainer.scrollTop = msgContainer.scrollHeight; // Auto gulung ke obrolan terbawah
-        }
+    let allChats = JSON.parse(localStorage.getItem('segari_chats')) || [];
 
-        function sendMerchantMessage() {
-            const input = document.getElementById('chat-input-field');
-            const text = input.value.trim();
-            if(!text || !activeChatUser) return;
+    allChats.push({
+        shop: getActiveMerchant(), // Simpan dengan username mitra
+        user: activeChatUser,
+        sender: 'merchant',
+        text: text,
+        time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+    });
 
-            const currentMerchant = getActiveMerchant();
-            let allChats = JSON.parse(localStorage.getItem('segari_chats')) || [];
-
-            const now = new Date();
-            const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-
-            allChats.push({
-                id: Date.now(),
-                merchant: currentMerchant,
-                user: activeChatUser,
-                sender: 'merchant',
-                text: text,
-                time: timeStr
-            });
-
-            localStorage.setItem('segari_chats', JSON.stringify(allChats));
-            input.value = '';
-            
-            renderChatHistory();
-            window.dispatchEvent(new Event('storage')); // trigger intertab sinkronisasi data pembeli
-        }
+    localStorage.setItem('segari_chats', JSON.stringify(allChats));
+    input.value = '';
+    renderChatHistory();
+}
     </script>
 </body>
                         </html>
