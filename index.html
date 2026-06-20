@@ -890,16 +890,17 @@ function openProductDetail(id) {
         oldPriceEl.classList.add('hidden');
     }
 
-    // --- INTEGRASI CHAT ROOM TERISOLASI KE TOKO PEMILIK ---
+    // --- INTEGRASI CHAT ROOM TERISOLASI KE AKUN MITRA TOKO ---
+// Pastikan objek 'prod' memiliki properti 'merchantUsername'
+const merchantUsername = prod.merchantUsername || "admin_segari"; 
 const namaTokoTampilan = prod.shop || "Toko Segari Pusat";
-const usernamePemilik = prod.merchantUsername || "admin"; // Fallback jika tidak ada username
 
 const chatBtn = document.getElementById('detail-chat-btn');
 if (chatBtn) {
     chatBtn.onclick = function() {
-        // Panggil fungsi dengan membawa username pemilik sebagai identitas unik
-        inisialisasiChatProduk(usernamePemilik, namaTokoTampilan, prod.name);
-        closeProductDetail(); 
+        // Mengirimkan username mitra agar chat terisolasi ke akun mitra tersebut
+        inisialisasiChatProduk(merchantUsername, namaTokoTampilan, prod.name);
+        closeProductDetail(); // Tutup modal setelah berpindah
     };
 }
 
@@ -945,21 +946,11 @@ function closeProductDetail() {
     }, 300);
 }
 
-// ================= STATE GLOBAL APPLIKASI =================
-let activeChatShop = null; // Menyimpan username mitra toko
+// ================= STATE GLOBAL APLIKASI =================
+let activeChatShop = null; // Menyimpan 'merchantUsername' mitra toko
 
 /**
- * UTILITY: Membersihkan input
- */
-function bersihkanNamaToko(nama) {
-    return nama ? nama.trim() : "Toko Segari Pusat";
-}
-
-/**
- * 1. INISIALISASI DARI TOMBOL CHAT DI DETAIL PRODUK
- * @param {string} merchantUsername - Username unik pemilik toko (dari database produk)
- * @param {string} namaTokoTampilan - Nama toko untuk UI
- * @param {string} namaProduk - Nama produk
+ * 1. FUNGSI INISIALISASI (Bridge)
  */
 function inisialisasiChatProduk(merchantUsername, namaTokoTampilan, namaProduk) {
     if (!activeUser) {
@@ -969,10 +960,11 @@ function inisialisasiChatProduk(merchantUsername, namaTokoTampilan, namaProduk) 
     }
     
     activeChatShop = merchantUsername; 
-    window.activeChatShopDisplayName = namaTokoTampilan; // Simpan nama cantik untuk UI
+    window.activeChatShopDisplayName = namaTokoTampilan; // Simpan untuk judul UI
 
     if (typeof switchTab === "function") switchTab('chat');
     
+    // Auto-fill input jika baru memulai
     setTimeout(() => {
         const inputField = document.getElementById('chat-text-input');
         if (inputField) {
@@ -985,19 +977,11 @@ function inisialisasiChatProduk(merchantUsername, namaTokoTampilan, namaProduk) 
 }
 
 /**
- * 2. RENDER VIEW CHAT
+ * 2. RENDER VIEW CHAT (Menangani List Inbox & Room Chat)
  */
 function renderChatView() {
-    const loggedOut = document.getElementById('chat-logged-out'); 
-    const loggedIn = document.getElementById('chat-logged-in');
     const chatBox = document.getElementById('chat-box');
     if (!chatBox) return;
-    
-    if (!activeUser) { 
-        loggedOut.classList.remove('hidden'); loggedIn.classList.add('hidden'); 
-        return; 
-    }
-    loggedOut.classList.add('hidden'); loggedIn.classList.remove('hidden');
 
     const rawChats = JSON.parse(localStorage.getItem('segari_chats')) || [];
     
@@ -1018,13 +1002,13 @@ function renderChatView() {
             const chatPerToko = userChats.filter(c => c.shop === tokoUsername);
             const terakhir = chatPerToko[chatPerToko.length - 1];
             return `
-                <div onclick="bukaRuangChatSpesifik('${tokoUsername}')" class="p-3 bg-gray-50 border rounded-xl cursor-pointer hover:bg-green-50">
+                <div onclick="bukaRuangChatSpesifik('${tokoUsername}')" class="p-3 bg-gray-50 border rounded-xl cursor-pointer hover:bg-green-50 mb-2">
                     <h4 class="text-xs font-bold">${tokoUsername}</h4>
                     <p class="text-[10px] text-gray-400 truncate">${terakhir.text}</p>
                 </div>`;
         }).join('');
     } 
-    // KONDISI B: MODE ROOM CHAT
+    // KONDISI B: MODE ROOM CHAT (Isolasi per Username Mitra)
     else {
         aturVisibilitasInputChat(true);
         const displayName = window.activeChatShopDisplayName || activeChatShop;
@@ -1032,18 +1016,26 @@ function renderChatView() {
 
         const filtered = rawChats.filter(c => c.user === activeUser.username && c.shop === activeChatShop);
         
-        chatBox.innerHTML = filtered.map(c => `
-            <div class="flex ${c.sender === 'user' ? 'justify-end' : 'justify-start'} mb-1">
-                <div class="${c.sender === 'user' ? 'bg-green-500 text-white' : 'bg-white border text-gray-800'} p-2 rounded-xl text-xs max-w-[80%]">
-                    ${c.text}
-                </div>
-            </div>`).join('');
+        if (filtered.length === 0) {
+            chatBox.innerHTML = `
+                <div class="flex flex-col items-center justify-center h-48 text-center px-4">
+                    <p class="text-xs text-gray-400">Obrolan dengan ${displayName} dimulai di sini.</p>
+                </div>`;
+        } else {
+            chatBox.innerHTML = filtered.map(c => `
+                <div class="flex ${c.sender === 'user' ? 'justify-end' : 'justify-start'} mb-2">
+                    <div class="${c.sender === 'user' ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-800'} p-2.5 rounded-2xl text-xs max-w-[80%] shadow-sm">
+                        ${c.text}
+                        <span class="block text-[8px] opacity-70 mt-1 ${c.sender === 'user' ? 'text-right' : 'text-left'}">${c.time}</span>
+                    </div>
+                </div>`).join('');
+        }
         chatBox.scrollTop = chatBox.scrollHeight;
     }
 }
 
 /**
- * 3. KIRIM PESAN (Pembeli)
+ * 3. KIRIM PESAN (Pembeli ke Username Mitra)
  */
 function sendChatToMerchant() {
     const input = document.getElementById('chat-text-input');
@@ -1053,7 +1045,7 @@ function sendChatToMerchant() {
     let chats = JSON.parse(localStorage.getItem('segari_chats')) || [];
     chats.push({
         user: activeUser.username,
-        shop: activeChatShop, // Menggunakan username mitra
+        shop: activeChatShop, // Key menggunakan username mitra
         sender: 'user',
         text: text,
         time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
@@ -1063,7 +1055,6 @@ function sendChatToMerchant() {
     input.value = '';
     renderChatView();
 }
-      
 
         function renderTrackingView() {
             const noOrder = document.getElementById('no-order-state'); const activeOrder = document.getElementById('active-order-state');
