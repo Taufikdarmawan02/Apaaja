@@ -1007,33 +1007,79 @@
             renderChatsPanel();
         }
 
-        /**
- * Mitra hanya melihat pesan yang shop-nya sesuai dengan username mereka
+       // 1. STATE GLOBAL MITRA
+// Pastikan ini diset saat mitra login (misal: localStorage.setItem('merchant_username', 'toko_budi_01'))
+const MY_USERNAME = localStorage.getItem('merchant_username'); 
+let activeChatUser = null; // Menampung username pembeli yang dipilih
+
+document.addEventListener('DOMContentLoaded', () => {
+    if (!MY_USERNAME) {
+        alert("Sesi login berakhir. Silakan login kembali.");
+        return;
+    }
+    renderDaftarPembeli();
+});
+
+/**
+ * 2. RENDER SIDEBAR: Menampilkan pembeli yang pernah chat dengan toko ini
  */
+function renderDaftarPembeli() {
+    const sidebar = document.getElementById('sidebar-pembeli');
+    const allChats = JSON.parse(localStorage.getItem('segari_chats')) || [];
+
+    // Filter chat yang ditujukan untuk toko ini saja, lalu ambil username unik pembeli
+    const daftarUser = [...new Set(
+        allChats.filter(c => c.shop === MY_USERNAME).map(c => c.user)
+    )];
+
+    if (daftarUser.length === 0) {
+        sidebar.innerHTML = `<p class="p-4 text-xs text-gray-400">Belum ada pembeli yang menghubungi.</p>`;
+        return;
+    }
+
+    sidebar.innerHTML = daftarUser.map(user => `
+        <div onclick="pilihPembeli('${user}')" class="p-3 border-b cursor-pointer hover:bg-green-50 transition">
+            <p class="text-xs font-bold text-gray-700">${user}</p>
+        </div>
+    `).join('');
+}
+
+/**
+ * 3. RENDER AREA CHAT: Menampilkan percakapan dengan pembeli yang dipilih
+ */
+function pilihPembeli(username) {
+    activeChatUser = username;
+    renderChatHistory();
+}
+
 function renderChatHistory() {
-    if (!activeChatUser) return;
-    
-    // Asumsi: getActiveMerchant() mengambil username mitra yang sedang login
-    const currentMerchantUsername = getActiveMerchant(); 
+    const msgContainer = document.getElementById('chat-messages-container');
     const allChats = JSON.parse(localStorage.getItem('segari_chats')) || [];
     
-    // Filter berdasarkan username mitra yang login
+    // Filter pesan spesifik untuk toko ini dan pembeli ini
     const activeMessages = allChats.filter(c => 
-        c.shop === currentMerchantUsername && 
+        c.shop === MY_USERNAME && 
         c.user === activeChatUser
     );
 
-    const msgContainer = document.getElementById('chat-messages-container');
+    if (activeMessages.length === 0) {
+        msgContainer.innerHTML = `<div class="text-center p-10 text-gray-400">Belum ada riwayat pesan.</div>`;
+        return;
+    }
+
     msgContainer.innerHTML = activeMessages.map(m => `
         <div class="flex ${m.sender === 'merchant' ? 'justify-end' : 'justify-start'} mb-2">
-            <div class="p-2.5 rounded-2xl text-[11px] ${m.sender === 'merchant' ? 'bg-emerald-600 text-white' : 'bg-gray-100'}">
+            <div class="p-2.5 rounded-2xl text-[11px] max-w-[70%] ${m.sender === 'merchant' ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-800'}">
                 ${m.text}
             </div>
         </div>
     `).join('');
+    
+    msgContainer.scrollTop = msgContainer.scrollHeight;
 }
-        /**
- * Balas pesan (Mitra)
+
+/**
+ * 4. KIRIM PESAN BALASAN (Mitra)
  */
 function sendMerchantMessage() {
     const input = document.getElementById('chat-input-field');
@@ -1043,7 +1089,7 @@ function sendMerchantMessage() {
     let allChats = JSON.parse(localStorage.getItem('segari_chats')) || [];
 
     allChats.push({
-        shop: getActiveMerchant(), // Simpan dengan username mitra
+        shop: MY_USERNAME, 
         user: activeChatUser,
         sender: 'merchant',
         text: text,
@@ -1052,7 +1098,7 @@ function sendMerchantMessage() {
 
     localStorage.setItem('segari_chats', JSON.stringify(allChats));
     input.value = '';
-    renderChatHistory();
+    renderChatHistory(); // Refresh tampilan
 }
     </script>
 </body>
