@@ -1052,6 +1052,13 @@ function sendChatToMerchant() {
     renderChatView();
 }
 
+        // Tambahkan ini di luar fungsi manapun
+window.addEventListener('storage', (event) => {
+    if (event.key === 'segari_chats') {
+        renderChatView(); // Auto-refresh tampilan saat data berubah
+    }
+});
+
         function renderTrackingView() {
             const noOrder = document.getElementById('no-order-state'); const activeOrder = document.getElementById('active-order-state');
             if (!noOrder || !activeOrder) return;
