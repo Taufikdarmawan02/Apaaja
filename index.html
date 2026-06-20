@@ -891,14 +891,17 @@ function openProductDetail(id) {
     }
 
     // --- INTEGRASI CHAT ROOM TERISOLASI KE TOKO PEMILIK ---
-    const namaTokoPemilik = prod.shop || "Toko Segari Pusat"; 
-    const chatBtn = document.getElementById('detail-chat-btn');
-    if (chatBtn) {
-        chatBtn.onclick = function() {
-            inisialisasiChatProduk(namaTokoPemilik, prod.name);
-            closeProductDetail(); // Tutup modal setelah berpindah halaman
-        };
-    }
+const namaTokoTampilan = prod.shop || "Toko Segari Pusat";
+const usernamePemilik = prod.merchantUsername || "admin"; // Fallback jika tidak ada username
+
+const chatBtn = document.getElementById('detail-chat-btn');
+if (chatBtn) {
+    chatBtn.onclick = function() {
+        // Panggil fungsi dengan membawa username pemilik sebagai identitas unik
+        inisialisasiChatProduk(usernamePemilik, namaTokoTampilan, prod.name);
+        closeProductDetail(); 
+    };
+}
 
     // Atur Tombol Aksi Dinamis (Beli vs Habis) di bagian Kanan Bawah
     const actionBtnContainer = document.getElementById('detail-action-button');
@@ -957,31 +960,37 @@ function bersihkanNamaToko(nama) {
 /**
  * 1. FUNGSI JEMBATAN: Dipicu saat konsumen klik "Chat" di Modal Detail Produk
  */
-function inisialisasiChatProduk(namaToko, namaProduk) {
-    if (!activeUser) {
-        alert("Silakan login terlebih dahulu untuk memulai chat dengan toko!");
-        if (typeof switchTab === "function") switchTab('profile');
-        return;
-    }
-    
-    // Kunci target toko dengan aman (sudah dibersihkan)
-    activeChatShop = bersihkanNamaToko(namaToko);
-    
-    // Alihkan halaman ke tab chat bawaan aplikasi Anda
-    if (typeof switchTab === "function") {
-        switchTab('chat');
-    }
-    
-    // Isi otomatis kotak input dengan draf teks produk terkait
-    setTimeout(() => {
-        const inputField = document.getElementById('chat-text-input');
-        if (inputField) {
-            inputField.value = `Halo ${activeChatShop}, apakah produk *${namaProduk}* ready?`;
-            inputField.focus();
-        }
-    }, 50);
-    
-    renderChatView();
+/**
+ * @param {string} merchantUsername - Username unik pemilik toko (dari database)
+ * @param {string} namaTokoTampilan - Nama untuk ditampilkan di header chat
+ * @param {string} namaProduk - Nama produk untuk inisialisasi chat
+ */
+function inisialisasiChatProduk(merchantUsername, namaTokoTampilan, namaProduk) {
+    if (!activeUser) {
+        alert("Silakan login terlebih dahulu untuk memulai chat dengan toko!");
+        if (typeof switchTab === "function") switchTab('profile');
+        return;
+    }
+    
+    // Gunakan username unik sebagai kunci (ID toko)
+    activeChatShop = merchantUsername; 
+    
+    // Simpan nama toko tampilan ke variabel sementara (opsional, jika ingin ditampilkan di UI)
+    window.activeChatShopDisplayName = namaTokoTampilan;
+
+    if (typeof switchTab === "function") {
+        switchTab('chat');
+    }
+    
+    setTimeout(() => {
+        const inputField = document.getElementById('chat-text-input');
+        if (inputField) {
+            inputField.value = `Halo ${namaTokoTampilan}, apakah produk *${namaProduk}* ready?`;
+            inputField.focus();
+        }
+    }, 50);
+    
+    renderChatView();
 }
 
 /**
