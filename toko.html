@@ -1013,23 +1013,15 @@
  * 2. RENDER SIDEBAR: Menampilkan pembeli yang pernah chat dengan toko ini
  */
 function renderDaftarPembeli() {
-    const sidebar = document.getElementById('sidebar-pembeli');
+    const MY_USERNAME = localStorage.getItem('merchant_username'); // ID Unik Toko
     const allChats = JSON.parse(localStorage.getItem('segari_chats')) || [];
-
-    // Filter chat yang ditujukan untuk toko ini saja, lalu ambil username unik pembeli
-    const daftarUser = [...new Set(
-        allChats.filter(c => c.shop === MY_USERNAME).map(c => c.user)
-    )];
-
-    if (daftarUser.length === 0) {
-        sidebar.innerHTML = `<p class="p-4 text-xs text-gray-400">Belum ada pembeli yang menghubungi.</p>`;
-        return;
-    }
-
+    const sidebar = document.getElementById('sidebar-pembeli');
+    
+    // Filter semua pesan yang shop-nya adalah username mitra ini
+    const daftarUser = [...new Set(allChats.filter(c => c.shop === MY_USERNAME).map(c => c.user))];
+    
     sidebar.innerHTML = daftarUser.map(user => `
-        <div onclick="pilihPembeli('${user}')" class="p-3 border-b cursor-pointer hover:bg-green-50 transition">
-            <p class="text-xs font-bold text-gray-700">${user}</p>
-        </div>
+        <div onclick="pilihPembeli('${user}')" class="p-3 border-b cursor-pointer hover:bg-green-50">${user}</div>
     `).join('');
 }
 
@@ -1070,24 +1062,22 @@ function renderChatHistory() {
 /**
  * 4. KIRIM PESAN BALASAN (Mitra)
  */
-function sendMerchantMessage() {
+function sendMerchantMessage(targetUser) {
+    const MY_USERNAME = localStorage.getItem('merchant_username');
     const input = document.getElementById('chat-input-field');
-    const text = input.value.trim();
-    if (!text || !activeChatUser) return;
+    if (!input.value.trim()) return;
 
     let allChats = JSON.parse(localStorage.getItem('segari_chats')) || [];
-
     allChats.push({
         shop: MY_USERNAME, 
-        user: activeChatUser,
+        user: targetUser,
         sender: 'merchant',
-        text: text,
+        text: input.value.trim(),
         time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
     });
-
     localStorage.setItem('segari_chats', JSON.stringify(allChats));
     input.value = '';
-    renderChatHistory(); // Refresh tampilan
+    renderChatHistory(targetUser); // Render ulang room chat
 }
     </script>
 </body>
