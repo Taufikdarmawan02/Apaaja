@@ -944,7 +944,7 @@ function closeProductDetail() {
     }, 300);
 }
 
-/ --- STATE GLOBAL ---
+// --- STATE GLOBAL ---
 let activeChatShop = null; 
 
 // --- INISIALISASI DARI DETAIL PRODUK ---
@@ -967,9 +967,7 @@ function inisialisasiChatProduk(merchantUsername, namaTokoTampilan, namaProduk) 
     }, 50);
     renderChatView();
 }
-/**
- * 2. FUNGSI UTAMA: Render Tampilan Chat (Pemisah Mode Inbox & Ruang Chat Toko)
- */
+
 // --- RENDER CHAT PEMBELI ---
 function renderChatView() {
     const chatBox = document.getElementById('chat-box');
@@ -988,13 +986,9 @@ function renderChatView() {
             ? `<p class="text-center p-8 text-xs text-gray-400">Mulai chat dengan ${window.activeChatShopDisplayName}...</p>`
             : filtered.map(c => `<div class="${c.sender === 'user' ? 'text-right' : 'text-left'} p-2 text-xs">${c.text}</div>`).join('');
     }
-
 }
-    
-/**
- * 3. FUNGSI EKSEKUSI: Kirim Chat ke Pemilik Toko Tertentu
- */
- // --- KIRIM CHAT PEMBELI ---
+
+// --- KIRIM CHAT PEMBELI ---
 function sendChatToMerchant() {
     const input = document.getElementById('chat-text-input');
     if (!input.value.trim() || !activeChatShop) return;
@@ -1010,31 +1004,6 @@ function sendChatToMerchant() {
     input.value = '';
     renderChatView();
 }
-/**
- * 4. UTILITY NAVIGASI HELPERS
- */
-function kembaliKeInboxToko() {
-    activeChatShop = null; // Menghapus kunci toko mengembalikan view ke mode List Inbox
-    renderChatView();
-}
-
-function bukaRuangChatSpesifik(namaToko) {
-    activeChatShop = bersihkanNamaToko(namaToko); // Kunci toko pilihan dari list inbox
-    renderChatView();
-}
-
-function aturVisibilitasInputChat(tampilkan) {
-    const inputField = document.getElementById('chat-text-input');
-    if (inputField && inputField.parentElement) {
-        if (tampilkan) {
-            inputField.parentElement.classList.remove('hidden');
-            inputField.parentElement.classList.add('flex');
-        } else {
-            inputField.parentElement.classList.remove('flex');
-            inputField.parentElement.classList.add('hidden');
-        }
-    }
-                }
 
         function renderTrackingView() {
             const noOrder = document.getElementById('no-order-state'); const activeOrder = document.getElementById('active-order-state');
