@@ -964,118 +964,43 @@
 
         // 🆕 Saluran Logika Pengoperasian Live Chat System Baru
         function renderChatsPanel() {
-            const currentMerchant = getActiveMerchant();
-            if (!currentMerchant) return;
-
-            // Membaca riwayat order pembeli untuk di-mapping menjadi user chat channel otomatis
-            const allOrders = JSON.parse(localStorage.getItem('segari_orders')) || [];
-            const myOrders = allOrders.filter(o => o.merchant === currentMerchant || o.storeCode === currentMerchant || (o.items && o.items.some(it => it.merchant === currentMerchant)));
-            
-            let uniqueUsers = [...new Set(myOrders.map(o => o.user))];
-            
-            // Jaminan fallback apabila belum ada data order ritel yang masuk ke toko ini
-            if(uniqueUsers.length === 0) {
-                uniqueUsers = ['budi_segar', 'siti_fresh'];
-            }
-
-            const channelList = document.getElementById('chat-channels-list');
-            if (!channelList) return;
-
-            channelList.innerHTML = uniqueUsers.map(username => {
-                const isActive = activeChatUser === username ? 'bg-emerald-50 border-l-4 border-emerald-600 text-emerald-950 font-bold' : 'hover:bg-gray-50 text-gray-700';
-                return `
-                    <div onclick="selectChatUser('${username}')" class="p-3 border-b border-gray-100 cursor-pointer transition text-xs flex items-center gap-2 ${isActive}">
-                        <div class="w-7 h-7 rounded-full bg-emerald-800 text-white flex items-center justify-center uppercase font-black text-[10px]">
-                            ${username.charAt(0)}
-                        </div>
-                        <div class="flex-grow truncate">
-                            <p class="text-gray-900 font-bold">@${username}</p>
-                            <p class="text-[9px] text-gray-400 truncate">Klik untuk membuka obrolan</p>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            if(activeChatUser) {
-                renderChatHistory();
-            }
-        }
-
-        function selectChatUser(username) {
-            activeChatUser = username;
-            document.getElementById('chat-window-title').innerText = `@${username}`;
-            renderChatsPanel();
-        }
-
-       
-
-// --- RENDER DAFTAR PEMBELI DI SIDEBAR MITRA ---
-function renderDaftarPembeli() {
-    const MY_USERNAME = localStorage.getItem('merchant_username'); // ID Unik Toko
     const allChats = JSON.parse(localStorage.getItem('segari_chats')) || [];
-    const sidebar = document.getElementById('sidebar-pembeli');
+    const chatList = document.getElementById('chat-channels-list');
     
-    // Filter semua pesan yang shop-nya adalah username mitra ini
-    const daftarUser = [...new Set(allChats.filter(c => c.shop === MY_USERNAME).map(c => c.user))];
+    // Ambil daftar user unik yang pernah chat
+    const uniqueUsers = [...new Set(allChats.map(c => c.sender === 'anita_sayur' ? c.receiver : c.sender))];
     
-    sidebar.innerHTML = daftarUser.map(user => `
-        <div onclick="pilihPembeli('${user}')" class="p-3 border-b cursor-pointer hover:bg-green-50">${user}</div>
+    chatList.innerHTML = uniqueUsers.map(user => `
+        <button onclick="openChatWith('${user}')" class="w-full p-4 border-b hover:bg-white text-left">
+            <p class="text-xs font-bold">${user}</p>
+        </button>
     `).join('');
 }
-/**
- * 3. RENDER AREA CHAT: Menampilkan percakapan dengan pembeli yang dipilih
- */
-function pilihPembeli(username) {
+
+function openChatWith(username) {
     activeChatUser = username;
-    renderChatHistory();
+    document.getElementById('chat-window-title').innerText = "Chat dengan: " + username;
+    // Render pesan ke chat-messages-container dengan memfilter pesan dari user tersebut
+    renderMessagesForMerchant(username);
 }
 
-function renderChatHistory() {
-    const msgContainer = document.getElementById('chat-messages-container');
-    const allChats = JSON.parse(localStorage.getItem('segari_chats')) || [];
-    
-    // Filter pesan spesifik untuk toko ini dan pembeli ini
-    const activeMessages = allChats.filter(c => 
-        c.shop === MY_USERNAME && 
-        c.user === activeChatUser
-    );
-
-    if (activeMessages.length === 0) {
-        msgContainer.innerHTML = `<div class="text-center p-10 text-gray-400">Belum ada riwayat pesan.</div>`;
-        return;
-    }
-
-    msgContainer.innerHTML = activeMessages.map(m => `
-        <div class="flex ${m.sender === 'merchant' ? 'justify-end' : 'justify-start'} mb-2">
-            <div class="p-2.5 rounded-2xl text-[11px] max-w-[70%] ${m.sender === 'merchant' ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-800'}">
-                ${m.text}
-            </div>
-        </div>
-    `).join('');
-    
-    msgContainer.scrollTop = msgContainer.scrollHeight;
-}
-
-/**
- * 4. KIRIM PESAN BALASAN (Mitra)
- */
-// --- BALAS CHAT OLEH MITRA ---
-function sendMerchantMessage(targetUser) {
-    const MY_USERNAME = localStorage.getItem('merchant_username');
+function sendMerchantMessage() {
     const input = document.getElementById('chat-input-field');
-    if (!input.value.trim()) return;
-
-    let allChats = JSON.parse(localStorage.getItem('segari_chats')) || [];
-    allChats.push({
-        shop: MY_USERNAME, 
-        user: targetUser,
-        sender: 'merchant',
-        text: input.value.trim(),
-        time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
-    });
-    localStorage.setItem('segari_chats', JSON.stringify(allChats));
-    input.value = '';
-    renderChatHistory(targetUser); // Render ulang room chat
+    if (!input.value || !activeChatUser) return;
+    
+    const newMsg = {
+        sender: "anita_sayur", // Username Toko
+        role: "Pemilik Toko",
+        receiver: activeChatUser,
+        message: input.value,
+        timestamp: Date.now()
+    };
+    
+    let chats = JSON.parse(localStorage.getItem('segari_chats'));
+    chats.push(newMsg);
+    localStorage.setItem('segari_chats', JSON.stringify(chats));
+    input.value = "";
+    openChatWith(activeChatUser); // Refresh tampilan
 }
     </script>
 </body>
