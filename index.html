@@ -999,6 +999,32 @@ function inisialisasiChatProduk(merchantUsername, namaToko, namaProduk) {
     // Auto scroll ke bawah
     chatBox.scrollTop = chatBox.scrollHeight;
 }
+
+        function sendChatToMerchant() {
+    const input = document.getElementById('chat-text-input');
+    const message = input.value.trim();
+    if (!message || !activeUser) return;
+
+    // Ambil data chat lama
+    const chats = JSON.parse(localStorage.getItem('segari_chats')) || [];
+    
+    // Buat objek pesan
+    const newMessage = {
+        sender: activeUser.username,
+        role: "Pembeli",
+        receiver: "anita_sayur", // Target toko
+        message: message,
+        timestamp: Date.now()
+    };
+
+    // Simpan ke storage
+    chats.push(newMessage);
+    localStorage.setItem('segari_chats', JSON.stringify(chats));
+
+    // Reset input dan render ulang
+    input.value = "";
+    renderChatView(); 
+}
         
         function renderTrackingView() {
             const noOrder = document.getElementById('no-order-state'); const activeOrder = document.getElementById('active-order-state');
