@@ -943,34 +943,63 @@ function closeProductDetail() {
     }, 300);
 }
 
-function renderChatView() {
-    const chatLoggedOut = document.getElementById('chat-logged-out');
-    const chatLoggedIn = document.getElementById('chat-logged-in');
-    const chatBox = document.getElementById('chat-box');
+/**
+ * Inisialisasi Chat dari Modal Produk
+ */
+function inisialisasiChatProduk(merchantUsername, namaToko, namaProduk) {
+    // 1. Pindah ke tab chat
+    switchTab('chat');
     
+    // 2. Cek apakah user sudah login
     if (!activeUser) {
-        chatLoggedOut.classList.remove('hidden');
-        chatLoggedIn.classList.add('hidden');
+        alert("Silakan masuk akun terlebih dahulu untuk memulai chat.");
         return;
     }
 
-    chatLoggedOut.classList.add('hidden');
-    chatLoggedIn.classList.remove('hidden');
-    
+    // 3. Tambahkan pesan otomatis (hanya jika chat belum ada)
+    const chats = JSON.parse(localStorage.getItem('segari_chats')) || [];
+    const existingChat = chats.find(c => c.receiver === merchantUsername || c.sender === merchantUsername);
+
+    if (!existingChat) {
+        const pesanAwal = {
+            sender: activeUser.username,
+            role: "Pembeli",
+            receiver: merchantUsername,
+            message: `Halo ${namaToko}, saya ingin bertanya tentang produk: ${namaProduk}. Apakah barang ini masih tersedia?`,
+            timestamp: Date.now()
+        };
+        chats.push(pesanAwal);
+        localStorage.setItem('segari_chats', JSON.stringify(chats));
+        
+        // Render ulang tampilan chat agar pesan langsung muncul
+        renderChatView();
+    }
+}
+
+        function renderChatView() {
+    const chatBox = document.getElementById('chat-box');
     const allChats = JSON.parse(localStorage.getItem('segari_chats')) || [];
-    // Filter chat berdasarkan username pembeli
-    const userChats = allChats.filter(c => c.sender === activeUser.username || c.receiver === activeUser.username);
     
+    if (!activeUser) return;
+
+    // Filter pesan yang melibatkan user aktif
+    const userChats = allChats.filter(c => 
+        c.sender === activeUser.username || c.receiver === activeUser.username
+    ).sort((a, b) => a.timestamp - b.timestamp);
+
     chatBox.innerHTML = userChats.map(c => `
-        <div class="${c.sender === activeUser.username ? 'text-right' : 'text-left'}">
-            <p class="text-[10px] text-gray-400">${c.sender}</p>
-            <div class="inline-block px-3 py-2 rounded-xl text-xs ${c.sender === activeUser.username ? 'bg-green-600 text-white' : 'bg-white border'}">
+        <div class="flex flex-col ${c.sender === activeUser.username ? 'items-end' : 'items-start'}">
+            <span class="text-[9px] text-gray-400 px-1">${c.sender === activeUser.username ? 'Anda' : c.sender}</span>
+            <div class="max-w-[80%] px-3 py-2 rounded-2xl text-xs ${c.sender === activeUser.username ? 'bg-green-600 text-white rounded-br-none' : 'bg-white border border-gray-100 rounded-bl-none'}">
                 ${c.message}
             </div>
         </div>
     `).join('');
+    
+    // Auto scroll ke bawah
+    chatBox.scrollTop = chatBox.scrollHeight;
 }
-
+        
         function renderTrackingView() {
             const noOrder = document.getElementById('no-order-state'); const activeOrder = document.getElementById('active-order-state');
             if (!noOrder || !activeOrder) return;
