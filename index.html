@@ -199,24 +199,13 @@
                 </div>
                 <button onclick="redirectToLogin()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2.5 rounded-xl text-xs transition btn-active">Masuk / Daftar Akun</button>
             </div>
-            <div id="chat-logged-in" class="space-y-4 hidden flex flex-col h-full">
-    <div class="flex items-center justify-between border-b pb-2">
-        <h2 id="chat-header-title" class="text-sm font-bold text-gray-800">Inbox</h2>
-    </div>
-
-    <div id="chat-box" class="space-y-3 flex-grow max-h-[50vh] overflow-y-auto border border-gray-100 rounded-2xl bg-white p-4 min-h-[320px] flex flex-col">
-        </div>
-    
-            <div id="chat-input-container" class="flex gap-2 pt-2 border-t border-gray-100 hidden">
-                <input type="text" id="chat-text-input" 
-                       onkeydown="if(event.key === 'Enter') sendChatToMerchant()" 
-                       placeholder="Tulis pesan ke penjual..." 
-                       class="flex-grow px-3 py-2 bg-gray-50 text-xs rounded-xl border-none focus:outline-none">
-                <button onclick="sendChatToMerchant()" class="bg-green-600 text-white p-2 rounded-xl">
-                    <i data-lucide="send" class="w-4 h-4"></i>
-                </button>
+            <div id="chat-logged-in" class="space-y-4 hidden flex flex-col">
+                <div id="chat-box" class="space-y-3 max-h-[50vh] overflow-y-auto no-scrollbar border border-gray-50 rounded-2xl bg-gray-50 p-3 min-h-[320px] flex flex-col"></div>
+                <div class="flex gap-2 pt-2 border-t border-gray-100">
+                    <input type="text" id="chat-text-input" onkeydown="if(event.key === 'Enter') sendChatToMerchant()" placeholder="Tulis pesan ke penjual..." class="flex-grow px-3 py-2 bg-gray-50 text-xs rounded-xl border-none text-gray-800 focus:outline-none focus:ring-1 focus:ring-green-500">
+                    <button onclick="sendChatToMerchant()" class="bg-green-600 text-white p-2 rounded-xl btn-active flex items-center justify-center"><i data-lucide="send" class="w-4 h-4"></i></button>
+                </div>
             </div>
-        </div>
         </div>
 
         <div id="tracking-page" class="hidden p-4 space-y-4">
