@@ -954,86 +954,32 @@ function closeProductDetail() {
     }, 300);
 }
 
-// --- STATE ---
-let activeChatShop = null; 
-
-/**
- * RENDER UTAMA
- */
 function renderChatView() {
+    const chatLoggedOut = document.getElementById('chat-logged-out');
+    const chatLoggedIn = document.getElementById('chat-logged-in');
     const chatBox = document.getElementById('chat-box');
-    const headerTitle = document.getElementById('chat-header-title');
-    const rawChats = JSON.parse(localStorage.getItem('segari_chats')) || [];
     
-    if (!activeChatShop) {
-        // MODE INBOX
-        aturVisibilitasInputChat(false);
-        headerTitle.innerText = "📥 Kotak Masuk Chat";
-        const userChats = rawChats.filter(c => c.user === activeUser.username);
-        const tokoUnik = [...new Set(userChats.map(c => c.shop))];
-
-        chatBox.innerHTML = tokoUnik.length === 0 
-            ? `<p class="text-center text-xs text-gray-400 mt-20">Belum ada riwayat chat.</p>`
-            : tokoUnik.map(toko => `
-                <div onclick="bukaRuangChat('${toko}')" class="p-3 bg-gray-50 rounded-xl cursor-pointer hover:bg-green-50 border">
-                    <p class="text-xs font-bold">${toko}</p>
-                </div>`).join('');
-    } else {
-        // MODE ROOM
-        aturVisibilitasInputChat(true);
-        headerTitle.innerText = `🏪 ${activeChatShop}`;
-        const filtered = rawChats.filter(c => c.user === activeUser.username && c.shop === activeChatShop);
-        
-        chatBox.innerHTML = filtered.length === 0 
-            ? `<p class="text-center text-xs text-gray-400 mt-20">Mulai chat dengan ${activeChatShop} di sini.</p>`
-            : filtered.map(c => `
-                <div class="flex ${c.sender === 'user' ? 'justify-end' : 'justify-start'}">
-                    <div class="px-3 py-2 rounded-xl text-xs max-w-[80%] ${c.sender === 'user' ? 'bg-green-500 text-white' : 'bg-gray-100'}">
-                        ${c.text}
-                    </div>
-                </div>`).join('');
-        chatBox.scrollTop = chatBox.scrollHeight;
+    if (!activeUser) {
+        chatLoggedOut.classList.remove('hidden');
+        chatLoggedIn.classList.add('hidden');
+        return;
     }
-}
 
-/**
- * KIRIM PESAN
- */
-function sendChatToMerchant() {
-    const input = document.getElementById('chat-text-input');
-    const text = input.value.trim();
-    if (!text || !activeChatShop) return;
-
-    let chats = JSON.parse(localStorage.getItem('segari_chats')) || [];
-    chats.push({
-        user: activeUser.username,
-        shop: activeChatShop,
-        sender: 'user',
-        text: text,
-        time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
-    });
-    localStorage.setItem('segari_chats', JSON.stringify(chats));
-    input.value = '';
-    renderChatView();
-}
-
-/**
- * NAVIGASI & UTILITY
- */
-function bukaRuangChat(toko) {
-    activeChatShop = toko;
-    renderChatView();
-}
-
-function aturVisibilitasInputChat(tampilkan) {
-    const container = document.getElementById('chat-input-container');
-    if (tampilkan) {
-        container.classList.remove('hidden');
-        container.classList.add('flex');
-    } else {
-        container.classList.add('hidden');
-        container.classList.remove('flex');
-    }
+    chatLoggedOut.classList.add('hidden');
+    chatLoggedIn.classList.remove('hidden');
+    
+    const allChats = JSON.parse(localStorage.getItem('segari_chats')) || [];
+    // Filter chat berdasarkan username pembeli
+    const userChats = allChats.filter(c => c.sender === activeUser.username || c.receiver === activeUser.username);
+    
+    chatBox.innerHTML = userChats.map(c => `
+        <div class="${c.sender === activeUser.username ? 'text-right' : 'text-left'}">
+            <p class="text-[10px] text-gray-400">${c.sender}</p>
+            <div class="inline-block px-3 py-2 rounded-xl text-xs ${c.sender === activeUser.username ? 'bg-green-600 text-white' : 'bg-white border'}">
+                ${c.message}
+            </div>
+        </div>
+    `).join('');
 }
 
         function renderTrackingView() {
