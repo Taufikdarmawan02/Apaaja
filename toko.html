@@ -1009,9 +1009,7 @@
 
        
 
-/**
- * 2. RENDER SIDEBAR: Menampilkan pembeli yang pernah chat dengan toko ini
- */
+// --- RENDER DAFTAR PEMBELI DI SIDEBAR MITRA ---
 function renderDaftarPembeli() {
     const MY_USERNAME = localStorage.getItem('merchant_username'); // ID Unik Toko
     const allChats = JSON.parse(localStorage.getItem('segari_chats')) || [];
@@ -1024,7 +1022,6 @@ function renderDaftarPembeli() {
         <div onclick="pilihPembeli('${user}')" class="p-3 border-b cursor-pointer hover:bg-green-50">${user}</div>
     `).join('');
 }
-
 /**
  * 3. RENDER AREA CHAT: Menampilkan percakapan dengan pembeli yang dipilih
  */
@@ -1062,6 +1059,7 @@ function renderChatHistory() {
 /**
  * 4. KIRIM PESAN BALASAN (Mitra)
  */
+// --- BALAS CHAT OLEH MITRA ---
 function sendMerchantMessage(targetUser) {
     const MY_USERNAME = localStorage.getItem('merchant_username');
     const input = document.getElementById('chat-input-field');
